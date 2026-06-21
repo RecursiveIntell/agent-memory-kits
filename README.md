@@ -1,75 +1,274 @@
 # semantic-memory-claude-kit
 
-Give Claude Code a **persistent, local-first semantic memory** — and the tools to
-fill it. Two pieces:
+> Give Claude Code a **persistent, local-first memory** that recalls itself — and the tools to fill it from any codebase.
 
-1. **`semantic-memory` plugin** — wires the [`semantic-memory-mcp`](https://github.com/RecursiveIntell/semantic-memory-mcp)
-   server into Claude Code with three hooks:
-   - **Auto-recall** (`UserPromptSubmit`): every prompt is embedded and searched
-     against your memory; the most relevant facts are injected as context.
-   - **Session primer** (`SessionStart`): each session starts knowing the store
-     exists, its size, and the recall/persist/discipline protocol.
-   - **Capture nudge** (`PreCompact`): before context is compacted, Claude is
-     reminded to persist durable facts (model-driven — nothing is auto-written).
-2. **`ingest_codebase.py`** — a **language-agnostic** ingester that turns any
-   repository into memory: facts for the repo and each component, plus a
-   `belongs_to` / `depends_on` dependency graph. Parses Cargo, npm, Python, Go,
-   Maven, .NET, and Composer manifests; detects Gradle/Ruby/Dart/Elixir/CMake/
-   Swift; and always captures language stats, layout, and README.
+[![crates.io: semantic-memory-mcp](https://img.shields.io/badge/crates.io-semantic--memory--mcp%20v0.2.0-orange)](https://crates.io/crates/semantic-memory-mcp)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](#license)
+[![Local-first](https://img.shields.io/badge/data-100%25%20local-green)](#privacy--local-first)
 
-## Prerequisites
+Claude Code forgets everything between sessions. This kit fixes that. It wraps the
+[`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp) server in a
+Claude Code **plugin** so that relevant facts are **automatically recalled on every
+prompt**, and ships a **language-agnostic ingester** that turns any repository into
+a searchable fact + dependency graph.
 
-- **Rust toolchain** (for the one-time `cargo install semantic-memory-mcp`).
-- **`jq`** and **`python3`** (used by the hooks and ingester).
-- Everything runs locally — no API keys, no cloud. The embedding model
-  (`nomic-embed-text-v1.5`, ~550 MB) downloads once from HuggingFace and is cached.
+Everything runs on your machine. SQLite for storage, an in-process Rust embedder
+(`nomic-embed-text-v1.5`, CPU-only), no API keys, no cloud, no telemetry.
 
-## Install (plugin — recommended)
+---
 
+## Table of contents
+
+- [What you get](#what-you-get)
+- [How it works](#how-it-works)
+- [Install](#install)
+- [The codebase ingester](#the-codebase-ingester)
+- [Configuration](#configuration)
+- [Data model](#data-model)
+- [Design principles](#design-principles)
+- [Troubleshooting](#troubleshooting)
+- [Privacy / local-first](#privacy--local-first)
+
+---
+
+## What you get
+
+| Component | Type | What it does |
+|---|---|---|
+| **Auto-recall** | `UserPromptSubmit` hook | Embeds each prompt, hybrid-searches your memory, injects the most relevant facts as context — only when they're actually relevant. |
+| **Session primer** | `SessionStart` hook | Each session opens knowing the store exists, its size, and the recall/persist/discipline protocol. |
+| **Capture nudge** | `PreCompact` hook | Before context is compacted away, reminds Claude to persist durable facts. Model-driven — nothing is auto-written. |
+| **`semantic-memory` MCP server** | MCP (18 tools) | `sm_search`, `sm_add_fact`, `sm_ingest_document`, graph tools, provenance, lifecycle, topology, community detection. |
+| **`/memory-ingest`** | Slash command | Ingest any repo into memory (facts + dependency graph). |
+| **`/memory-setup`** | Slash command | One-time: install the binary, allowlist the tools, verify. |
+| **`ingest_codebase.py`** | CLI tool | The language-agnostic ingester behind `/memory-ingest`. |
+
+---
+
+## How it works
+
+### Architecture
+
+```mermaid
+flowchart TD
+    subgraph CC["Claude Code session"]
+        P["Your prompt"] --> H1["UserPromptSubmit hook<br/>memory-recall.sh"]
+        S["Session start"] --> H2["SessionStart hook<br/>memory-primer.sh"]
+        K["Pre-compaction"] --> H3["PreCompact hook<br/>memory-capture-nudge.sh"]
+        M["Claude + sm_* MCP tools"]
+    end
+    subgraph SM["semantic-memory-mcp (local Rust server)"]
+        E["Candle embedder<br/>nomic-embed-text-v1.5 (CPU)"]
+        DB[("SQLite + FTS5<br/>BM25 keyword")]
+        V[("usearch HNSW<br/>vector index")]
+        G[("Typed knowledge graph<br/>belongs_to / depends_on / …")]
+    end
+    H1 -->|sm_search| SM
+    H2 -->|sm_stats| SM
+    M  -->|sm_add_fact / sm_search / graph| SM
+    SM --> E --> V
+    SM --> DB
+    SM --> G
+    H1 -->|injects top hits as context| M
 ```
+
+### Per-prompt auto-recall
+
+```mermaid
+sequenceDiagram
+    participant U as You
+    participant CC as Claude Code
+    participant Hook as memory-recall.sh
+    participant SM as semantic-memory
+    U->>CC: prompt
+    CC->>Hook: UserPromptSubmit (prompt JSON on stdin)
+    Hook->>Hook: gate (skip if <12 chars or slash-command)
+    Hook->>SM: sm_search(prompt)  (BM25 + vector + RRF)
+    SM-->>Hook: ranked hits w/ cosine scores
+    Hook->>Hook: relative gate — best hit ≥ 0.58? keep near-peers
+    Hook-->>CC: inject relevant facts as additionalContext
+    CC->>U: answer, now memory-aware
+```
+
+**Why a *relative* gate?** `nomic` embeddings sit on a high baseline — even totally
+unrelated text scores ~0.48–0.54 cosine. A flat threshold would inject noise on
+every prompt. Instead the hook requires the **best** hit to clear `MINTOP` (0.58),
+then keeps only its near-peers:
+
+| Prompt | Best cosine | Injected? |
+|---|---|---|
+| "what does the AiDENs runner depend on" | 0.78 | ✅ runner + its kits |
+| "remind me the eBPF security project name" | 0.68 | ✅ the canonical-name fact |
+| "write a haiku about the ocean" | 0.49 | ❌ nothing (below gate) |
+| "hi" / "/clear" | — | ❌ gated (too short / slash) |
+
+Every hook **fails open**: any error, missing binary, or empty result exits cleanly
+and never blocks or delays your prompt.
+
+---
+
+## Install
+
+### Prerequisites
+
+- **Rust toolchain** — for the one-time `cargo install semantic-memory-mcp` ([rustup.rs](https://rustup.rs)).
+- **`jq`** and **`python3`** — used by the hooks and the ingester.
+- First run downloads the embedding model (~550 MB) once; cached thereafter. No other network use.
+
+### Option A — Plugin (recommended)
+
+```text
 /plugin marketplace add RecursiveIntell/semantic-memory-claude-kit
-/plugin install semantic-memory
-/memory-setup        # installs the binary + allowlists tools, one time
+/plugin install semantic-memory@semantic-memory-kit
+/memory-setup
 ```
 
-`/memory-setup` handles the binary install and permission allowlist. The MCP
-server and hooks come from the plugin automatically.
+`/memory-setup` installs the `semantic-memory-mcp` binary and allowlists the `sm_*`
+tools (one time). The MCP server and the three hooks are provided by the plugin.
+Restart Claude Code once so the hooks load.
 
-## Install (manual — no plugins)
+### Option B — Manual (no plugins)
 
-```
+```bash
 git clone https://github.com/RecursiveIntell/semantic-memory-claude-kit
 ./semantic-memory-claude-kit/install.sh
 ```
 
-This installs the binary, registers the MCP server at user scope, allowlists the
-`sm_*` tools, and merges the three hooks into `~/.claude/settings.json`
-(non-destructively). Restart Claude Code afterward.
+`install.sh` installs the binary, registers the MCP server at user scope, allowlists
+the tools, and **non-destructively merges** the three hooks into
+`~/.claude/settings.json`. Restart Claude Code afterward.
 
-## Ingest a codebase
+---
 
+## The codebase ingester
+
+`/memory-ingest <path>` (or `ingest_codebase.py` directly) turns a repository into
+memory. It is deterministic and **language-agnostic** — facts come straight from
+manifests and source structure (Grade A), never guessed.
+
+### Pipeline
+
+```mermaid
+flowchart LR
+    A["Repo"] --> B["Walk<br/>(git ls-files)"]
+    B --> C["Detect ecosystems<br/>by manifest"]
+    B --> L["Language stats<br/>by extension"]
+    B --> R["README + layout"]
+    C --> D["Parse components<br/>name · version · deps"]
+    D --> F["Facts:<br/>repo + per component"]
+    D --> GE["Graph edges:<br/>belongs_to · depends_on"]
+    L --> F
+    R --> F
+    F --> SM[("semantic-memory")]
+    GE --> SM
 ```
-/memory-ingest /path/to/any/repo          # in Claude Code
-# or directly:
-python3 plugins/semantic-memory/scripts/ingest_codebase.py --path /path/to/repo --dry-run
+
+### Ecosystem support
+
+| Ecosystem | Manifest | Name | Version | Dependencies |
+|---|---|---|:--:|:--:|
+| Rust | `Cargo.toml` | ✅ | ✅ | ✅ |
+| Node / JS / TS | `package.json` | ✅ | ✅ | ✅ |
+| Python | `pyproject.toml` | ✅ | ✅ | ✅ |
+| Go | `go.mod` | ✅ | — | ✅ |
+| Java / JVM | `pom.xml` | ✅ | ✅ | ✅ |
+| .NET | `*.csproj` | ✅ | — | ✅ |
+| PHP | `composer.json` | ✅ | ✅ | ✅ |
+| Gradle / Ruby / Dart / Elixir / CMake / Swift | various | detected | — | — |
+| **Anything else** | — | repo overview + language stats + layout + README always captured |
+
+### Flags
+
+| Flag | Purpose |
+|---|---|
+| `--path <repo>` | Repository root (required) |
+| `--name <name>` | Project name (default: directory basename) |
+| `--namespace <ns>` | Memory namespace (default: `code:<repo-slug>`) |
+| `--dedupe` | Skip facts already present (idempotent re-ingest; reuses IDs so the graph still links) |
+| `--dry-run` | Print the plan, write nothing |
+| `--no-graph` | Facts only, skip dependency edges |
+| `--max-components N` | Cap components written (default 400) |
+
+### Example
+
+```text
+$ python3 ingest_codebase.py --path ./my-rust-workspace --dry-run
+# Ingestion plan for 'my-rust-workspace'  (namespace: code:my-rust-workspace)
+languages: Rust (412), Shell (6)
+ecosystems: Cargo.toml
+components: 14 (writing 14)
+facts to write: 15
+graph edges: 14 belongs_to + 18 depends_on
 ```
 
-## Configuration (env vars)
+Re-running with `--dedupe` writes **0** new facts on an unchanged repo.
+
+---
+
+## Configuration
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `SEMANTIC_MEMORY_DIR` | `~/.local/share/semantic-memory` | Where the store lives |
+| `SEMANTIC_MEMORY_DIR` | `~/.local/share/semantic-memory` | Where the store lives (`memory.db` + vector sidecar) |
 | `SEMANTIC_MEMORY_MCP_BIN` | auto-resolved | Override the binary path |
 | `SEMANTIC_MEMORY_HOOK_DEBUG` | unset | If set to a file path, hooks log each firing there |
-| `SM_RECALL_MINTOP` / `SM_RECALL_BAND` / `SM_RECALL_ABSFLOOR` | 0.58 / 0.12 / 0.54 | Tune recall precision |
+| `SM_RECALL_MINTOP` | `0.58` | Best hit must reach this cosine, or nothing is injected |
+| `SM_RECALL_BAND` | `0.12` | Keep hits within this cosine distance of the best hit |
+| `SM_RECALL_ABSFLOOR` | `0.54` | Hard minimum cosine regardless of band |
+| `SM_RECALL_MAXHITS` | `4` | Max facts injected per prompt |
 
-## Notes
+Binary resolution order: `$SEMANTIC_MEMORY_MCP_BIN` → `PATH` → `~/.cargo/bin` → `~/.local/bin`.
 
-- Hooks **fail open**: any error or missing binary exits cleanly and never blocks
-  a prompt.
-- Recall uses a **relative** similarity gate (nomic embeddings sit ~0.5 even for
-  unrelated text), so unrelated prompts inject nothing.
-- The ingester **never deletes** memory; re-running appends. Use a distinct
-  `--namespace` per project (defaults to `code:<repo-slug>`).
+---
 
-License: Apache-2.0
+## Data model
+
+- **Facts** — atomic statements stored under a **namespace** (e.g. `general`,
+  `projects`, `code:<repo>`). Each gets a stable `fact:<uuid>` id.
+- **Graph edges** — typed, append-only relationships between facts:
+  `belongs_to`, `depends_on`, `part_of`, plus `semantic` / `temporal` / `causal`.
+  The ingester builds `belongs_to` (component → repo) and `depends_on` (real
+  dependency edges). Edges are idempotent; corrections use append/supersede, never
+  destructive rewrite.
+- **Retrieval** — hybrid: BM25 (FTS5) + vector (usearch HNSW) fused with Reciprocal
+  Rank Fusion. Graph tools (`sm_topology`, `sm_community`, `sm_factor_graph`) reason
+  over the edges.
+
+---
+
+## Design principles
+
+- **Fail-open.** Hooks never block a prompt. Missing binary, timeout, bad JSON → exit 0, no output.
+- **Local-first.** No network beyond the one-time model download. Your knowledge never leaves the machine.
+- **Relative recall.** Precision over recall — unrelated prompts inject nothing.
+- **No autonomous writes.** Memory is written by the model *with judgment*, nudged at the right moments — never auto-dumped by a script (which would be garbage-in, garbage-out).
+- **Append/supersede.** Truth evolves by adding and superseding, not deleting.
+
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| Hooks don't fire | Restart Claude Code or open `/hooks` once (config reloads at session start). |
+| "binary not found" | `cargo install semantic-memory-mcp`, or set `SEMANTIC_MEMORY_MCP_BIN`. |
+| First call is slow | One-time model download (~550 MB → `~/.cache/huggingface`). Cached after. |
+| Want to see hooks firing | `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log` and tail it. |
+| Recall too eager / too quiet | Tune `SM_RECALL_MINTOP` up/down. |
+| Re-ingest duplicated facts | Use `--dedupe`. |
+
+---
+
+## Privacy / local-first
+
+The SQLite database, the usearch vector index, the Candle embedding model, and the
+MCP server process all run locally. There are **no** calls to any hosted service.
+The only network access is a one-time model download from HuggingFace (cached). Your
+knowledge base never leaves your machine.
+
+---
+
+## License
+
+Apache-2.0. Built on [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp)
+and [`semantic-memory`](https://crates.io/crates/semantic-memory).
