@@ -1,6 +1,6 @@
 {
   "name": "semantic-memory",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Local-first persistent semantic memory for Claude Code: per-prompt auto-recall, project-scoped session priming, pre-compaction capture, codebase ingestion, conversation memory, a memory-keeper subagent, and skills to capture/curate/explore/sync — over the semantic-memory-mcp server (27 sm_* tools).",
   "author": {
     "name": "Josh Stevenson",
