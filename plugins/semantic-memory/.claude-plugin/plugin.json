@@ -1,7 +1,7 @@
 {
   "name": "semantic-memory",
-  "version": "0.1.0",
-  "description": "Local-first persistent semantic memory for Claude Code: auto-recall relevant facts on every prompt, prime each session with memory status, nudge fact-capture before compaction, and ingest any codebase into a searchable fact+graph store. Backed by the semantic-memory-mcp server.",
+  "version": "0.2.0",
+  "description": "Local-first persistent semantic memory for Claude Code: auto-recall relevant facts on every prompt, prime each session, nudge capture before compaction, ingest any codebase into a fact+graph store, and three skills — capture, curate, and explore the knowledge graph. Backed by the semantic-memory-mcp server.",
   "author": {
     "name": "Josh Stevenson",
     "email": "j.stevenson.cs@gmail.com"

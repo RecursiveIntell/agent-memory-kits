@@ -41,6 +41,9 @@ Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 | **`semantic-memory` MCP server** | MCP (18 tools) | `sm_search`, `sm_add_fact`, `sm_ingest_document`, graph tools, provenance, lifecycle, topology, community detection. |
 | **`/memory-ingest`** | Slash command | Ingest any repo into memory (facts + dependency graph). |
 | **`/memory-setup`** | Slash command | One-time: install the binary, allowlist the tools, verify. |
+| **memory-capture** | Skill | Disciplined *write* path — "remember this" → dedupe, namespace, store, link. |
+| **memory-curator** | Skill | Audit + reconcile the store (duplicates, contradictions, gaps) via append/supersede. |
+| **knowledge-graph-explorer** | Skill | Traverse the graph — "what's related to X", "how are X and Y connected" — with optional HTML viz. |
 | **`ingest_codebase.py`** | CLI tool | The language-agnostic ingester behind `/memory-ingest`. |
 
 ---
