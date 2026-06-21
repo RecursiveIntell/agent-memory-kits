@@ -21,8 +21,8 @@ Store only things worth remembering across sessions:
 
 For each candidate fact:
 
-1. **Dedupe first.** `sm_search` the fact's gist (pass `namespaces` if you know it). 
-   - If a near-identical fact exists → **don't duplicate.** If the new info supersedes it, write a corrected fact that states the change (append/supersede); optionally invalidate stale graph edges. 
+1. **Dedupe first.** `sm_search` the fact's gist (pass `namespaces` if you know it). For a precise check in a known namespace, `sm_list_facts(namespace)` to scan everything there; read any close match in full with `sm_get_fact(id)`.
+   - If a near-identical fact exists → **don't duplicate.** If the new info supersedes it, write a corrected fact that states the change (append/supersede); optionally invalidate stale graph edges.
    - If it *contradicts* an existing fact → surface the conflict to the user before writing.
 2. **Pick a namespace.** Reuse an existing one (`general`, `doctrine`, `projects`, `infrastructure`, `research`, `code:<repo>`, …) or create a clear new one. Keep related facts together.
 3. **Write** with `sm_add_fact` — one self-contained fact per call, with a `source` attribution and a date if time-relevant.

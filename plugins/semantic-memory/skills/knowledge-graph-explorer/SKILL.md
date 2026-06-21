@@ -10,14 +10,15 @@ Go beyond a flat search: traverse the typed graph to surface related, adjacent, 
 ## Choose the question type
 
 **"What's related to X / what do I know about X?"**
-1. `sm_search(X)` → take the top `result_id`s (these are the direct hits).
-2. `sm_discord_search(direct_result_ids)` → second-order neighbors: facts connected to your hits through the graph but not themselves direct matches. This is the high-value step.
-3. Optionally `sm_community` → which community X sits in, and its members.
-4. Synthesize: what's central, what's adjacent, and the relationships between them.
+1. `sm_search(X)` → take the top `result_id`s (the direct hits).
+2. `sm_get_fact_neighbors(result_id)` → for each anchor, get the fact **plus its graph neighbors WITH their content** in one call (relation + direction + weight + text). This is the fast path — no separate id-to-content lookup needed.
+3. `sm_discord_search(direct_result_ids)` → second-order neighbors (related but not direct hits). It returns ids → hydrate any you want to discuss with `sm_get_fact`.
+4. Optionally `sm_community` → which community X sits in, and its members.
+5. Synthesize: what's central, what's adjacent, and the relationships between them.
 
 **"How are X and Y connected?"**
 1. `sm_search(X)` and `sm_search(Y)` → resolve each to a `result_id`.
-2. `sm_graph_path(from_id, to_id)` → the shortest path with per-hop edge evidence (relation, weight). Explain the chain in plain language.
+2. `sm_graph_path(from_id, to_id)` → shortest path with per-hop edge evidence (relation, weight). The path is a list of **ids** — read any along the way with `sm_get_fact`. Explain the chain in plain language.
 
 **"Show me the structure / clusters."**
 1. `sm_community(resolution)` → communities and members.
@@ -26,7 +27,7 @@ Go beyond a flat search: traverse the typed graph to surface related, adjacent, 
 
 ## Optional: render an interactive graph
 
-When a visual would help, gather the subgraph (the nodes from search/discord and the edges from `sm_list_graph_edges` for those nodes), then produce a **self-contained HTML** force/spring graph (inline SVG + vanilla JS, no external assets) and present it with the Artifact tool. Nodes = facts (label with a short snippet), edges = relations (label with the relation type). Keep it CSP-safe: everything inline, no CDN.
+When a visual would help, gather the subgraph with `sm_get_fact_neighbors` on the anchor fact(s) — it returns neighbors with content + relation + weight, everything you need for labels in one call (fall back to `sm_list_graph_edges` + `sm_get_fact` for a wider sweep). Then produce a **self-contained HTML** force/spring graph (inline SVG + vanilla JS, no external assets) and present it with the Artifact tool. Nodes = facts (label with a short content snippet), edges = relations (label with the relation type; thicker = higher weight). Keep it CSP-safe: everything inline, no CDN.
 
 ## Tips
 - Discord search is what makes this worth more than `sm_search` — always run it for "related to" questions.

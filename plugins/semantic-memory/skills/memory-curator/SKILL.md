@@ -12,9 +12,10 @@ Keep the store healthy as it grows. Audit first, present a report, then reconcil
 Run and summarize:
 
 1. `sm_stats` — size, fact/chunk/document/edge counts, embedding model.
-2. `sm_community` (resolution 1.0) with any known `contradictions` — community structure + **within-community contradiction scan**.
-3. `sm_run_lifecycle` on a representative set of `item_ids` — syndromes, **subtraction candidates** (safe to forget/compress), recompression need, quantization assessment.
-4. `sm_topology` — Betti numbers + structural **voids** (weakly-connected facts, missing links) and the tool's suggested connections.
+2. `sm_list_namespaces` then `sm_list_facts(namespace, …)` — **exhaustively enumerate** each namespace. This is how you actually find duplicates and near-duplicates (similarity search alone misses them); scan the listed content for repeats, contradictions, and stale entries. Use `sm_get_fact(id)` to inspect any candidate in full.
+3. `sm_community` (resolution 1.0) with any known `contradictions` — community structure + **within-community contradiction scan**.
+4. `sm_run_lifecycle` on a representative set of `item_ids` — syndromes, **subtraction candidates** (safe to forget/compress), recompression need, quantization assessment.
+5. `sm_topology` — Betti numbers + structural **voids** (weakly-connected facts, missing links) and the tool's suggested connections.
 
 Present a concise **health report**: store size, suspected duplicates/contradictions, stale/forgettable items, and graph gaps. Recommend specific actions. **Stop and ask for approval before changing anything.**
 

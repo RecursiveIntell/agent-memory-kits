@@ -36,14 +36,16 @@ Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 | Component | Type | What it does |
 |---|---|---|
 | **Auto-recall** | `UserPromptSubmit` hook | Embeds each prompt, hybrid-searches your memory, injects the most relevant facts as context — only when they're actually relevant. |
-| **Session primer** | `SessionStart` hook | Each session opens knowing the store exists, its size, and the recall/persist/discipline protocol. |
+| **Project-scoped primer** | `SessionStart` hook | Each session opens knowing the store's size, the recall/persist protocol, **and facts relevant to the current repo** (git-root aware from the hook's cwd). |
 | **Capture nudge** | `PreCompact` hook | Before context is compacted away, reminds Claude to persist durable facts. Model-driven — nothing is auto-written. |
-| **`semantic-memory` MCP server** | MCP (18 tools) | `sm_search`, `sm_add_fact`, `sm_ingest_document`, graph tools, provenance, lifecycle, topology, community detection. |
+| **`semantic-memory` MCP server** | MCP (**27 tools**) | search, add/get/list facts, list namespaces, **fact+neighbors with content**, graph/path/discord, provenance, lifecycle, topology, community, **conversation memory** (sessions + messages + conversation search). |
 | **`/memory-ingest`** | Slash command | Ingest any repo into memory (facts + dependency graph). |
 | **`/memory-setup`** | Slash command | One-time: install the binary, allowlist the tools, verify. |
 | **memory-capture** | Skill | Disciplined *write* path — "remember this" → dedupe, namespace, store, link. |
-| **memory-curator** | Skill | Audit + reconcile the store (duplicates, contradictions, gaps) via append/supersede. |
-| **knowledge-graph-explorer** | Skill | Traverse the graph — "what's related to X", "how are X and Y connected" — with optional HTML viz. |
+| **memory-curator** | Skill | Audit + reconcile the store (enumerate, find duplicates/contradictions/gaps) via append/supersede. |
+| **knowledge-graph-explorer** | Skill | Traverse the graph — "what's related to X", "how are X and Y connected" — with hydrated neighbors + optional HTML viz. |
+| **memory-sync** | Skill | Keep a repo's memory current — idempotent re-ingest (`--dedupe`). |
+| **memory-keeper** | Subagent | Delegate heavy/multi-step memory work (audits, deep graph exploration, bulk recall) in isolation. |
 | **`ingest_codebase.py`** | CLI tool | The language-agnostic ingester behind `/memory-ingest`. |
 
 ---
