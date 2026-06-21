@@ -1,0 +1,20 @@
+{
+  "name": "semantic-memory-kit",
+  "owner": {
+    "name": "Josh Stevenson",
+    "email": "j.stevenson.cs@gmail.com",
+    "url": "https://github.com/RecursiveIntell"
+  },
+  "metadata": {
+    "description": "Local-first persistent semantic memory for Claude Code — plugin + language-agnostic codebase ingestion.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "semantic-memory",
+      "source": "./plugins/semantic-memory",
+      "description": "Persistent semantic memory for Claude Code: auto-recall every prompt, session priming, pre-compaction capture, and a codebase-ingestion command. Backed by the local-first semantic-memory-mcp server.",
+      "version": "0.1.0"
+    }
+  ]
+}
