@@ -13,14 +13,22 @@ cwd="$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null)"
 [ -z "$cwd" ] && cwd="$PWD"
 proj_root="$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || true)"
 proj_name="$(basename "${proj_root:-$cwd}")"
+# Only do project-scoped recall inside a real git repo that isn't the home dir,
+# otherwise a generic cwd (e.g. $HOME) injects loosely-related noise.
+do_proj=1
+{ [ -z "$proj_root" ] || [ "$proj_root" = "$HOME" ]; } && do_proj=0
 
 init='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"primer-hook","version":"1"}}}'
 note='{"jsonrpc":"2.0","method":"notifications/initialized"}'
 stats_req='{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"sm_stats","arguments":{}}}'
-proj_req="$(jq -nc --arg q "$proj_name codebase project overview" \
-  '{jsonrpc:"2.0",id:3,method:"tools/call",params:{name:"sm_search",arguments:{query:$q,top_k:5}}}')"
 
-out="$(printf '%s\n%s\n%s\n%s\n' "$init" "$note" "$stats_req" "$proj_req" | timeout 10 "$SM_BIN" --memory-dir "$SM_DIR" 2>/dev/null)" || exit 0
+if [ "$do_proj" = "1" ]; then
+  proj_req="$(jq -nc --arg q "$proj_name codebase project overview" \
+    '{jsonrpc:"2.0",id:3,method:"tools/call",params:{name:"sm_search",arguments:{query:$q,top_k:5}}}')"
+  out="$(printf '%s\n%s\n%s\n%s\n' "$init" "$note" "$stats_req" "$proj_req" | timeout 10 "$SM_BIN" --memory-dir "$SM_DIR" 2>/dev/null)" || exit 0
+else
+  out="$(printf '%s\n%s\n%s\n' "$init" "$note" "$stats_req" | timeout 10 "$SM_BIN" --memory-dir "$SM_DIR" 2>/dev/null)" || exit 0
+fi
 
 text="$(printf '%s' "$out" | PROJ="$proj_name" python3 -c '
 import sys, json, os
