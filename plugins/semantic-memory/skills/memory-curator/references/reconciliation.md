@@ -5,9 +5,9 @@ Detailed procedures for Phase 2. Load this only when actually reconciling.
 ## Duplicates
 
 1. Among the duplicate set, choose the **canonical** fact: the clearest, most complete, best-attributed phrasing.
-2. If the duplicates carry information the canonical one lacks, write ONE merged superseding fact (append) capturing the union, then point the old ones at it.
-3. Link non-canonical facts to the canonical with an entity edge `relation: "duplicate_of"` (or `"superseded_by"`). This preserves history while making the canonical fact the hub.
-4. Do **not** invalidate the underlying facts — they remain for audit. Retrieval naturally favors the richer canonical fact.
+2. If one fact is simply an outdated version of another, `sm_supersede_fact(old_id, content, namespace, reason)` — it writes the corrected/canonical version, links it, and marks the old one superseded so **search filters it automatically**. This is the clean default.
+3. If several near-identical facts collapse into one consolidated fact, write the consolidated fact, then `sm_delete_fact` the obsolete duplicates (they carry no unique history worth keeping). Reserve delete for genuine redundancy/noise.
+4. For duplicates worth keeping as history, instead link non-canonical ones to the canonical with an entity edge `relation: "duplicate_of"` and leave them in place.
 
 ## Contradictions
 
@@ -30,5 +30,8 @@ Detailed procedures for Phase 2. Load this only when actually reconciling.
 
 ## Forgetting (subtraction candidates)
 
-- `sm_run_lifecycle` flags items safe to forget/compress. The store is append-only, so "forgetting" here means: lower provenance, mark superseded, or (for true noise) note it for the user — never silent destructive deletion.
-- Always get explicit user sign-off before treating anything as forgettable.
+- `sm_run_lifecycle` flags items safe to forget/compress. Hard delete now exists, so forgetting can be real:
+  - **Outdated but has a replacement** → `sm_supersede_fact` (preferred — keeps history, auto-filters from search).
+  - **True noise / error, no replacement** → `sm_delete_fact(fact_id)` — irreversible.
+  - **A whole bad ingest or obsolete namespace** → `sm_delete_namespace(namespace)` (confirm contents with `sm_list_facts` first).
+- Always get **explicit user sign-off** before any hard delete. Default to supersede; delete only when a fact should genuinely vanish.

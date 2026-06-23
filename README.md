@@ -38,7 +38,7 @@ Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 | **Auto-recall** | `UserPromptSubmit` hook | Embeds each prompt, hybrid-searches your memory, injects the most relevant facts as context — only when they're actually relevant. |
 | **Project-scoped primer** | `SessionStart` hook | Each session opens knowing the store's size, the recall/persist protocol, **and facts relevant to the current repo** (git-root aware from the hook's cwd). |
 | **Capture nudge** | `PreCompact` hook | Before context is compacted away, reminds Claude to persist durable facts. Model-driven — nothing is auto-written. |
-| **`semantic-memory` MCP server** | MCP (**27 tools**) | search, add/get/list facts, list namespaces, **fact+neighbors with content**, graph/path/discord, provenance, lifecycle, topology, community, **conversation memory** (sessions + messages + conversation search). |
+| **`semantic-memory` MCP server** | MCP (**30 tools**) | search, add/get/list facts, list namespaces, **fact+neighbors with content**, graph/path/discord, provenance, lifecycle, topology, community, **conversation memory** (sessions + messages + conversation search), **supersede** (replace a stale fact; auto-filtered from search), and **forget/delete** (`sm_delete_fact` / `sm_delete_namespace`). |
 | **`/memory-ingest`** | Slash command | Ingest any repo into memory (facts + dependency graph). |
 | **`/memory-setup`** | Slash command | One-time: install the binary, allowlist the tools, verify. |
 | **memory-capture** | Skill | Disciplined *write* path — "remember this" → dedupe, namespace, store, link. |

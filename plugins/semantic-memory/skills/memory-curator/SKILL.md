@@ -23,12 +23,15 @@ Present a concise **health report**: store size, suspected duplicates/contradict
 
 ## Phase 2 — Reconcile (only after approval)
 
-- **Duplicates:** keep the best-phrased fact; write a brief superseding fact noting consolidation if needed; link the others with a `supersedes`/`duplicate_of` edge. Do not hard-delete.
-- **Contradictions:** write a reconciliation fact that resolves the conflict (state which holds and why), link it to both originals, and `sm_invalidate_graph_edge` any edge that asserts the wrong relation (with a clear reason).
-- **Confidence:** set `sm_set_provenance` on facts you've verified (confidence + support_count).
-- **Gaps:** add the suggested `sm_add_graph_edge` connections for weakly-connected but related facts.
+Pick the right tool for each case:
 
-Report exactly what changed (ids + reasons). Everything is append-only and auditable.
+- **Stale fact with a correct replacement** → `sm_supersede_fact(old_fact_id, content, namespace, reason)`: writes the corrected fact, links it, and marks the old one superseded so **search filters it automatically**. This is the DEFAULT for "outdated, here's the current truth" — keeps history, no clutter in recall.
+- **Pure noise / error, no replacement** → `sm_delete_fact(fact_id)`: HARD, irreversible removal. Use only when a fact is simply wrong/junk and should vanish entirely.
+- **Bad ingest or obsolete namespace** → `sm_delete_namespace(namespace)`: removes all of it (facts/docs/chunks/sessions). Confirm contents first with `sm_list_namespaces` + `sm_list_facts`.
+- **Contradictions** → supersede the losing side (or write a reconciliation fact linking both); `sm_invalidate_graph_edge` any edge asserting the wrong relation.
+- **Confidence / gaps** → `sm_set_provenance` on verified facts; `sm_add_graph_edge` to connect related-but-unlinked facts.
+
+Discipline: **prefer `sm_supersede_fact`** (keeps history, auto-filters from search) over hard delete; reserve `sm_delete_*` for true noise or bad ingests. Every destructive op requires explicit user approval. Report exactly what changed (ids + reasons).
 
 ## Guardrails
 - Never delete; the store evolves by append, supersession, and edge invalidation.
