@@ -30,6 +30,9 @@ SCOREREL="${SM_RECALL_SCOREREL:-0.5}"
 TOPK="${SM_RECALL_TOPK:-6}"
 MAXHITS="${SM_RECALL_MAXHITS:-4}"
 MAXLEN="${SM_RECALL_MAXLEN:-320}"
+# Comma-separated namespaces to drop from auto-recall (noise: chat logs, social).
+# Facts stay in the store and are still reachable via explicit sm_search.
+EXCLUDE_NS="${SM_RECALL_EXCLUDE_NS:-}"
 
 input="$(cat)"
 prompt="$(printf '%s' "$input" | jq -r '.prompt // empty' 2>/dev/null)" || exit 0
@@ -116,7 +119,7 @@ except: print(0)
   sm_record_outcome "$prompt" "$outcome" "$query_class"
 fi
 
-body="$(printf '%s' "$payload" | MINTOP="$MINTOP" BAND="$BAND" ABSFLOOR="$ABSFLOOR" SCOREREL="$SCOREREL" MAXHITS="$MAXHITS" MAXLEN="$MAXLEN" USE_COSINE="$use_cosine_gate" python3 -c '
+body="$(printf '%s' "$payload" | MINTOP="$MINTOP" BAND="$BAND" ABSFLOOR="$ABSFLOOR" SCOREREL="$SCOREREL" MAXHITS="$MAXHITS" MAXLEN="$MAXLEN" USE_COSINE="$use_cosine_gate" EXCLUDE_NS="$EXCLUDE_NS" python3 -c '
 import sys, json, os
 mintop=float(os.environ["MINTOP"]); band=float(os.environ["BAND"]); absfloor=float(os.environ["ABSFLOOR"])
 scorerel=float(os.environ["SCOREREL"]); maxhits=int(os.environ["MAXHITS"]); maxlen=int(os.environ["MAXLEN"])
@@ -126,6 +129,11 @@ except Exception: sys.exit(0)
 if not isinstance(res, dict) or res.get("ok") is False: sys.exit(0)
 results=res.get("results",[])
 if not results: sys.exit(0)
+# Drop blocklisted namespaces (noise like chat logs / social) from auto-recall.
+exns=set(x.strip() for x in os.environ.get("EXCLUDE_NS","").split(",") if x.strip())
+if exns:
+    results=[r for r in results if r.get("namespace") not in exns]
+    if not results: sys.exit(0)
 # Dual gating: cosine on cold path, RRF score on warm path
 if use_cosine:
     # Cosine gate (cold stdio path)
