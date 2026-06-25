@@ -33,3 +33,47 @@ sm_debug() { # $1 = event label
   [ -n "${SEMANTIC_MEMORY_HOOK_DEBUG:-}" ] || return 0
   { printf '%s %s\n' "$(date -Iseconds 2>/dev/null || date)" "$1"; } >> "$SEMANTIC_MEMORY_HOOK_DEBUG" 2>/dev/null || true
 }
+
+# sm_classify_query: lightweight A/B/C/D/E query classification via keyword signals.
+# Echoes the class letter on stdout. No args — reads query from stdin.
+# A=simple, B=multi-hop, C=contradiction, D=synthesis, E=temporal.
+sm_classify_query() {
+  local q="$1"
+  local ql
+  ql="$(printf '%s' "$q" | tr '[:upper:]' '[:lower:]')"
+  # C: contradiction signals
+  case "$ql" in
+    *contradict*|*conflict*|*disagree*|*"vs "*|*versus*|*"is it true"*|*wrong*)
+      printf 'C'; return;;
+  esac
+  # D: synthesis signals
+  case "$ql" in
+    *summar*|*overview*|*"all about"*|*themes*|*landscape*|*everything*|*compar*|*compare*)
+      printf 'D'; return;;
+  esac
+  # E: temporal signals
+  case "$ql" in
+    *when*|*before*|*after*|*changed*|*current*|*latest*|*updated*|*timeline*|*"how old"*)
+      printf 'E'; return;;
+  esac
+  # B: multi-hop signals (2+ terms + relation words)
+  local term_count
+  term_count="$(printf '%s' "$ql" | wc -w | tr -d ' ')"
+  if [ "$term_count" -ge 3 ]; then
+    case "$ql" in
+      *connect*|*between*|*"depends on"*|*"relates to"*|*relationship*|*"how did"*|*"how does"*|*"work with"*|*"lead to"*|*link*|*integrat*)
+        printf 'B'; return;;
+    esac
+  fi
+  printf 'A'
+}
+
+# sm_record_outcome: POST /record-outcome for RL routing feedback. Silent, fail-open.
+sm_record_outcome() { # $1=query, $2=outcome (good/bad), $3=query_class
+  [ -n "${SM_HTTP:-}" ] || return 0
+  local query="$1" outcome="$2" qclass="$3"
+  local body
+  body="$(jq -nc --arg q "$query" --arg o "$outcome" --arg c "$qclass" '{query:$q,outcome:$o,query_class:$c}' 2>/dev/null)" || return 0
+  curl -fsS -m 2 -X POST "${SM_HTTP}/record-outcome" \
+    -H 'content-type: application/json' -d "$body" >/dev/null 2>&1 || true
+}

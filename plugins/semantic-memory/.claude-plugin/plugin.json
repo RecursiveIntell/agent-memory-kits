@@ -1,7 +1,7 @@
 {
   "name": "semantic-memory",
-  "version": "0.4.1",
-  "description": "Local-first persistent semantic memory for Claude Code: low-latency per-prompt auto-recall (warm HTTP server — no cold-spawn), project-scoped session priming, pre-compaction capture, codebase ingestion, a memory-keeper subagent, and skills to capture/curate/explore/sync — over the semantic-memory-mcp server (34 sm_* tools: hybrid + RL-routed search, bitemporal as-of search, graph/topology/community, content-based contradiction detection, claim verification, supersede/consolidate, and autonomous lifecycle).",
+  "version": "0.5.0",
+  "description": "Local-first persistent semantic memory for Claude Code: low-latency per-prompt auto-recall (warm HTTP server — no cold-spawn), project-scoped session priming, pre-compaction capture, codebase ingestion, a memory-keeper subagent, and skills to capture/curate/explore/sync — over the semantic-memory-mcp server (48 sm_* tools: hybrid + RL-routed search with persisted policy, bitemporal as-of search, graph/topology/community, content-based contradiction detection, claim verification, supersede/consolidate, autonomous lifecycle, real integrity checks, audit/replay receipts, and import-envelope support).",
   "author": {
     "name": "Josh Stevenson",
     "email": "j.stevenson.cs@gmail.com"

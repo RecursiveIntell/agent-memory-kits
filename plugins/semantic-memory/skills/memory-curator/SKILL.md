@@ -32,6 +32,7 @@ Pick the right tool for each case:
 - **Bad ingest or obsolete namespace** → `sm_delete_namespace(namespace)`: removes all of it (facts/docs/chunks/sessions). Confirm contents first with `sm_list_namespaces` + `sm_list_facts`.
 - **Contradictions** → supersede the losing side (or write a reconciliation fact linking both); `sm_invalidate_graph_edge` any edge asserting the wrong relation.
 - **Confidence / gaps** → `sm_set_provenance` on verified facts; `sm_add_graph_edge` to connect related-but-unlinked facts.
+- **Reconciliation helpers** → `sm_reconcile` (check store consistency, find orphaned/missing entries), `sm_vacuum` (reclaim space from deleted/superseded items), `sm_reembed_all` (re-embed all facts after model upgrade or corruption; check first with `sm_embeddings_are_dirty`), `sm_get_search_receipt` (fetch the full result set + routing decisions of a prior search for audit trails).
 
 Discipline: **prefer `sm_supersede_fact`** (keeps history, auto-filters from search) over hard delete; reserve `sm_delete_*` for true noise or bad ingests. Every destructive op requires explicit user approval. Report exactly what changed (ids + reasons).
 

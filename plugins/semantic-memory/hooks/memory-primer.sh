@@ -3,6 +3,9 @@
 # persist protocol, AND project-scoped recall: facts relevant to the current repo
 # (from the hook's cwd, git-root aware) injected up front. FAILS OPEN.
 #
+# Also calls GET /verify-integrity for a real DB integrity check (WAL, FTS, HNSW).
+# If integrity fails, warns in the primer context so the agent knows.
+#
 # Warm-first: query the warm HTTP server (POST /stats + POST /search) so the
 # embedder stays loaded. Cold fallback (spawn the binary over stdio) only when
 # the warm server is unreachable. Both feed the same parser.
@@ -22,12 +25,15 @@ proj_name="$(basename "${proj_root:-$cwd}")"
 do_proj=1
 { [ -z "$proj_root" ] || [ "$proj_root" = "$HOME" ]; } && do_proj=0
 
-# --- gather stats + project hits into two normalized JSON blobs, warm-first ---
+# --- gather stats + project hits + integrity into normalized JSON blobs, warm-first ---
 stats_json=""
 proj_json=""
+integrity_json=""
 if sm_warm; then
   sm_debug "primer via warm HTTP ${SM_HTTP}"
   stats_json="$(curl -fsS -m 3 -X POST "${SM_HTTP}/stats" 2>/dev/null)" || stats_json=""
+  # Real integrity check (now calls store.verify_integrity, not just stats)
+  integrity_json="$(curl -fsS -m 3 "${SM_HTTP}/verify-integrity" 2>/dev/null)" || integrity_json=""
   if [ "$do_proj" = "1" ] && [ -n "$stats_json" ]; then
     reqbody="$(jq -nc --arg q "$proj_name codebase project overview" '{query:$q,top_k:5}')"
     proj_json="$(curl -fsS -m 4 -X POST "${SM_HTTP}/search" \
@@ -72,7 +78,7 @@ for line in sys.stdin:
 fi
 [ -z "$stats_json" ] && exit 0
 
-text="$(STATS="$stats_json" PROJ_JSON="$proj_json" PROJ="$proj_name" python3 -c '
+text="$(STATS="$stats_json" PROJ_JSON="$proj_json" INTEGRITY="$integrity_json" PROJ="$proj_name" python3 -c '
 import sys, json, os
 proj=os.environ.get("PROJ","")
 try: stats=json.loads(os.environ.get("STATS","") or "{}")
@@ -102,11 +108,20 @@ head=f"Persistent semantic memory is ACTIVE (semantic-memory MCP server): {facts
 if edges is not None: head+=f", {edges} graph edges"
 head+=". This is your primary long-term memory across all projects."
 lines=[head]
+# Integrity check (real -- checks WAL, FTS, HNSW, missing embeddings)
+integrity_raw=os.environ.get("INTEGRITY","")
+if integrity_raw:
+    try:
+        integ=json.loads(integrity_raw)
+        if integ.get("ok") and not integ.get("integrity", True):
+            issues=integ.get("issues", [])
+            lines.append(f"\nWARNING: DB integrity check FAILED: {len(issues)} issue(s): " + "; ".join(issues[:3]))
+    except Exception: pass
 if proj_hits:
     lines.append(f"\nProject-scoped recall for {proj} (verify against current code before relying on it):")
     for h in proj_hits:
         c=" ".join(str(h.get("content","")).split())
-        lines.append("- "+(c[:300]+"…" if len(c)>300 else c))
+        lines.append("- "+(c[:300]+"..." if len(c)>300 else c))
 lines.append("\n- RECALL: relevant entries are auto-injected per prompt; also call sm_search / sm_list_facts / sm_get_fact_neighbors yourself before relying on conversation context.")
 lines.append("- PERSIST: store durable verified facts with sm_add_fact (sm_search or sm_list_facts first to avoid duplicates).")
 lines.append("- DISCIPLINE: never let stored memory outrank current artifacts/repos; record corrections by append/supersede.")
