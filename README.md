@@ -223,7 +223,7 @@ Re-running with `--dedupe` writes **0** new facts on an unchanged repo.
 |---|---|---|
 | `SEMANTIC_MEMORY_DIR` | `~/.local/share/semantic-memory` | Where the store lives (`memory.db` + vector sidecar) |
 | `SEMANTIC_MEMORY_MCP_BIN` | auto-resolved | Override the binary path |
-| `SEMANTIC_MEMORY_HTTP_PORT` | `1739` | Warm HTTP port the MCP server co-hosts and the hooks query. Set to `0` to disable the warm endpoint (hooks cold-spawn). Avoid `1738` if a separate Hermes warm server owns it. |
+| `SEMANTIC_MEMORY_HTTP_PORT` | `1739` | Warm HTTP port the MCP server co-hosts and the hooks query. Set to `0` to disable the warm endpoint (hooks cold-spawn). Change it if another service already owns the port. |
 | `SEMANTIC_MEMORY_HOOK_DEBUG` | unset | If set to a file path, hooks log each firing there (records `warm HTTP` vs `cold stdio` per call) |
 | `SM_RECALL_MINTOP` | `0.58` | Best hit must reach this cosine, or nothing is injected |
 | `SM_RECALL_BAND` | `0.12` | Keep hits within this cosine distance of the best hit |

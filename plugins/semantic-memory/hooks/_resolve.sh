@@ -12,9 +12,8 @@ sm_resolve() {
   # Warm HTTP endpoint. The MCP server (run-server.sh) co-hosts a warm HTTP
   # server on this port so hooks query the already-loaded embedder instead of
   # cold-spawning a new process (which reloads the nomic model every time).
-  # Default 1739 — deliberately NOT 1738, which a separate Hermes warm server
-  # may own pointed at a different store (~/.hermes). Override with
-  # SEMANTIC_MEMORY_HTTP_PORT, and keep it in sync with run-server.sh.
+  # Default 1739. Override with SEMANTIC_MEMORY_HTTP_PORT if another warm server
+  # already owns this port; keep it in sync with run-server.sh.
   SM_HTTP_PORT="${SEMANTIC_MEMORY_HTTP_PORT:-1739}"
   SM_HTTP="http://127.0.0.1:${SM_HTTP_PORT}"
   [ -n "$SM_BIN" ] && [ -x "$SM_BIN" ] || return 1

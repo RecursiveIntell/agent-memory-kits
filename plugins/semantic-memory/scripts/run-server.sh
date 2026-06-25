@@ -6,9 +6,8 @@
 # endpoint alongside stdio MCP. The shell hooks (recall/primer) query that warm
 # process over HTTP instead of cold-spawning a fresh binary on every prompt —
 # the embedder (nomic) stays loaded, so hook latency drops from ~seconds to ~ms.
-# Bind is fail-open: if the port is already taken (another session, or the
-# Hermes warm server on a different port), the HTTP thread just exits and stdio
-# MCP keeps serving normally.
+# Bind is fail-open: if the port is already taken (another session, or another
+# warm server), the HTTP thread just exits and stdio MCP keeps serving normally.
 set -uo pipefail
 
 SM_BIN="${SEMANTIC_MEMORY_MCP_BIN:-}"
@@ -29,9 +28,9 @@ mkdir -p "$SM_DIR" 2>/dev/null || true
 # vars, which the binary reads directly) to use a faster GPU backend.
 SM_EMBEDDER="${SEMANTIC_MEMORY_EMBEDDER:-candle}"
 
-# Warm HTTP port — must match _resolve.sh (default 1739). Not 1738, which the
-# Hermes warm server may own (a different store). Set to 0 or empty to disable
-# the warm endpoint and fall back to cold-spawn hooks.
+# Warm HTTP port — must match _resolve.sh (default 1739). Change it if another
+# service already owns the port. Set to 0 or empty to disable the warm endpoint
+# and fall back to cold-spawn hooks.
 SM_HTTP_PORT="${SEMANTIC_MEMORY_HTTP_PORT:-1739}"
 
 if [ -n "$SM_HTTP_PORT" ] && [ "$SM_HTTP_PORT" != "0" ]; then
