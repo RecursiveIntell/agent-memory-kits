@@ -26,6 +26,8 @@ Present a concise **health report**: store size, suspected duplicates/contradict
 Pick the right tool for each case:
 
 - **Stale fact with a correct replacement** → `sm_supersede_fact(old_fact_id, content, namespace, reason)`: writes the corrected fact, links it, and marks the old one superseded so **search filters it automatically**. This is the DEFAULT for "outdated, here's the current truth" — keeps history, no clutter in recall.
+- **Two near-duplicate facts** → `sm_consolidate_facts(keep_id, drop_id)`: merges their content into the kept fact and supersedes the other with a "consolidated with" edge. Use this for the duplicates enumeration turns up — cleaner than superseding by hand.
+- **Small in-place correction (same fact, fixed wording)** → `sm_update_fact(fact_id, content)`: rewrites and re-embeds in place. Use only when there's no history worth keeping; otherwise prefer supersede.
 - **Pure noise / error, no replacement** → `sm_delete_fact(fact_id)`: HARD, irreversible removal. Use only when a fact is simply wrong/junk and should vanish entirely.
 - **Bad ingest or obsolete namespace** → `sm_delete_namespace(namespace)`: removes all of it (facts/docs/chunks/sessions). Confirm contents first with `sm_list_namespaces` + `sm_list_facts`.
 - **Contradictions** → supersede the losing side (or write a reconciliation fact linking both); `sm_invalidate_graph_edge` any edge asserting the wrong relation.

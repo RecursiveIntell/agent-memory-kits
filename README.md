@@ -35,10 +35,11 @@ Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 
 | Component | Type | What it does |
 |---|---|---|
-| **Auto-recall** | `UserPromptSubmit` hook | Embeds each prompt, hybrid-searches your memory, injects the most relevant facts as context — only when they're actually relevant. |
+| **Auto-recall** | `UserPromptSubmit` hook | Embeds each prompt, hybrid-searches your memory, injects the most relevant facts as context — only when they're actually relevant. Queries the **warm HTTP server** (embedder stays loaded) so recall is ~ms, not a cold spawn. |
 | **Project-scoped primer** | `SessionStart` hook | Each session opens knowing the store's size, the recall/persist protocol, **and facts relevant to the current repo** (git-root aware from the hook's cwd). |
 | **Capture nudge** | `PreCompact` hook | Before context is compacted away, reminds Claude to persist durable facts. Model-driven — nothing is auto-written. |
-| **`semantic-memory` MCP server** | MCP (**30 tools**) | search, add/get/list facts, list namespaces, **fact+neighbors with content**, graph/path/discord, provenance, lifecycle, topology, community, **conversation memory** (sessions + messages + conversation search), **supersede** (replace a stale fact; auto-filtered from search), and **forget/delete** (`sm_delete_fact` / `sm_delete_namespace`). |
+| **Warm HTTP server** | co-hosted by the MCP server | `run-server.sh` launches the MCP server with `--http-port` (default `1739`), so the hooks query the already-loaded embedder instead of cold-spawning a process per prompt. Fail-open: if the port is taken, stdio MCP still serves and hooks fall back to cold-spawn. |
+| **`semantic-memory` MCP server** | MCP (**33 tools**) | hybrid + **RL-routed** search (`sm_search_with_routing` / `sm_route_query` / `sm_record_outcome`), **bitemporal as-of** search (`sm_search_as_of`), add/get/list/**update** facts, list namespaces, **fact+neighbors with content**, graph/path/discord, **topology/community/factor-graph**, provenance, autonomous **lifecycle**, **claim verification** (`sm_create_claim` → `sm_add_evidence` → `sm_judge_support` → `sm_verify_claim`), **supersede/consolidate** (replace or merge stale facts; auto-filtered from search), and **forget/delete** (`sm_delete_fact` / `sm_delete_namespace`). |
 | **`/memory-ingest`** | Slash command | Ingest any repo into memory (facts + dependency graph). |
 | **`/memory-setup`** | Slash command | One-time: install the binary, allowlist the tools, verify. |
 | **memory-capture** | Skill | Disciplined *write* path — "remember this" → dedupe, namespace, store, link. |
@@ -88,12 +89,18 @@ sequenceDiagram
     U->>CC: prompt
     CC->>Hook: UserPromptSubmit (prompt JSON on stdin)
     Hook->>Hook: gate (skip if <12 chars or slash-command)
-    Hook->>SM: sm_search(prompt)  (BM25 + vector + RRF)
+    Hook->>SM: POST /search to warm server (BM25 + vector + RRF)<br/>cold-spawn sm_search only if warm is down
     SM-->>Hook: ranked hits w/ cosine scores
     Hook->>Hook: relative gate — best hit ≥ 0.58? keep near-peers
     Hook-->>CC: inject relevant facts as additionalContext
     CC->>U: answer, now memory-aware
 ```
+
+The hook hits the **warm HTTP server** first (the embedder is already loaded, so this
+is ~milliseconds). If that server isn't up it falls back to cold-spawning the binary
+over stdio — correct, just slower. The warm `/search` endpoint returns the fused RRF
+**score** (not cosine), so on that path the gate keeps hits within `SM_RECALL_SCOREREL`
+of the top score; the cold stdio path returns cosine and uses the absolute gates above.
 
 **Why a *relative* gate?** `nomic` embeddings sit on a high baseline — even totally
 unrelated text scores ~0.48–0.54 cosine. A flat threshold would inject noise on
@@ -216,13 +223,17 @@ Re-running with `--dedupe` writes **0** new facts on an unchanged repo.
 |---|---|---|
 | `SEMANTIC_MEMORY_DIR` | `~/.local/share/semantic-memory` | Where the store lives (`memory.db` + vector sidecar) |
 | `SEMANTIC_MEMORY_MCP_BIN` | auto-resolved | Override the binary path |
-| `SEMANTIC_MEMORY_HOOK_DEBUG` | unset | If set to a file path, hooks log each firing there |
+| `SEMANTIC_MEMORY_HTTP_PORT` | `1739` | Warm HTTP port the MCP server co-hosts and the hooks query. Set to `0` to disable the warm endpoint (hooks cold-spawn). Avoid `1738` if a separate Hermes warm server owns it. |
+| `SEMANTIC_MEMORY_HOOK_DEBUG` | unset | If set to a file path, hooks log each firing there (records `warm HTTP` vs `cold stdio` per call) |
 | `SM_RECALL_MINTOP` | `0.58` | Best hit must reach this cosine, or nothing is injected |
 | `SM_RECALL_BAND` | `0.12` | Keep hits within this cosine distance of the best hit |
 | `SM_RECALL_ABSFLOOR` | `0.54` | Hard minimum cosine regardless of band |
+| `SM_RECALL_SCOREREL` | `0.5` | Fallback when the server reports no cosine: keep hits scoring ≥ this fraction of the top fused score |
 | `SM_RECALL_MAXHITS` | `4` | Max facts injected per prompt |
 
 Binary resolution order: `$SEMANTIC_MEMORY_MCP_BIN` → `PATH` → `~/.cargo/bin` → `~/.local/bin`.
+
+The warm server is the MCP server itself: `run-server.sh` adds `--http-port`, so a single process serves both stdio MCP and the warm HTTP endpoint (`/health`, `/search`, `/stats`) for the hooks. Across concurrent sessions only the first binds the port; the rest fail open and all hooks share that one warm process.
 
 ---
 

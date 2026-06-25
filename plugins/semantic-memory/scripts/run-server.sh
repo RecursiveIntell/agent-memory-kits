@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 # Resolve the semantic-memory-mcp binary + memory dir, then exec the stdio server.
 # Portable: works regardless of where the binary was installed.
+#
+# The server is launched with --http-port so it ALSO co-hosts a warm HTTP
+# endpoint alongside stdio MCP. The shell hooks (recall/primer) query that warm
+# process over HTTP instead of cold-spawning a fresh binary on every prompt —
+# the embedder (nomic) stays loaded, so hook latency drops from ~seconds to ~ms.
+# Bind is fail-open: if the port is already taken (another session, or the
+# Hermes warm server on a different port), the HTTP thread just exits and stdio
+# MCP keeps serving normally.
 set -uo pipefail
 
 SM_BIN="${SEMANTIC_MEMORY_MCP_BIN:-}"
@@ -16,4 +24,18 @@ fi
 SM_DIR="${SEMANTIC_MEMORY_DIR:-$HOME/.local/share/semantic-memory}"
 mkdir -p "$SM_DIR" 2>/dev/null || true
 
-exec "$SM_BIN" --memory-dir "$SM_DIR" "$@"
+# Embedder backend: candle (default, in-process CPU), ollama (external GPU), or
+# mock. Override with SEMANTIC_MEMORY_EMBEDDER (and SEMANTIC_MEMORY_* embedding
+# vars, which the binary reads directly) to use a faster GPU backend.
+SM_EMBEDDER="${SEMANTIC_MEMORY_EMBEDDER:-candle}"
+
+# Warm HTTP port — must match _resolve.sh (default 1739). Not 1738, which the
+# Hermes warm server may own (a different store). Set to 0 or empty to disable
+# the warm endpoint and fall back to cold-spawn hooks.
+SM_HTTP_PORT="${SEMANTIC_MEMORY_HTTP_PORT:-1739}"
+
+if [ -n "$SM_HTTP_PORT" ] && [ "$SM_HTTP_PORT" != "0" ]; then
+  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" --http-port "$SM_HTTP_PORT" "$@"
+else
+  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" "$@"
+fi

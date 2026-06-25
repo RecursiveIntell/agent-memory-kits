@@ -337,7 +337,7 @@ def add_edges(binary, memdir, edges, dry):
             break
         calls = [(7000 + i, "sm_add_graph_edge",
                   {"source": "fact:" + s, "target": "fact:" + t,
-                   "edge_type": "entity", "relation": rel, "weight": w})
+                   "edge_type": "Entity", "relation": rel, "weight": w})
                  for i, (s, t, rel, w) in enumerate(todo)]
         out = rpc(binary, memdir, calls)
         ok_idx = set()
