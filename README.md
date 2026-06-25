@@ -225,6 +225,7 @@ Re-running with `--dedupe` writes **0** new facts on an unchanged repo.
 | `SEMANTIC_MEMORY_MCP_BIN` | auto-resolved | Override the binary path |
 | `SEMANTIC_MEMORY_HTTP_PORT` | `1739` | Warm HTTP port the MCP server co-hosts and the hooks query. Set to `0` to disable the warm endpoint (hooks cold-spawn). Change it if another service already owns the port. |
 | `SEMANTIC_MEMORY_HOOK_DEBUG` | unset | If set to a file path, hooks log each firing there (records `warm HTTP` vs `cold stdio` per call) |
+| `SEMANTIC_MEMORY_TOOL_PROFILE` | `lean` | Tool profile: `lean` (33 daily-use tools), `standard` (39 + maintenance/audit), `full` (48, all tools). Lean keeps the agent's tool-selection accurate by hiding admin/audit/import tools. |
 | `SM_RECALL_MINTOP` | `0.58` | Best hit must reach this cosine, or nothing is injected |
 | `SM_RECALL_BAND` | `0.12` | Keep hits within this cosine distance of the best hit |
 | `SM_RECALL_ABSFLOOR` | `0.54` | Hard minimum cosine regardless of band |

@@ -33,8 +33,13 @@ SM_EMBEDDER="${SEMANTIC_MEMORY_EMBEDDER:-candle}"
 # and fall back to cold-spawn hooks.
 SM_HTTP_PORT="${SEMANTIC_MEMORY_HTTP_PORT:-1739}"
 
+# Tool profile: lean (33 daily-use tools), standard (39 + maintenance/audit),
+# full (48, all tools including import/projection). Default lean for best
+# agent tool-selection accuracy (optimal is 15-25 tools).
+SM_TOOL_PROFILE="${SEMANTIC_MEMORY_TOOL_PROFILE:-lean}"
+
 if [ -n "$SM_HTTP_PORT" ] && [ "$SM_HTTP_PORT" != "0" ]; then
-  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" --http-port "$SM_HTTP_PORT" "$@"
+  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" --http-port "$SM_HTTP_PORT" --tool-profile "$SM_TOOL_PROFILE" "$@"
 else
-  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" "$@"
+  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" --tool-profile "$SM_TOOL_PROFILE" "$@"
 fi
