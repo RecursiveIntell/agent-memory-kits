@@ -1,6 +1,7 @@
-# semantic-memory-claude-kit
+# semantic-memory-agent-kits
 
-> Give Claude Code a **persistent, local-first memory** that recalls itself — and the tools to fill it from any codebase.
+> Give your AI agent a **persistent, local-first memory** that recalls itself across sessions.
+> One plugin per agent — Claude Code, Hermes Agent, and Codex CLI.
 
 [![crates.io: semantic-memory-mcp](https://img.shields.io/badge/crates.io-semantic--memory--mcp%20v0.2.0-orange)](https://crates.io/crates/semantic-memory-mcp)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](#license)
@@ -118,6 +119,30 @@ Every hook **fails open**: any error, missing binary, or empty result exits clea
 and never blocks or delays your prompt.
 
 ---
+
+## Agent-specific plugin packages
+
+Each agent has its own plugin directory with only the files relevant to that agent.
+
+### Claude Code (`claude/`)
+```bash
+cp -r claude/plugins/semantic-memory ~/.claude/plugins/
+# Or install from marketplace: claude plugins install semantic-memory
+```
+
+### Hermes Agent (`hermes/`)
+```bash
+cp -r hermes/skills/* ~/.hermes/skills/
+cp -r hermes/agents/* ~/.hermes/agents/
+cp hermes/hooks/* ~/.hermes/agent-hooks/
+# Or: hermes skills install semantic-memory-hermes
+```
+
+### Codex CLI (`codex/`)
+```bash
+cp -r codex/plugins/semantic-memory ~/.codex/plugins/
+# Or: codex plugin install semantic-memory --source ~/Coding/semantic-memory-codex
+```
 
 ## Install
 

@@ -1,0 +1,35 @@
+{
+  "name": "semantic-memory",
+  "version": "0.6.0",
+  "description": "Local-first knowledge base with hybrid search, knowledge graphs, and autonomous memory lifecycle — for Hermes Agent",
+  "author": "RecursiveIntell",
+  "license": "Apache-2.0",
+  "hermes": {
+    "skills": [
+      "memory-capture",
+      "memory-curator",
+      "memory-maintenance",
+      "memory-sync",
+      "knowledge-graph-explorer"
+    ],
+    "agents": [
+      "memory-keeper"
+    ],
+    "hooks": {
+      "on_session_start": "scripts/sm-primer.sh",
+      "pre_llm_call": "hooks/sm-recall.py",
+      "post_tool_use": "hooks/sm-auto-edge.sh",
+      "post_llm_call": "hooks/sm-conversation-capture.py"
+    },
+    "commands": {
+      "/memory-setup": "commands/memory-setup.md",
+      "/memory-ingest": "commands/memory-ingest.md"
+    },
+    "mcp_servers": {
+      "semantic-memory": {
+        "command": "semantic-memory-mcp",
+        "args": ["--memory-dir", "$SEMANTIC_MEMORY_DIR", "--tool-profile", "lean", "--http-port", "1738", "--llm-model", "$LLM_MODEL"]
+      }
+    }
+  }
+}
