@@ -1,0 +1,40 @@
+{
+  "name": "semantic-memory",
+  "version": "0.7.0+codex.20260627",
+  "description": "Local-first persistent semantic memory for Codex: lean/standard/full sm_* MCP profiles, warm HTTP recall hooks, adaptive routing, codebase ingestion, conversation memory, graph exploration, supersession, and memory curation skills.",
+  "author": {
+    "name": "Josh Stevenson",
+    "email": "j.stevenson.cs@gmail.com",
+    "url": "https://github.com/RecursiveIntell"
+  },
+  "homepage": "https://github.com/RecursiveIntell/semantic-memory-mcp",
+  "repository": "https://github.com/RecursiveIntell/semantic-memory-mcp",
+  "license": "Apache-2.0",
+  "keywords": [
+    "memory",
+    "semantic-search",
+    "mcp",
+    "knowledge-graph",
+    "rag",
+    "local-first"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Semantic Memory",
+    "shortDescription": "Persistent local memory, graph recall, and conversation search for Codex",
+    "longDescription": "Semantic Memory gives Codex shared, local-first memory backed by semantic-memory-mcp. It exposes the current semantic-memory tool surface through lean, standard, and full profiles: hybrid search, direct fact reads, namespace enumeration, adaptive routing, graph traversal, fact supersession, lifecycle curation, conversation sessions, setup verification, warm project-scoped recall hooks, and deterministic repository ingestion.",
+    "developerName": "Josh Stevenson",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Search semantic memory and verify results",
+      "Sync this repo into semantic memory",
+      "Audit memory for duplicates and graph gaps"
+    ],
+    "brandColor": "#2563EB"
+  },
+  "mcpServers": "./.mcp.json"
+}

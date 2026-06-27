@@ -1,0 +1,13 @@
+interface:
+  display_name: "Memory Sync"
+  short_description: "Refresh repo memory idempotently"
+  brand_color: "#2563EB"
+  default_prompt: "Use $memory-sync to dry-run and refresh this repository's semantic memory with dedupe."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server used by the repository ingester"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

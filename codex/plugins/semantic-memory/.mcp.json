@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "semantic-memory": {
+      "command": "./scripts/run-server.sh"
+    }
+  }
+}

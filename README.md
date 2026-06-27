@@ -7,11 +7,11 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](#license)
 [![Local-first](https://img.shields.io/badge/data-100%25%20local-green)](#privacy--local-first)
 
-Claude Code forgets everything between sessions. This kit fixes that. It wraps the
-[`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp) server in a
-Claude Code **plugin** so that relevant facts are **automatically recalled on every
-prompt**, and ships a **language-agnostic ingester** that turns any repository into
-a searchable fact + dependency graph.
+AI coding agents forget everything between sessions. This kit fixes that. It wraps the
+[`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp) server in
+agent-native packages for Claude Code, Hermes Agent, and Codex CLI so that relevant
+facts are automatically recalled when useful, and ships a language-agnostic ingester
+that turns any repository into a searchable fact + dependency graph.
 
 Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 (`nomic-embed-text-v1.5`, CPU-only), no API keys, no cloud, no telemetry.
@@ -140,8 +140,9 @@ cp hermes/hooks/* ~/.hermes/agent-hooks/
 
 ### Codex CLI (`codex/`)
 ```bash
-cp -r codex/plugins/semantic-memory ~/.codex/plugins/
-# Or: codex plugin install semantic-memory --source ~/Coding/semantic-memory-codex
+codex plugin marketplace add ./codex
+codex plugin add semantic-memory@semantic-memory-codex-kit
+# Or copy directly: cp -r codex/plugins/semantic-memory ~/plugins/
 ```
 
 ## Install
@@ -154,6 +155,8 @@ cp -r codex/plugins/semantic-memory ~/.codex/plugins/
 
 ### Option A — Plugin (recommended)
 
+Claude Code:
+
 ```text
 /plugin marketplace add RecursiveIntell/semantic-memory-claude-kit
 /plugin install semantic-memory@semantic-memory-kit
@@ -163,6 +166,20 @@ cp -r codex/plugins/semantic-memory ~/.codex/plugins/
 `/memory-setup` installs the `semantic-memory-mcp` binary and allowlists the `sm_*`
 tools (one time). The MCP server and the three hooks are provided by the plugin.
 Restart Claude Code once so the hooks load.
+
+Codex CLI:
+
+```bash
+git clone https://github.com/RecursiveIntell/semantic-memory-claude-kit
+cd semantic-memory-claude-kit
+codex plugin marketplace add ./codex
+codex plugin add semantic-memory@semantic-memory-codex-kit
+```
+
+The Codex package installs the `semantic-memory` MCP server config, skills, prompts,
+setup/doctor scripts, warm recall hooks, and automatic codebase-ingest hook. Codex
+uses warm HTTP port `1739` by default so it does not collide with Hermes/Claude
+sidecars that may use `1738`.
 
 ### Option B — Manual (no plugins)
 
@@ -250,7 +267,7 @@ Re-running with `--dedupe` writes **0** new facts on an unchanged repo.
 | `SEMANTIC_MEMORY_MCP_BIN` | auto-resolved | Override the binary path |
 | `SEMANTIC_MEMORY_HTTP_PORT` | `1739` | Warm HTTP port the MCP server co-hosts and the hooks query. Set to `0` to disable the warm endpoint (hooks cold-spawn). Change it if another service already owns the port. |
 | `SEMANTIC_MEMORY_HOOK_DEBUG` | unset | If set to a file path, hooks log each firing there (records `warm HTTP` vs `cold stdio` per call) |
-| `SEMANTIC_MEMORY_TOOL_PROFILE` | `lean` | Tool profile: `lean` (33 daily-use tools), `standard` (39 + maintenance/audit), `full` (48, all tools). Lean keeps the agent's tool-selection accurate by hiding admin/audit/import tools. |
+| `SEMANTIC_MEMORY_TOOL_PROFILE` | `lean` | Tool profile: `lean` (33 daily-use tools), `standard` (48 + maintenance/audit), `full` (61, all tools). Lean keeps the agent's tool-selection accurate by hiding admin/audit/import tools. |
 | `SM_RECALL_MINTOP` | `0.58` | Best hit must reach this cosine, or nothing is injected |
 | `SM_RECALL_BAND` | `0.12` | Keep hits within this cosine distance of the best hit |
 | `SM_RECALL_ABSFLOOR` | `0.54` | Hard minimum cosine regardless of band |

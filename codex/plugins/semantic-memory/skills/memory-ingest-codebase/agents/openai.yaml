@@ -1,0 +1,13 @@
+interface:
+  display_name: "Memory Ingest Codebase"
+  short_description: "Index repositories into semantic memory"
+  brand_color: "#2563EB"
+  default_prompt: "Use $memory-ingest-codebase to dry-run and ingest this repository into semantic memory with dedupe."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server used by the ingester for facts and graph edges"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,13 @@
+interface:
+  display_name: "Memory Keeper"
+  short_description: "Specialist memory audit workflow"
+  brand_color: "#2563EB"
+  default_prompt: "Use $memory-keeper to perform a focused semantic-memory audit and return concise evidence."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server with recall, graph, lifecycle, and conversation tools"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

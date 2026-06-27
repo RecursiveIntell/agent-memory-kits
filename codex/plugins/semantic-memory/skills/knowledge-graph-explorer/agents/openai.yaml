@@ -1,0 +1,13 @@
+interface:
+  display_name: "Knowledge Graph Explorer"
+  short_description: "Traverse memory graph relationships"
+  brand_color: "#2563EB"
+  default_prompt: "Use $knowledge-graph-explorer to find how these semantic-memory facts are related."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server with graph, neighbor, path, community, and search tools"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

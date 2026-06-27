@@ -1,0 +1,13 @@
+interface:
+  display_name: "Memory Curator"
+  short_description: "Audit and reconcile memory health"
+  brand_color: "#2563EB"
+  default_prompt: "Use $memory-curator to audit semantic memory for duplicates, contradictions, stale facts, and graph gaps."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server with read, lifecycle, provenance, and graph tools"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

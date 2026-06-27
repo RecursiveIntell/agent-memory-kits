@@ -1,0 +1,20 @@
+{
+  "name": "semantic-memory-codex-kit",
+  "interface": {
+    "displayName": "Semantic Memory Codex Kit"
+  },
+  "plugins": [
+    {
+      "name": "semantic-memory",
+      "source": {
+        "source": "local",
+        "path": "./plugins/semantic-memory"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

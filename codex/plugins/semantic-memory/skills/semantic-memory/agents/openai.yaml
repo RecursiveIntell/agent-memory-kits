@@ -1,0 +1,13 @@
+interface:
+  display_name: "Semantic Memory"
+  short_description: "Search and update persistent local memory"
+  brand_color: "#2563EB"
+  default_prompt: "Use $semantic-memory to search persistent memory first, verify results, and persist durable facts after the task."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server with sm_* recall, persistence, ingestion, graph, and lifecycle tools"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

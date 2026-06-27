@@ -1,0 +1,13 @@
+interface:
+  display_name: "Memory Conversation Log"
+  short_description: "Recall and log past sessions"
+  brand_color: "#2563EB"
+  default_prompt: "Use $memory-conversation-log to search prior semantic-memory conversation sessions for this context."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server with conversation session and message tools"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

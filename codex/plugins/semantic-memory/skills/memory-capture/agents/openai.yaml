@@ -1,0 +1,13 @@
+interface:
+  display_name: "Memory Capture"
+  short_description: "Save durable facts without duplicates"
+  brand_color: "#2563EB"
+  default_prompt: "Use $memory-capture to remember this verified durable fact in semantic memory."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server for dedupe, fact writes, and graph links"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

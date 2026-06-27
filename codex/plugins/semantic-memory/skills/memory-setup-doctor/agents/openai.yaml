@@ -1,0 +1,13 @@
+interface:
+  display_name: "Memory Setup Doctor"
+  short_description: "Diagnose Codex memory installation"
+  brand_color: "#2563EB"
+  default_prompt: "Use $memory-setup-doctor to verify my semantic-memory Codex plugin, hooks, MCP server, and approvals."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server checked by the doctor script"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

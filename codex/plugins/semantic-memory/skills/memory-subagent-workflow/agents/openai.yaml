@@ -1,0 +1,13 @@
+interface:
+  display_name: "Memory Subagent Workflow"
+  short_description: "Parallel memory-aware repo exploration"
+  brand_color: "#2563EB"
+  default_prompt: "Use $memory-subagent-workflow to coordinate memory-aware subagents for this large repository task."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "Local semantic-memory MCP server used for recall and verified persistence"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

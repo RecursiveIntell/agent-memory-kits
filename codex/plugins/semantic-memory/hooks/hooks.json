@@ -1,0 +1,60 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONDONTWRITEBYTECODE=1 python3 ${PLUGIN_ROOT:-$PWD}/hooks/memory-primer.py",
+            "timeout": 12,
+            "statusMessage": "Priming semantic memory"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONDONTWRITEBYTECODE=1 python3 ${PLUGIN_ROOT:-$PWD}/hooks/memory-recall.py",
+            "timeout": 12,
+            "statusMessage": "Recalling semantic memory"
+          },
+          {
+            "type": "command",
+            "command": "PYTHONDONTWRITEBYTECODE=1 python3 ${PLUGIN_ROOT:-$PWD}/hooks/codebase-auto-ingest.py",
+            "timeout": 5,
+            "statusMessage": "Checking codebase memory"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONDONTWRITEBYTECODE=1 python3 ${PLUGIN_ROOT:-$PWD}/hooks/memory-capture-nudge.py",
+            "timeout": 5,
+            "statusMessage": "Checking semantic-memory capture"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONDONTWRITEBYTECODE=1 python3 ${PLUGIN_ROOT:-$PWD}/hooks/memory-capture-nudge.py",
+            "timeout": 5,
+            "statusMessage": "Checking semantic-memory capture"
+          }
+        ]
+      }
+    ]
+  }
+}
