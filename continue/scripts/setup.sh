@@ -27,3 +27,12 @@ EOF
 echo
 echo "Copy the snippet into Continue MCP configuration per the current Continue docs."
 echo "Then run: continue/scripts/doctor.py"
+cat <<EOF
+
+Context-injection setup (workspace rules):
+  $ROOT/shared/scripts/install-context-rules.py continue --scope workspace --workspace /path/to/project
+
+Context-injection setup (global rules where supported):
+  $ROOT/shared/scripts/install-context-rules.py continue --scope global
+EOF
+

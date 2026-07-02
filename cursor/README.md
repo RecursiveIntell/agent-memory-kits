@@ -69,3 +69,22 @@ Save this decision to semantic memory with namespace code:<repo-name> and source
 ## Notes
 
 If the warm HTTP health check warns, MCP stdio can still work. Warm HTTP is an optimization for hook-based hosts; Cursor MCP tool use does not require it.
+
+
+## Context injection
+
+Install a workspace rule into a project:
+
+```bash
+shared/scripts/install-context-rules.py cursor --scope workspace --workspace /path/to/project
+```
+
+Cursor global User Rules are UI-managed, so this kit installs a project `.cursor/rules/*.mdc` rule instead of claiming a global file path.
+
+The installed rule points at:
+
+```bash
+shared/scripts/semantic-memory-context.py --prompt "$USER_TASK"
+```
+
+That command queries the warm HTTP server first (`SEMANTIC_MEMORY_HTTP_PORT`, default `1739`) and falls back to stdio MCP. Returned entries are explicitly marked as recall, not ground truth.

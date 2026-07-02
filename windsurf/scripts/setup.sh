@@ -27,3 +27,12 @@ EOF
 echo
 echo "Copy the snippet into Windsurf Cascade MCP settings per the current Windsurf docs."
 echo "Then run: windsurf/scripts/doctor.py"
+cat <<EOF
+
+Context-injection setup (workspace rules):
+  $ROOT/shared/scripts/install-context-rules.py windsurf --scope workspace --workspace /path/to/project
+
+Context-injection setup (global rules where supported):
+  $ROOT/shared/scripts/install-context-rules.py windsurf --scope global
+EOF
+

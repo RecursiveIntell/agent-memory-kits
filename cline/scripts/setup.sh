@@ -27,3 +27,12 @@ EOF
 echo
 echo "Copy the snippet into Cline MCP settings per the current Cline docs."
 echo "Then run: cline/scripts/doctor.py"
+cat <<EOF
+
+Context-injection setup (workspace rules):
+  $ROOT/shared/scripts/install-context-rules.py cline --scope workspace --workspace /path/to/project
+
+Context-injection setup (global rules where supported):
+  $ROOT/shared/scripts/install-context-rules.py cline --scope global
+EOF
+

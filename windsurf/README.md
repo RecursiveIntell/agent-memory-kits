@@ -5,7 +5,8 @@ This is the Windsurf MCP setup kit for semantic-memory-mcp.
 Capability boundary:
 - Works: exposes the `sm_*` semantic-memory MCP tools to Windsurf once the MCP config is registered.
 - Works: local-first memory storage, hybrid search, graph tools, provenance, supersession, claims, and manual/codebase-ingest workflows.
-- Not claimed yet: automatic pre-prompt recall or project primer. This package is MCP-first unless a stable Windsurf hook/context-injection API is verified and implemented later.
+- Works: context-injection via host rule/instruction files. The setup kit can install a semantic-memory rule that tells the agent to retrieve memory through MCP, or through the shared context command when shell execution is available.
+- Boundary: this is rule/instruction based for this host, not a guaranteed pre-prompt hook unless the host exposes a stable hook API.
 
 ## Install
 
@@ -46,3 +47,26 @@ Save this decision to semantic memory with namespace code:<repo-name> and source
 ## Notes
 
 If the warm HTTP health check warns, MCP stdio can still work. Warm HTTP is mainly for hook-based hosts; MCP tool use does not require it.
+
+
+## Context injection
+
+Install a workspace rule into a project:
+
+```bash
+shared/scripts/install-context-rules.py windsurf --scope workspace --workspace /path/to/project
+```
+
+Install a global rule where the host has a documented global-rule location:
+
+```bash
+shared/scripts/install-context-rules.py windsurf --scope global
+```
+
+The installed rule points at:
+
+```bash
+shared/scripts/semantic-memory-context.py --prompt "$USER_TASK"
+```
+
+That command queries the warm HTTP server first (`SEMANTIC_MEMORY_HTTP_PORT`, default `1739`) and falls back to stdio MCP. Returned entries are explicitly marked as recall, not ground truth.

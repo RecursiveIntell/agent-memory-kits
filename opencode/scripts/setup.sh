@@ -27,3 +27,12 @@ EOF
 echo
 echo "Copy the snippet into OpenCode MCP server configuration per the current OpenCode docs."
 echo "Then run: opencode/scripts/doctor.py"
+cat <<EOF
+
+Context-injection setup (workspace rules):
+  $ROOT/shared/scripts/install-context-rules.py opencode --scope workspace --workspace /path/to/project
+
+Context-injection setup (global rules where supported):
+  $ROOT/shared/scripts/install-context-rules.py opencode --scope global
+EOF
+

@@ -368,3 +368,37 @@ knowledge base never leaves your machine.
 
 Apache-2.0. Built on [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp)
 and [`semantic-memory`](https://crates.io/crates/semantic-memory).
+
+
+## Context injection for MCP-only kits
+
+The Cursor, Windsurf, Cline, Roo Code, Continue, and OpenCode kits now include a shared context-injection layer in addition to MCP registration:
+
+- `shared/scripts/semantic-memory-context.py` retrieves compact memory context for a prompt.
+- `shared/rules/semantic-memory-context.md` is the host-neutral rule text.
+- `shared/scripts/install-context-rules.py` installs host-specific rule/instruction files.
+
+Examples:
+
+```bash
+# workspace rule for a project
+shared/scripts/install-context-rules.py cursor --scope workspace --workspace /path/to/project
+shared/scripts/install-context-rules.py cline --scope workspace --workspace /path/to/project
+shared/scripts/install-context-rules.py roo-code --scope workspace --workspace /path/to/project
+shared/scripts/install-context-rules.py windsurf --scope workspace --workspace /path/to/project
+shared/scripts/install-context-rules.py continue --scope workspace --workspace /path/to/project
+shared/scripts/install-context-rules.py opencode --scope workspace --workspace /path/to/project
+
+# global rule where supported by the host
+shared/scripts/install-context-rules.py cline --scope global
+shared/scripts/install-context-rules.py roo-code --scope global
+shared/scripts/install-context-rules.py windsurf --scope global
+shared/scripts/install-context-rules.py continue --scope global
+shared/scripts/install-context-rules.py opencode --scope global
+```
+
+Host boundaries:
+
+- Claude Code and Codex have real hook-based recall.
+- Cursor/Cline/Roo/Windsurf/Continue/OpenCode use documented rule/config surfaces plus the shared context command unless/until a stable pre-prompt hook API is available for that host.
+- Context retrieved from memory is recall to consider, not ground truth; current files and live tool output outrank memory.

@@ -407,3 +407,17 @@ Minimum shippable PR:
 - `scripts/validate-all-kits.sh`
 
 Do not start by building six bespoke packages. Build one shared core + one host, verify it, then clone the pattern.
+
+
+## Context-injection pass shipped
+
+Added a host-neutral context injector and rule installer:
+
+- `shared/scripts/semantic-memory-context.py`: prompt in, compact recall block out; warm HTTP first, stdio MCP fallback.
+- `shared/rules/semantic-memory-context.md`: common rule semantics for agents without direct hooks.
+- `shared/scripts/install-context-rules.py`: host-specific rule/instruction installer for Cursor, Windsurf, Cline, Roo Code, Continue, and OpenCode.
+
+This intentionally separates two capability tiers:
+
+1. Hook tier: Claude Code and Codex can inject recall at prompt/session lifecycle events.
+2. Rule/context tier: MCP-only agents get automatic behavioral guidance through their rule systems and a deterministic context command; no false claim of a hidden pre-prompt hook.

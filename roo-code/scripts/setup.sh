@@ -27,3 +27,12 @@ EOF
 echo
 echo "Copy the snippet into Roo Code MCP settings per the current Roo Code docs."
 echo "Then run: roo-code/scripts/doctor.py"
+cat <<EOF
+
+Context-injection setup (workspace rules):
+  $ROOT/shared/scripts/install-context-rules.py roo-code --scope workspace --workspace /path/to/project
+
+Context-injection setup (global rules where supported):
+  $ROOT/shared/scripts/install-context-rules.py roo-code --scope global
+EOF
+

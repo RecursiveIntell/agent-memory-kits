@@ -50,3 +50,11 @@ else
   echo "To write project-local config, run: cursor/scripts/setup.sh --write-project"
   echo "For global Cursor config, copy the snippet into your Cursor MCP settings per the current Cursor docs."
 fi
+cat <<EOF
+
+Context-injection setup (workspace rules):
+  $ROOT/shared/scripts/install-context-rules.py cursor --scope workspace --workspace /path/to/project
+
+Cursor global User Rules are UI-managed; use the workspace rule command above.
+EOF
+
