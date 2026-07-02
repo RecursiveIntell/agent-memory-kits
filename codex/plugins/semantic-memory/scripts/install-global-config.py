@@ -81,6 +81,24 @@ def resolve_binary() -> Path | None:
     return None
 
 
+def binary_help(binary: Path) -> str:
+    try:
+        proc = subprocess.run(
+            [str(binary), "--help"],
+            text=True,
+            capture_output=True,
+            timeout=3,
+            check=False,
+        )
+    except Exception:
+        return ""
+    return f"{proc.stdout}\n{proc.stderr}"
+
+
+def binary_supports(binary: Path, flag: str) -> bool:
+    return flag in binary_help(binary)
+
+
 def quote(value: str) -> str:
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
@@ -165,11 +183,11 @@ def managed_block(binary: Path) -> str:
         "--embedder",
         os.environ.get("SEMANTIC_MEMORY_EMBEDDER", "candle"),
     ]
-    if tool_profile:
+    if tool_profile and binary_supports(binary, "--tool-profile"):
         mcp_args.extend(["--tool-profile", tool_profile])
-    if http_port:
+    if http_port and binary_supports(binary, "--http-port"):
         mcp_args.extend(["--http-port", http_port])
-    if llm_model:
+    if llm_model and binary_supports(binary, "--llm-model"):
         mcp_args.extend(["--llm-model", llm_model])
     lines = [
         "[mcp_servers.semantic_memory]",

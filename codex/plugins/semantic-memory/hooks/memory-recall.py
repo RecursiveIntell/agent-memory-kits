@@ -161,6 +161,13 @@ def warm_search(prompt: str, top_k: int, query_class: str, namespaces: list[str]
     return result, bool(result)
 
 
+def stdio_search(prompt: str, top_k: int, namespaces: list[str] | None = None) -> dict | None:
+    payload = {"query": prompt, "top_k": top_k}
+    if namespaces:
+        payload["namespaces"] = namespaces
+    return rpc_call("sm_search", payload, timeout=8)
+
+
 def prepare_hits(result: dict, warm: bool) -> tuple[list[dict], str]:
     results = result.get("results") or []
     score_key = "cosine_similarity" if any(hit.get("cosine_similarity") is not None for hit in results) else "score"
@@ -212,6 +219,9 @@ def main() -> int:
     score_key = "score"
     for pass_index, namespaces in enumerate(namespace_passes(prompt, cwd)):
         scoped, scoped_warm = warm_search(prompt[:4000], search_k, query_class, namespaces=namespaces)
+        if not scoped or not scoped.get("ok"):
+            scoped = stdio_search(prompt[:4000], search_k, namespaces=namespaces)
+            scoped_warm = False
         if scoped and scoped.get("ok"):
             scoped_hits, scoped_key = prepare_hits(scoped, scoped_warm)
             hits = merge_hits(hits, scoped_hits, pass_index)
@@ -219,7 +229,7 @@ def main() -> int:
             warm = warm or scoped_warm
     result, broad_warm = warm_search(prompt[:4000], search_k, query_class)
     if not result:
-        result = rpc_call("sm_search", {"query": prompt[:4000], "top_k": search_k}, timeout=8)
+        result = stdio_search(prompt[:4000], search_k)
         broad_warm = False
     if not result or not result.get("ok"):
         if not hits:
@@ -231,7 +241,7 @@ def main() -> int:
         warm = warm or broad_warm
 
     if not hits and warm and query_class != "A":
-        fallback = rpc_call("sm_search", {"query": prompt[:4000], "top_k": search_k}, timeout=8)
+        fallback = stdio_search(prompt[:4000], search_k)
         if fallback and fallback.get("ok"):
             fallback_hits, score_key = prepare_hits(fallback, False)
             hits = merge_hits(hits, fallback_hits, 100)
@@ -284,7 +294,29 @@ def main() -> int:
             if len(query_terms & terms(str(hit.get("content") or ""))) >= min_overlap
         ]
         if not overlapped:
-            return 0
+            fallback = stdio_search(prompt[:4000], search_k)
+            if fallback and fallback.get("ok"):
+                fallback_hits, score_key = prepare_hits(fallback, False)
+                hits = merge_hits([], fallback_hits, 100)
+                if not hits:
+                    return 0
+                top = float(hits[0].get(score_key) or 0)
+                if score_key == "cosine_similarity":
+                    if top < mintop:
+                        return 0
+                    floor = max(absfloor, top - band)
+                    kept = [hit for hit in hits if float(hit.get(score_key) or 0) >= floor][:max_hits]
+                else:
+                    if top <= 0:
+                        return 0
+                    kept = [hit for hit in hits if float(hit.get(score_key) or 0) >= top * scorerel][:max_hits]
+                overlapped = [
+                    hit
+                    for hit in kept
+                    if len(query_terms & terms(str(hit.get("content") or ""))) >= min_overlap
+                ]
+            if not overlapped:
+                return 0
         kept = overlapped
     lines = []
     for hit in kept:

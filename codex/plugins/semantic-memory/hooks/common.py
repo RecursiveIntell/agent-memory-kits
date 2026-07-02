@@ -41,6 +41,24 @@ def resolve_binary() -> str | None:
     return None
 
 
+def binary_help(binary: str) -> str:
+    try:
+        proc = subprocess.run(
+            [binary, "--help"],
+            text=True,
+            capture_output=True,
+            timeout=3,
+            check=False,
+        )
+    except Exception:
+        return ""
+    return f"{proc.stdout}\n{proc.stderr}"
+
+
+def binary_supports(binary: str, flag: str) -> bool:
+    return flag in binary_help(binary)
+
+
 def memory_dir() -> str:
     return os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".local/share/semantic-memory"))
 
@@ -102,7 +120,7 @@ def rpc_call(tool: str, arguments: dict, timeout: int = 8) -> dict | None:
     embedder = os.environ.get("SEMANTIC_MEMORY_EMBEDDER", "candle")
     tool_profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "lean")
     base_args = ["--memory-dir", memdir]
-    if tool_profile:
+    if tool_profile and binary_supports(binary, "--tool-profile"):
         base_args.extend(["--tool-profile", tool_profile])
     commands = [[binary, *base_args]]
     if embedder:

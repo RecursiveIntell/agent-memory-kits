@@ -104,6 +104,24 @@ def resolve_binary() -> Path | None:
     return None
 
 
+def binary_help(binary: Path) -> str:
+    try:
+        proc = subprocess.run(
+            [str(binary), "--help"],
+            text=True,
+            capture_output=True,
+            timeout=3,
+            check=False,
+        )
+    except Exception:
+        return ""
+    return f"{proc.stdout}\n{proc.stderr}"
+
+
+def binary_supports(binary: Path, flag: str) -> bool:
+    return flag in binary_help(binary)
+
+
 def load_json(path: Path) -> dict | None:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -245,9 +263,9 @@ def rpc_call(binary: Path, method: str, params: dict | None = None, timeout: int
         str(MEMORY_DIR),
         "--embedder",
         os.environ.get("SEMANTIC_MEMORY_EMBEDDER", "candle"),
-        "--tool-profile",
-        os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "lean"),
     ]
+    if binary_supports(binary, "--tool-profile"):
+        cmd.extend(["--tool-profile", os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "lean")])
     try:
         proc = subprocess.run(cmd, input=stdin, text=True, capture_output=True, timeout=20, check=False)
     except Exception as exc:

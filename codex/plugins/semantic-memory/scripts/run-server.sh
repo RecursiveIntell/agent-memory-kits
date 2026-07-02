@@ -22,9 +22,10 @@ SM_TOOL_PROFILE="${SEMANTIC_MEMORY_TOOL_PROFILE:-lean}"
 SM_LLM_MODEL="${SEMANTIC_MEMORY_LLM_MODEL:-${LLM_MODEL:-granite4.1:3b}}"
 
 EXTRA_ARGS=()
-[ -n "$SM_TOOL_PROFILE" ] && EXTRA_ARGS+=(--tool-profile "$SM_TOOL_PROFILE")
-[ -n "$SM_HTTP_PORT" ] && EXTRA_ARGS+=(--http-port "$SM_HTTP_PORT")
-[ -n "$SM_LLM_MODEL" ] && EXTRA_ARGS+=(--llm-model "$SM_LLM_MODEL")
+HELP="$("$SM_BIN" --help 2>&1 || true)"
+case "$HELP" in *"--tool-profile"*) [ -n "$SM_TOOL_PROFILE" ] && EXTRA_ARGS+=(--tool-profile "$SM_TOOL_PROFILE") ;; esac
+case "$HELP" in *"--http-port"*) [ -n "$SM_HTTP_PORT" ] && EXTRA_ARGS+=(--http-port "$SM_HTTP_PORT") ;; esac
+case "$HELP" in *"--llm-model"*) [ -n "$SM_LLM_MODEL" ] && EXTRA_ARGS+=(--llm-model "$SM_LLM_MODEL") ;; esac
 
 if [ -n "$SM_EMBEDDER" ]; then
   exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" "${EXTRA_ARGS[@]}" "$@"
