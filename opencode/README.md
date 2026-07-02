@@ -83,3 +83,37 @@ This kit also includes Context Governor as a companion MCP server and rule layer
 Use it when a OpenCode session is long, a handoff is needed, or context is about to be compacted. It preserves high-risk context and stores exact fallback receipts that can be searched and expanded later.
 
 Boundary: for hosts without a verified pre-compact hook, this is rule/command/MCP assisted. It does not claim automatic transcript capture unless the host exposes transcript messages to an extension/hook API.
+
+
+## Quick install
+
+Print config snippets only:
+
+```bash
+opencode/scripts/setup.sh
+```
+
+Write project-local rule/config files:
+
+```bash
+opencode/scripts/setup.sh --write-project /path/to/project
+```
+
+Write safe user/global rule files where this host supports them:
+
+```bash
+opencode/scripts/setup.sh --write-user
+```
+
+Dry run before writing:
+
+```bash
+opencode/scripts/setup.sh --dry-run --write-project /path/to/project
+```
+
+Verify:
+
+```bash
+opencode/scripts/doctor.py
+shared/scripts/doctor-all.py --deep
+```

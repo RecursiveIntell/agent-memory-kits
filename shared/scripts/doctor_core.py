@@ -1,46 +1,63 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 
 MEMORY_DIR = Path(os.environ.get("SEMANTIC_MEMORY_DIR", Path.home() / ".local/share/semantic-memory")).expanduser()
 HTTP_URL = os.environ.get("SEMANTIC_MEMORY_HTTP_URL") or f"http://127.0.0.1:{os.environ.get('SEMANTIC_MEMORY_HTTP_PORT', '1739')}"
+CG_STORE = Path(os.environ.get("CONTEXT_GOVERNOR_STORE", Path.home() / ".local/share/context-governor/receipts")).expanduser()
+
+RESULTS: list[dict] = []
 
 
-def ok(label: str, detail: str = "") -> None:
-    print(f"OK   {label}{': ' + detail if detail else ''}")
+def record(status: str, label: str, detail: str = "") -> None:
+    RESULTS.append({"status": status, "label": label, "detail": detail})
+    print(f"{status:<4} {label}{': ' + detail if detail else ''}")
 
 
-def warn(label: str, detail: str = "") -> None:
-    print(f"WARN {label}{': ' + detail if detail else ''}")
+def ok(label: str, detail: str = "") -> None: record("OK", label, detail)
+def warn(label: str, detail: str = "") -> None: record("WARN", label, detail)
+def fail(label: str, detail: str = "") -> None: record("FAIL", label, detail)
 
 
-def fail(label: str, detail: str = "") -> None:
-    print(f"FAIL {label}{': ' + detail if detail else ''}")
-
-
-def resolve_binary() -> Path | None:
+def resolve_semantic_binary() -> Path | None:
     candidates: list[Path] = []
     env = os.environ.get("SEMANTIC_MEMORY_MCP_BIN")
-    if env:
-        candidates.append(Path(env).expanduser())
+    if env: candidates.append(Path(env).expanduser())
     candidates.extend([
         Path.home() / "Coding/Libraries/semantic-memory-mcp/target/release/semantic-memory-mcp",
         Path.home() / ".local/bin/semantic-memory-mcp",
     ])
-    which = shutil.which("semantic-memory-mcp")
-    if which:
+    if which := shutil.which("semantic-memory-mcp"):
         candidates.append(Path(which))
     candidates.append(Path.home() / ".cargo/bin/semantic-memory-mcp")
     for candidate in candidates:
-        if candidate.is_file() and os.access(candidate, os.X_OK):
-            return candidate
+        if candidate.is_file() and os.access(candidate, os.X_OK): return candidate
+    return None
+
+
+def resolve_cg_binary() -> Path | None:
+    candidates: list[Path] = []
+    env = os.environ.get("CONTEXT_GOVERNOR_BIN")
+    if env: candidates.append(Path(env).expanduser())
+    candidates.extend([
+        Path.home() / "Coding/Libraries/context-governor/target/release/context-governor",
+        Path.home() / ".local/bin/context-governor",
+    ])
+    if which := shutil.which("context-governor"):
+        candidates.append(Path(which))
+    candidates.append(Path.home() / ".cargo/bin/context-governor")
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK): return candidate
     return None
 
 
@@ -48,80 +65,153 @@ def binary_help(binary: Path) -> str:
     try:
         proc = subprocess.run([str(binary), "--help"], text=True, capture_output=True, timeout=5, check=False)
     except Exception as exc:
-        fail("binary --help", str(exc))
-        return ""
-    if proc.returncode == 0:
-        ok("binary --help", str(binary))
-    else:
-        warn("binary --help", proc.stderr.strip()[-300:])
+        fail("binary --help", str(exc)); return ""
+    if proc.returncode == 0: ok("binary --help", str(binary))
+    else: warn("binary --help", proc.stderr.strip()[-300:])
     return f"{proc.stdout}\n{proc.stderr}"
 
 
-def http_health() -> None:
+def http_get(path: str, label: str, timeout: float = 2.0) -> dict | None:
     try:
-        with urllib.request.urlopen(HTTP_URL.rstrip("/") + "/health", timeout=2) as resp:
-            body = resp.read().decode("utf-8", "replace")[:300]
-        ok("warm HTTP health", f"{HTTP_URL} {body}")
+        with urllib.request.urlopen(HTTP_URL.rstrip("/") + path, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8", "replace")
+        data = json.loads(raw)
+        ok(label, f"{HTTP_URL}{path} {str(data)[:300]}")
+        return data if isinstance(data, dict) else None
     except Exception as exc:
-        warn("warm HTTP health", f"{HTTP_URL} unavailable ({exc}); MCP stdio can still work")
+        warn(label, f"{HTTP_URL}{path} unavailable ({exc})")
+        return None
 
 
 def rpc_tools_list(binary: Path) -> bool:
     MEMORY_DIR.mkdir(parents=True, exist_ok=True)
-    init = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "initialize",
-        "params": {
-            "protocolVersion": "2024-11-05",
-            "capabilities": {},
-            "clientInfo": {"name": "semantic-memory-agent-kit-doctor", "version": "1"},
-        },
-    }
-    reqs = [init, {"jsonrpc": "2.0", "method": "notifications/initialized"}, {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}]
+    reqs = [
+        {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"semantic-memory-agent-kit-doctor","version":"1"}}},
+        {"jsonrpc":"2.0","method":"notifications/initialized"},
+        {"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}},
+    ]
     stdin = "\n".join(json.dumps(x) for x in reqs) + "\n"
     cmd = [str(binary), "--memory-dir", str(MEMORY_DIR), "--embedder", os.environ.get("SEMANTIC_MEMORY_EMBEDDER", "candle")]
     help_text = binary_help(binary)
     profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "lean")
-    if "--tool-profile" in help_text and profile:
-        cmd.extend(["--tool-profile", profile])
+    if "--tool-profile" in help_text and profile: cmd.extend(["--tool-profile", profile])
     try:
         proc = subprocess.run(cmd, input=stdin, text=True, capture_output=True, timeout=25, check=False)
     except Exception as exc:
-        fail("MCP tools/list", str(exc))
-        return False
+        fail("semantic-memory MCP tools/list", str(exc)); return False
     for line in proc.stdout.splitlines():
-        try:
-            msg = json.loads(line)
-        except Exception:
-            continue
+        try: msg = json.loads(line)
+        except Exception: continue
         if msg.get("id") == 2:
             tools = msg.get("result", {}).get("tools", [])
             names = {t.get("name") for t in tools}
             required = {"sm_search", "sm_add_fact", "sm_stats", "sm_supersede_fact"}
             missing = sorted(required - names)
             if missing:
-                fail("MCP tools/list", "missing " + ", ".join(missing))
-                return False
-            ok("MCP tools/list", f"{len(tools)} tools exposed; required semantic-memory tools present")
+                fail("semantic-memory MCP tools/list", "missing " + ", ".join(missing)); return False
+            ok("semantic-memory MCP tools/list", f"{len(tools)} tools exposed; required tools present")
             return True
-    detail = (proc.stderr or proc.stdout)[-500:]
-    fail("MCP tools/list", detail.strip())
-    return False
+    fail("semantic-memory MCP tools/list", (proc.stderr or proc.stdout)[-500:].strip()); return False
+
+
+def cg_mcp_tools_list() -> bool:
+    script = Path(__file__).resolve().parent / "context-governor-mcp.py"
+    reqs = [
+        {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"semantic-memory-agent-kit-doctor","version":"1"}}},
+        {"jsonrpc":"2.0","method":"notifications/initialized"},
+        {"jsonrpc":"2.0","id":2,"method":"tools/list"},
+    ]
+    try:
+        proc = subprocess.run([str(script)], input="\n".join(json.dumps(x) for x in reqs)+"\n", text=True, capture_output=True, timeout=15, check=False)
+    except Exception as exc:
+        fail("context-governor MCP tools/list", str(exc)); return False
+    if proc.returncode != 0:
+        fail("context-governor MCP tools/list", proc.stderr.strip()[-500:]); return False
+    for line in proc.stdout.splitlines():
+        try: msg=json.loads(line)
+        except Exception: continue
+        if msg.get("id") == 2:
+            tools=msg.get("result",{}).get("tools",[]); names={t.get("name") for t in tools}
+            required={"cg_list_receipts","cg_search","cg_expand","cg_diff_receipt"}
+            missing=sorted(required-names)
+            if missing: fail("context-governor MCP tools/list", "missing "+", ".join(missing)); return False
+            ok("context-governor MCP tools/list", f"{len(tools)} tools exposed; required tools present")
+            return True
+    fail("context-governor MCP tools/list", (proc.stderr or proc.stdout)[-500:].strip()); return False
+
+
+def cg_status(binary: Path | None) -> None:
+    CG_STORE.mkdir(parents=True, exist_ok=True)
+    ok("context-governor receipt store", str(CG_STORE))
+    if not binary:
+        fail("context-governor binary", "not found; run shared/scripts/install_context_governor.sh")
+        return
+    ok("context-governor binary", str(binary))
+    try:
+        proc = subprocess.run([str(binary), "status", "--dir", str(CG_STORE)], text=True, capture_output=True, timeout=10, check=False)
+        if proc.returncode == 0:
+            data = json.loads(proc.stdout)
+            ok("context-governor status", f"receipts={data.get('receipt_count')} bytes={data.get('total_bytes')}")
+        else:
+            warn("context-governor status", proc.stderr.strip()[-300:])
+    except Exception as exc:
+        warn("context-governor status", str(exc))
+
+
+def compact_smoke() -> None:
+    script = Path(__file__).resolve().parent / "context-governor-compact.py"
+    payload = {"messages":[{"role":"user","content":"Doctor deep smoke: preserve /tmp/file and failing test receipt."},{"role":"assistant","content":"Verification command exited 0 and receipt path will be stored."}]}
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+        json.dump(payload, fh); tmp = fh.name
+    try:
+        proc = subprocess.run([str(script), "--input", tmp, "--session-id", "doctor-deep-smoke"], text=True, capture_output=True, timeout=45, check=False)
+        if proc.returncode == 0: ok("context-governor compact smoke", proc.stdout.splitlines()[0] if proc.stdout else "ok")
+        else: fail("context-governor compact smoke", proc.stderr.strip()[-500:])
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def config_paths() -> None:
+    paths = [
+        Path.home()/"Documents/Cline/Rules/semantic-memory.md",
+        Path.home()/".roo/rules/semantic-memory.md",
+        Path.home()/".codeium/windsurf/memories/global_rules.md",
+        Path.home()/".continue/rules/semantic-memory.md",
+        Path.home()/".continue/config.yaml",
+        Path.home()/".config/opencode/AGENTS.md",
+        Path.home()/".config/opencode/commands/semantic-memory-recall.md",
+    ]
+    for p in paths:
+        (ok if p.exists() else warn)("config path", str(p) + (" exists" if p.exists() else " missing"))
+
+
+def write_receipt(path: str | None, host: str) -> None:
+    if not path: return
+    out = Path(path).expanduser()
+    if out.is_dir():
+        out = out / f"doctor-{host}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    failed = [r for r in RESULTS if r["status"] == "FAIL"]
+    payload = {"schema":"semantic-memory-agent-kit-doctor-v1","created_at":datetime.now(timezone.utc).isoformat(),"host":host,"memory_dir":str(MEMORY_DIR),"http_url":HTTP_URL,"context_governor_store":str(CG_STORE),"passed":not failed,"results":RESULTS}
+    out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    print(f"RECEIPT {out}")
 
 
 def main() -> int:
-    print(f"Semantic Memory Agent Kit Doctor\nmemory_dir: {MEMORY_DIR}\nhttp_url:   {HTTP_URL}\n")
-    binary = resolve_binary()
-    if not binary:
-        fail("semantic-memory-mcp binary", "not found; run shared/scripts/install_semantic_memory_mcp.sh or cargo install semantic-memory-mcp")
-        return 1
-    ok("semantic-memory-mcp binary", str(binary))
-    MEMORY_DIR.mkdir(parents=True, exist_ok=True)
-    ok("memory dir", str(MEMORY_DIR))
-    http_health()
-    return 0 if rpc_tools_list(binary) else 1
-
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--deep", action="store_true", help="run compact smoke; slower but proves receipt path")
+    ap.add_argument("--receipt", help="write JSON doctor receipt to path or directory")
+    ap.add_argument("--host", default="shared")
+    args = ap.parse_args()
+    print(f"Semantic Memory Agent Kit Doctor\nmemory_dir: {MEMORY_DIR}\nhttp_url:   {HTTP_URL}\ncg_store:   {CG_STORE}\n")
+    sem = resolve_semantic_binary()
+    if not sem: fail("semantic-memory-mcp binary", "not found; run shared/scripts/install_semantic_memory_mcp.sh or cargo install semantic-memory-mcp")
+    else:
+        ok("semantic-memory-mcp binary", str(sem)); MEMORY_DIR.mkdir(parents=True, exist_ok=True); ok("memory dir", str(MEMORY_DIR)); http_get("/health", "warm HTTP health"); http_get("/verify-integrity", "warm HTTP integrity", timeout=4); rpc_tools_list(sem)
+    cg = resolve_cg_binary(); cg_status(cg); cg_mcp_tools_list(); config_paths()
+    if args.deep: compact_smoke()
+    write_receipt(args.receipt, args.host)
+    return 1 if any(r["status"] == "FAIL" for r in RESULTS) else 0
 
 if __name__ == "__main__":
     raise SystemExit(main())

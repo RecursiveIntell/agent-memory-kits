@@ -182,6 +182,57 @@ opencode/scripts/setup.sh
 
 These kits expose the `sm_*` tools through each host's MCP configuration surface. They intentionally do not claim automatic recall until a stable host hook/context-injection API is verified and implemented.
 
+## Capability matrix
+
+| Host | MCP tools | Auto recall hook | Session primer | Pre-compact hook | Rule/context injection | Context Governor receipts |
+|---|---:|---:|---:|---:|---:|---:|
+| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Codex | ✅ | ✅ | ✅ | ✅/Stop fallback | ✅ | ✅ |
+| Cursor | ✅ | — | — | — | workspace `.cursor/rules/*.mdc` | MCP + command assisted |
+| Cline | ✅ | — | — | — | global/workspace rules | MCP + command assisted |
+| Roo Code | ✅ | — | — | — | global/workspace rules | MCP + command assisted |
+| Windsurf | ✅ | — | — | — | global/workspace rules | MCP + command assisted |
+| Continue | ✅ | — | — | — | `rules: file://...` | MCP + command assisted |
+| OpenCode | ✅ | — | — | — | `AGENTS.md` + command file | MCP + command assisted |
+
+Boundary: dashes mean no verified transcript/prompt lifecycle hook is claimed for that host. Rule/context injection still gives the agent deterministic instructions and commands to retrieve memory and preserve receipts.
+
+### Copy-paste installs for MCP-only kits
+
+```bash
+# Print snippets only
+cursor/scripts/setup.sh
+cline/scripts/setup.sh
+roo-code/scripts/setup.sh
+windsurf/scripts/setup.sh
+continue/scripts/setup.sh
+opencode/scripts/setup.sh
+
+# Write project-local rules/configs
+cursor/scripts/setup.sh --write-project /path/to/project
+cline/scripts/setup.sh --write-project /path/to/project
+roo-code/scripts/setup.sh --write-project /path/to/project
+windsurf/scripts/setup.sh --write-project /path/to/project
+continue/scripts/setup.sh --write-project /path/to/project
+opencode/scripts/setup.sh --write-project /path/to/project
+
+# Write safe global/user rules where supported
+cline/scripts/setup.sh --write-user
+roo-code/scripts/setup.sh --write-user
+windsurf/scripts/setup.sh --write-user
+continue/scripts/setup.sh --write-user
+opencode/scripts/setup.sh --write-user
+
+# Verify with receipt bundle
+shared/scripts/doctor-all.py --deep
+```
+
+Generated receipts land in:
+
+```text
+~/.local/share/semantic-memory-agent-kits/receipts/
+```
+
 ## Install
 
 ### Prerequisites

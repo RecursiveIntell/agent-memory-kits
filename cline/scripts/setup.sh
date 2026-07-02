@@ -1,42 +1,5 @@
 #!/usr/bin/env bash
-# Setup helper for Cline. Writes no host config automatically; prints a current MCP snippet.
+# Setup helper for Cline. Supports --write-project [path], --write-user, and --dry-run.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-BIN="$($ROOT/shared/scripts/install_semantic_memory_mcp.sh)"
-CG_BIN="$($ROOT/shared/scripts/install_context_governor.sh || true)"
-mkdir -p "${SEMANTIC_MEMORY_DIR:-$HOME/.local/share/semantic-memory}"
-RUNNER="$ROOT/cline/scripts/run-server.sh"
-cat <<EOF
-semantic-memory-mcp: $BIN
-runner:              $RUNNER
-
-Cline MCP config snippet:
-{
-  "mcpServers": {
-    "semantic-memory": {
-      "command": "$RUNNER",
-      "env": {
-        "SEMANTIC_MEMORY_DIR": "${SEMANTIC_MEMORY_DIR:-$HOME/.local/share/semantic-memory}",
-        "SEMANTIC_MEMORY_TOOL_PROFILE": "lean",
-        "SEMANTIC_MEMORY_HTTP_PORT": "1739"
-      }
-    }
-  }
-}
-EOF
-
-echo
-echo "Copy the snippet into Cline MCP settings per the current Cline docs."
-echo "Then run: cline/scripts/doctor.py"
-cat <<EOF
-
-Context-injection setup (workspace rules):
-  $ROOT/shared/scripts/install-context-rules.py cline --scope workspace --workspace /path/to/project
-
-Context-injection setup (global rules where supported):
-  $ROOT/shared/scripts/install-context-rules.py cline --scope global
-EOF
-
-echo "Context Governor MCP companion:"
-echo "  command: $ROOT/shared/scripts/context-governor-mcp.py"
-echo "  store:   ${CONTEXT_GOVERNOR_STORE:-$HOME/.local/share/context-governor/receipts}"
+exec "$ROOT/shared/scripts/setup-host.py" cline "$@"

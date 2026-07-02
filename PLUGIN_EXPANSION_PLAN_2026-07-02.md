@@ -433,3 +433,14 @@ Added context-governor as a companion for all MCP kits:
 - JSON MCP examples include both `semantic-memory` and `context-governor`.
 
 Boundary: for non-hook hosts, compaction is rule/command/MCP assisted, not automatic pre-compact transcript interception.
+
+## Low-effort/high-ROI polish pass
+
+Added the adoption and receipts layer:
+
+- `shared/scripts/doctor-all.py --deep`: runs shared + per-host doctors and writes JSON receipt bundles under `~/.local/share/semantic-memory-agent-kits/receipts/`.
+- `shared/scripts/doctor_core.py`: now verifies semantic-memory HTTP health/integrity, semantic-memory MCP tools, context-governor binary/status, context-governor MCP tools, and known local config paths.
+- `shared/scripts/setup-host.py`: shared installer backend for MCP-only hosts, with `--write-project [path]`, `--write-user`, and `--dry-run`.
+- Host `scripts/setup.sh` files are now thin wrappers around `setup-host.py`.
+- `shared/scripts/benchmark-context-governor.py`: writes benchmark receipts for compaction latency, search latency, receipt id, and compact/original token ratio.
+- README gained a capability matrix and copy-paste install blocks.
