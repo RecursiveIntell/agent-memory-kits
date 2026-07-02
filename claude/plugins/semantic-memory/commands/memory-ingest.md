@@ -1,6 +1,6 @@
 ---
-description: Ingest a codebase into semantic memory (facts + dependency graph). Usage: /memory-ingest <path-to-repo>
-argument-hint: <path-to-repo> [--dry-run]
+description: "Ingest a codebase into semantic memory (facts + dependency graph). Usage: /memory-ingest <path-to-repo>"
+argument-hint: "<path-to-repo> [--dry-run]"
 ---
 
 Ingest the codebase at `$ARGUMENTS` into the persistent semantic memory store using the bundled language-agnostic ingester.
