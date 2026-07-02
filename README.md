@@ -1,7 +1,7 @@
 # semantic-memory-agent-kits
 
 > Give your AI agent a **persistent, local-first memory** that recalls itself across sessions.
-> One plugin per agent — Claude Code, Hermes Agent, and Codex CLI.
+> One plugin per agent — Claude Code, Hermes Agent, Codex CLI — plus MCP setup kits for the next wave of coding agents.
 
 [![crates.io: semantic-memory-mcp](https://img.shields.io/badge/crates.io-semantic--memory--mcp%20v0.2.0-orange)](https://crates.io/crates/semantic-memory-mcp)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](#license)
@@ -49,6 +49,22 @@ Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 | **memory-sync** | Skill | Keep a repo's memory current — idempotent re-ingest (`--dedupe`). |
 | **memory-keeper** | Subagent | Delegate heavy/multi-step memory work (audits, deep graph exploration, bulk recall) in isolation. |
 | **`ingest_codebase.py`** | CLI tool | The language-agnostic ingester behind `/memory-ingest`. |
+
+### Host support matrix
+
+| Host | MCP tools | Auto recall | Project primer | Codebase ingest | Status |
+|---|---:|---:|---:|---:|---|
+| Claude Code | yes | yes | yes | yes | stable |
+| Codex CLI | yes | yes | yes | yes | stable |
+| Hermes Agent | yes | yes | yes | yes | local stable |
+| Cursor | yes | not claimed | not claimed | manual | experimental MCP kit |
+| Windsurf | planned | not claimed | not claimed | manual | planned |
+| Cline | planned | not claimed | not claimed | manual | planned |
+| Roo Code | planned | not claimed | not claimed | manual | planned |
+| Continue | planned | not claimed | not claimed | manual | planned |
+| OpenCode | planned | investigate | investigate | manual | planned |
+
+Claim boundary: "MCP tools" means the host can call semantic-memory tools. "Auto recall" means the host injects relevant memory into model context before answering. Do not blur those two.
 
 ---
 
@@ -144,6 +160,16 @@ codex plugin marketplace add ./codex
 codex plugin add semantic-memory@semantic-memory-codex-kit
 # Or copy directly: cp -r codex/plugins/semantic-memory ~/plugins/
 ```
+
+### Cursor (`cursor/`) — experimental MCP kit
+```bash
+cursor/scripts/setup.sh
+# Optional project-local config writer:
+cursor/scripts/setup.sh --write-project
+cursor/scripts/doctor.py
+```
+
+Cursor support is MCP-first. It exposes the `sm_*` tools to Cursor. It does not yet claim automatic pre-prompt recall.
 
 ## Install
 
