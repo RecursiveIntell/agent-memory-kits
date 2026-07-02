@@ -58,11 +58,11 @@ Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 | Codex CLI | yes | yes | yes | yes | stable |
 | Hermes Agent | yes | yes | yes | yes | local stable |
 | Cursor | yes | not claimed | not claimed | manual | experimental MCP kit |
-| Windsurf | planned | not claimed | not claimed | manual | planned |
-| Cline | planned | not claimed | not claimed | manual | planned |
-| Roo Code | planned | not claimed | not claimed | manual | planned |
-| Continue | planned | not claimed | not claimed | manual | planned |
-| OpenCode | planned | investigate | investigate | manual | planned |
+| Windsurf | yes | not claimed | not claimed | manual | experimental MCP kit |
+| Cline | yes | not claimed | not claimed | manual | experimental MCP kit |
+| Roo Code | yes | not claimed | not claimed | manual | experimental MCP kit |
+| Continue | yes | not claimed | not claimed | manual | experimental MCP kit |
+| OpenCode | yes | not claimed | not claimed | manual | experimental MCP kit |
 
 Claim boundary: "MCP tools" means the host can call semantic-memory tools. "Auto recall" means the host injects relevant memory into model context before answering. Do not blur those two.
 
@@ -170,6 +170,17 @@ cursor/scripts/doctor.py
 ```
 
 Cursor support is MCP-first. It exposes the `sm_*` tools to Cursor. It does not yet claim automatic pre-prompt recall.
+
+### MCP-only kits for other agents
+```bash
+windsurf/scripts/setup.sh
+cline/scripts/setup.sh
+roo-code/scripts/setup.sh
+continue/scripts/setup.sh
+opencode/scripts/setup.sh
+```
+
+These kits expose the `sm_*` tools through each host's MCP configuration surface. They intentionally do not claim automatic recall until a stable host hook/context-injection API is verified and implemented.
 
 ## Install
 

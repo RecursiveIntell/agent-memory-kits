@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "semantic-memory": {
+      "command": "/ABSOLUTE/PATH/TO/semantic-memory-agent-kits/opencode/scripts/run-server.sh",
+      "env": {
+        "SEMANTIC_MEMORY_DIR": "${HOME}/.local/share/semantic-memory",
+        "SEMANTIC_MEMORY_TOOL_PROFILE": "lean",
+        "SEMANTIC_MEMORY_HTTP_PORT": "1739"
+      }
+    }
+  }
+}

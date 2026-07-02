@@ -6,16 +6,21 @@ cd "$ROOT"
 fail=0
 check() { echo "==> $*"; "$@" || fail=1; }
 
-for f in $(find shared cursor codex claude hermes -type f -name '*.sh' 2>/dev/null); do
+for f in $(find shared cursor windsurf cline roo-code continue opencode codex claude hermes -type f -name '*.sh' 2>/dev/null); do
   check bash -n "$f"
 done
 
-for f in $(find shared cursor codex claude hermes -type f -name '*.py' 2>/dev/null); do
+for f in $(find shared cursor windsurf cline roo-code continue opencode codex claude hermes -type f -name '*.py' 2>/dev/null); do
   check python3 -m py_compile "$f"
 done
 
 for f in \
   cursor/mcp.json.example \
+  windsurf/mcp_config.json.example \
+  cline/mcp_settings.json.example \
+  roo-code/mcp_settings.json.example \
+  continue/config.json.example \
+  opencode/opencode.json.example \
   shared/snippets/mcp-stdio.json \
   codex/.agents/plugins/marketplace.json \
   codex/plugins/semantic-memory/.codex-plugin/plugin.json \
