@@ -37,6 +37,36 @@ fi
 
 check python3 cursor/scripts/doctor.py
 
+check python3 - <<'PY'
+import json
+import subprocess
+reqs = [
+    {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"validate-all-kits","version":"1"}}},
+    {"jsonrpc":"2.0","method":"notifications/initialized"},
+    {"jsonrpc":"2.0","id":2,"method":"tools/list"},
+]
+proc = subprocess.run(
+    ["shared/scripts/context-governor-mcp.py"],
+    input="\n".join(json.dumps(x) for x in reqs) + "\n",
+    text=True,
+    capture_output=True,
+    timeout=15,
+    check=False,
+)
+if proc.returncode != 0:
+    raise SystemExit(proc.stderr or f"context-governor MCP exited {proc.returncode}")
+messages = [json.loads(line) for line in proc.stdout.splitlines() if line.strip()]
+tools = []
+for msg in messages:
+    if msg.get("id") == 2:
+        tools = [tool.get("name") for tool in msg.get("result", {}).get("tools", [])]
+required = {"cg_list_receipts", "cg_search", "cg_expand", "cg_diff_receipt"}
+missing = sorted(required - set(tools))
+if missing:
+    raise SystemExit(f"context-governor MCP missing tools: {missing}")
+print(f"context-governor MCP tools/list: {len(tools)} tools exposed")
+PY
+
 if [ "$fail" -eq 0 ]; then
   echo "ALL KIT VALIDATION PASSED"
 else

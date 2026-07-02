@@ -70,3 +70,16 @@ shared/scripts/semantic-memory-context.py --prompt "$USER_TASK"
 ```
 
 That command queries the warm HTTP server first (`SEMANTIC_MEMORY_HTTP_PORT`, default `1739`) and falls back to stdio MCP. Returned entries are explicitly marked as recall, not ground truth.
+
+
+## Context compaction / receipts
+
+This kit also includes Context Governor as a companion MCP server and rule layer.
+
+- MCP server: `shared/scripts/context-governor-mcp.py`
+- Receipt-backed compact command: `shared/scripts/context-governor-compact.py`
+- Rule text: `shared/rules/context-governor.md`
+
+Use it when a Continue session is long, a handoff is needed, or context is about to be compacted. It preserves high-risk context and stores exact fallback receipts that can be searched and expanded later.
+
+Boundary: for hosts without a verified pre-compact hook, this is rule/command/MCP assisted. It does not claim automatic transcript capture unless the host exposes transcript messages to an extension/hook API.

@@ -421,3 +421,15 @@ This intentionally separates two capability tiers:
 
 1. Hook tier: Claude Code and Codex can inject recall at prompt/session lifecycle events.
 2. Rule/context tier: MCP-only agents get automatic behavioral guidance through their rule systems and a deterministic context command; no false claim of a hidden pre-prompt hook.
+
+
+## Context Governor companion pass
+
+Added context-governor as a companion for all MCP kits:
+
+- shared MCP server exposing receipt list/search/expand/diff tools.
+- shared compact command for exported transcript JSON.
+- host rule installer now injects semantic-memory recall guidance and context-governor compaction guidance together.
+- JSON MCP examples include both `semantic-memory` and `context-governor`.
+
+Boundary: for non-hook hosts, compaction is rule/command/MCP assisted, not automatic pre-compact transcript interception.

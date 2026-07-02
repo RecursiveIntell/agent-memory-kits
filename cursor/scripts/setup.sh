@@ -3,6 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BIN="$($ROOT/shared/scripts/install_semantic_memory_mcp.sh)"
+CG_BIN="$($ROOT/shared/scripts/install_context_governor.sh || true)"
 mkdir -p "${SEMANTIC_MEMORY_DIR:-$HOME/.local/share/semantic-memory}"
 RUNNER="$ROOT/cursor/scripts/run-server.sh"
 
@@ -58,3 +59,6 @@ Context-injection setup (workspace rules):
 Cursor global User Rules are UI-managed; use the workspace rule command above.
 EOF
 
+echo "Context Governor MCP companion:"
+echo "  command: $ROOT/shared/scripts/context-governor-mcp.py"
+echo "  store:   ${CONTEXT_GOVERNOR_STORE:-$HOME/.local/share/context-governor/receipts}"

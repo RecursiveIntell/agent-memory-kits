@@ -402,3 +402,19 @@ Host boundaries:
 - Claude Code and Codex have real hook-based recall.
 - Cursor/Cline/Roo/Windsurf/Continue/OpenCode use documented rule/config surfaces plus the shared context command unless/until a stable pre-prompt hook API is available for that host.
 - Context retrieved from memory is recall to consider, not ground truth; current files and live tool output outrank memory.
+
+
+## Context Governor companion
+
+The MCP-only kits also include Context Governor as a companion for receipt-backed compaction:
+
+- `shared/scripts/context-governor-mcp.py` exposes receipt tools: `cg_list_receipts`, `cg_search`, `cg_expand`, and `cg_diff_receipt`.
+- `shared/scripts/context-governor-compact.py` compacts an exported transcript JSON and stores a receipt.
+- `shared/rules/context-governor.md` tells agents how to use receipts and exact fallback safely.
+- MCP config examples now include both `semantic-memory` and `context-governor` servers.
+
+Capability boundary:
+
+- Claude Code/Codex can use pre-compact hooks where supported.
+- Other agents get MCP receipt search/expand plus rule/command-assisted compaction unless their hook API exposes transcript messages.
+- Receipts prove recoverability of context, not task success.

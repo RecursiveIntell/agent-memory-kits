@@ -3,6 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BIN="$($ROOT/shared/scripts/install_semantic_memory_mcp.sh)"
+CG_BIN="$($ROOT/shared/scripts/install_context_governor.sh || true)"
 mkdir -p "${SEMANTIC_MEMORY_DIR:-$HOME/.local/share/semantic-memory}"
 RUNNER="$ROOT/roo-code/scripts/run-server.sh"
 cat <<EOF
@@ -36,3 +37,6 @@ Context-injection setup (global rules where supported):
   $ROOT/shared/scripts/install-context-rules.py roo-code --scope global
 EOF
 
+echo "Context Governor MCP companion:"
+echo "  command: $ROOT/shared/scripts/context-governor-mcp.py"
+echo "  store:   ${CONTEXT_GOVERNOR_STORE:-$HOME/.local/share/context-governor/receipts}"
