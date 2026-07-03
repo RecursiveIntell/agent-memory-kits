@@ -58,6 +58,7 @@ add("UserPromptSubmit", "codebase-auto-ingest.py", "Checking codebase memory", 5
 # PreCompact is the closest Claude parity hook on Codex builds that support it;
 # Stop remains a reliable fallback and end-of-turn nudge.
 add("PreCompact", "memory-capture-nudge.py", "Checking semantic-memory capture", 5, "manual|auto")
+add("PreCompact", "context-governor-compact.py", "Context Governor compaction", 30, "manual|auto")
 add("Stop", "memory-capture-nudge.py", "Checking semantic-memory capture", 5)
 
 target.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")

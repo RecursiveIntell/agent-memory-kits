@@ -41,7 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/context-governor-mcp.py",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/context-governor-compact.py",
             "timeout": 30
           }
         ]

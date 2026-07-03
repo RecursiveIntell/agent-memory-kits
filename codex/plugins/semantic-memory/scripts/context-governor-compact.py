@@ -44,14 +44,27 @@ def main():
     ap.add_argument('--format', choices=['text','json'], default='text')
     args=ap.parse_args()
     binary=resolve_binary()
-    if not binary: raise SystemExit('context-governor binary not found')
-    raw=json.loads(Path(args.input).read_text() if args.input else sys.stdin.read())
-    messages=normalize_messages(raw)
-    if not messages: raise SystemExit('no transcript messages found')
+    if not binary:
+        if args.format == 'json':
+            print(json.dumps({"ok": False, "error": "context-governor binary not found"}))
+        return 0  # fail-open
+    try:
+        raw = json.loads(Path(args.input).read_text() if args.input else sys.stdin.read())
+    except Exception:
+        return 0  # fail-open: no stdin or invalid JSON
+    messages = normalize_messages(raw)
+    if not messages:
+        return 0  # fail-open: no transcript available
     req={'session_id': args.session_id, 'messages': messages, 'policy': {'target_tokens': args.target_tokens, 'protect_first_n': 2, 'protect_last_n': 8, 'summary_max_chars': args.summary_max_chars, 'allocator':'deterministic_v1', 'semantic_memory_enabled': False, 'archive_memory_enabled': False, 'budget_mode': os.environ.get('CONTEXT_GOVERNOR_BUDGET_MODE','hard_cascade'), 'token_counter':'approx_chars'}}
-    resp=run(binary, ['compact'], req, timeout=45)
+    try:
+        resp=run(binary, ['compact'], req, timeout=45)
+    except SystemExit:
+        return 0  # fail-open
     store=store_dir(); store.mkdir(parents=True, exist_ok=True)
-    stored=run(binary, ['store','--dir',str(store)], resp, timeout=20)
+    try:
+        stored=run(binary, ['store','--dir',str(store)], resp, timeout=20)
+    except SystemExit:
+        stored = {}
     receipt=resp.get('receipt') or {}
     if args.format=='json':
         resp['stored_path']=stored.get('path')
