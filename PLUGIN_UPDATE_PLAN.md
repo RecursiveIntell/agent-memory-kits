@@ -112,7 +112,7 @@ Recommendation: Option 2 for now (group in description). If selection quality de
 
 ### Phase 7: Release
 
-1. Commit changes to the semantic-memory-claude-kit repo
+1. Commit changes to the agent-memory-kits repo
 2. Tag as v0.5.0
 3. Push to GitHub
 4. Update the marketplace listing

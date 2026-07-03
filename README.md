@@ -1,208 +1,229 @@
-# semantic-memory-agent-kits
+# agent-memory-kits
 
-> Give your AI agent a **persistent, local-first memory** that recalls itself across sessions.
-> One plugin per agent — Claude Code, Hermes Agent, Codex CLI — plus MCP setup kits for the next wave of coding agents.
+> **Persistent local-first memory, receipt-backed compaction, and claim/evidence provenance — for every AI coding agent.**
+> One repo, three companion MCP servers, nine agent hosts.
 
-[![crates.io: semantic-memory-mcp](https://img.shields.io/badge/crates.io-semantic--memory--mcp%20v0.2.0-orange)](https://crates.io/crates/semantic-memory-mcp)
+[![crates.io: semantic-memory-mcp](https://img.shields.io/crates/v/semantic-memory-mcp?label=semantic-memory-mcp)](https://crates.io/crates/semantic-memory-mcp)
+[![crates.io: semantic-memory](https://img.shields.io/crates/v/semantic-memory?label=semantic-memory)](https://crates.io/crates/semantic-memory)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](#license)
 [![Local-first](https://img.shields.io/badge/data-100%25%20local-green)](#privacy--local-first)
 
-AI coding agents forget everything between sessions. This kit fixes that. It wraps the
-[`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp) server in
-agent-native packages for Claude Code, Hermes Agent, and Codex CLI so that relevant
-facts are automatically recalled when useful, and ships a language-agnostic ingester
-that turns any repository into a searchable fact + dependency graph.
+AI coding agents forget everything between sessions. This repo fixes that.
 
-Everything runs on your machine. SQLite for storage, an in-process Rust embedder
-(`nomic-embed-text-v1.5`, CPU-only), no API keys, no cloud, no telemetry.
+It wraps three local-first Rust tools — [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp), [`context-governor`](https://github.com/RecursiveIntell/Libraries), and [`claim-ledger`](https://github.com/RecursiveIntell/Libraries) — into agent-native packages so that:
+
+- relevant facts are automatically recalled when useful (hooked agents)
+- context compaction preserves high-risk spans with searchable exact-fallback receipts
+- material agent assertions can be backed by claim/evidence/provenance receipts
+- any repository can be ingested into a searchable fact + dependency graph
+
+Everything runs on your machine. SQLite for storage, an in-process Rust embedder (`nomic-embed-text-v1.5`, CPU-only), no API keys, no cloud, no telemetry.
 
 ---
 
 ## Table of contents
 
-- [What you get](#what-you-get)
-- [How it works](#how-it-works)
+- [What this repo is](#what-this-repo-is)
+- [Architecture](#architecture)
+- [Capability matrix](#capability-matrix)
 - [Install](#install)
+- [The three MCP companions](#the-three-mcp-companions)
 - [The codebase ingester](#the-codebase-ingester)
+- [Context injection for MCP-only hosts](#context-injection-for-mcp-only-hosts)
+- [Receipts and benchmarks](#receipts-and-benchmarks)
 - [Configuration](#configuration)
 - [Data model](#data-model)
 - [Design principles](#design-principles)
 - [Troubleshooting](#troubleshooting)
 - [Privacy / local-first](#privacy--local-first)
+- [License](#license)
 
 ---
 
-## What you get
+## What this repo is
 
-| Component | Type | What it does |
-|---|---|---|
-| **Auto-recall** | `UserPromptSubmit` hook | Embeds each prompt, hybrid-searches your memory, injects the most relevant facts as context — only when they're actually relevant. Queries the **warm HTTP server** (embedder stays loaded) so recall is ~ms, not a cold spawn. |
-| **Project-scoped primer** | `SessionStart` hook | Each session opens knowing the store's size, the recall/persist protocol, **and facts relevant to the current repo** (git-root aware from the hook's cwd). |
-| **Capture nudge** | `PreCompact` hook | Before context is compacted away, reminds Claude to persist durable facts. Model-driven — nothing is auto-written. |
-| **Warm HTTP server** | co-hosted by the MCP server | `run-server.sh` launches the MCP server with `--http-port` (default `1739`), so the hooks query the already-loaded embedder instead of cold-spawning a process per prompt. Fail-open: if the port is taken, stdio MCP still serves and hooks fall back to cold-spawn. |
-| **`semantic-memory` MCP server** | MCP (**61 tools**: 33 lean / 48 standard / 61 full) | hybrid + **RL-routed** search (`sm_search_with_routing` / `sm_record_outcome` — policy persisted to SQLite), **bitemporal as-of** search (`sm_search_as_of`), add/get/list facts, list namespaces, **fact+neighbors with content**, graph/path/discord, **community/factor-graph**, provenance, autonomous **lifecycle**, **content-based contradiction detection** (`sm_detect_contradictions` — numeric/value/negation/antonym signals over retrieved facts), **conversation persistence** (session create/message add/hybrid search), **claim verification** (`sm_create_claim` → `sm_add_evidence` → `sm_judge_support` → `sm_verify_claim`), **supersede** facts (canonical update with audit trail; auto-filtered from search), **forget/delete** (`sm_delete_fact` / `sm_delete_namespace`), **knowledge-runtime orchestration** (classify/plan/entity-lookup via `sm_query_orchestrated`), **llm-output-parser** integration, **audit/replay** (`sm_get_search_receipt` / `sm_replay_search_receipt`), **maintenance** (`sm_reconcile` / `sm_vacuum` / `sm_reembed_all` / `sm_embeddings_are_dirty`), **bitemporal queries**, and **import**. |
-| **`/memory-ingest`** | Slash command | Ingest any repo into memory (facts + dependency graph). |
-| **`/memory-setup`** | Slash command | One-time: install the binary, allowlist the tools, verify. |
-| **memory-capture** | Skill | Disciplined *write* path — "remember this" → dedupe, namespace, store, link. |
-| **memory-curator** | Skill | Audit + reconcile the store (enumerate, find duplicates/contradictions/gaps) via append/supersede. |
-| **knowledge-graph-explorer** | Skill | Traverse the graph — "what's related to X", "how are X and Y connected" — with hydrated neighbors + optional HTML viz. |
-| **memory-sync** | Skill | Keep a repo's memory current — idempotent re-ingest (`--dedupe`). |
-| **memory-keeper** | Subagent | Delegate heavy/multi-step memory work (audits, deep graph exploration, bulk recall) in isolation. |
-| **`ingest_codebase.py`** | CLI tool | The language-agnostic ingester behind `/memory-ingest`. |
+A collection of plugins and setup kits that give AI coding agents:
 
-### Host support matrix
+1. **Persistent memory** — semantic-memory-mcp: hybrid BM25 + vector search, knowledge graphs, conversation recall, contradiction detection, bitemporal as-of queries, claim verification, and autonomous lifecycle. 61 MCP tools (33 lean / 48 standard / 61 full).
 
-| Host | MCP tools | Auto recall | Project primer | Codebase ingest | Status |
-|---|---:|---:|---:|---:|---|
-| Claude Code | yes | yes | yes | yes | stable |
-| Codex CLI | yes | yes | yes | yes | stable |
-| Hermes Agent | yes | yes | yes | yes | local stable |
-| Cursor | yes | not claimed | not claimed | manual | experimental MCP kit |
-| Windsurf | yes | not claimed | not claimed | manual | experimental MCP kit |
-| Cline | yes | not claimed | not claimed | manual | experimental MCP kit |
-| Roo Code | yes | not claimed | not claimed | manual | experimental MCP kit |
-| Continue | yes | not claimed | not claimed | manual | experimental MCP kit |
-| OpenCode | yes | not claimed | not claimed | manual | experimental MCP kit |
+2. **Receipt-backed compaction** — context-governor: deterministic pre-compaction that preserves active tasks and high-risk evidence, summarizes lower-risk context, and stores exact fallback records that can be searched and expanded later. Never silently loses context.
 
-Claim boundary: "MCP tools" means the host can call semantic-memory tools. "Auto recall" means the host injects relevant memory into model context before answering. Do not blur those two.
+3. **Claim/evidence provenance** — claim-ledger: a deterministic, local-first ledger that creates receipts for all material operations. Claims get evidence, support judgments, contradiction resolution, and export bundles for audit.
 
----
+### Repo structure
 
-## How it works
+```
+agent-memory-kits/
+├── claude/              # Claude Code plugin (marketplace + plugin)
+├── codex/               # Codex CLI plugin (marketplace + plugin)
+├── hermes/              # Hermes Agent plugin
+├── cursor/              # Cursor MCP + context-injection kit
+├── windsurf/            # Windsurf MCP + context-injection kit
+├── cline/               # Cline MCP + context-injection kit
+├── roo-code/            # Roo Code MCP + context-injection kit
+├── continue/            # Continue MCP + context-injection kit
+├── opencode/            # OpenCode MCP + context-injection kit
+├── shared/
+│   ├── scripts/         # shared MCP wrappers, installers, doctors, benchmarks
+│   ├── rules/           # host-neutral rule text injected into agent configs
+│   └── snippets/        # reusable MCP config snippets
+├── scripts/
+│   └── validate-all-kits.sh
+└── README.md
+```
 
-### Architecture
+### Two tiers of integration
 
 ```mermaid
 flowchart TD
-    subgraph CC["Claude Code session"]
-        P["Your prompt"] --> H1["UserPromptSubmit hook<br/>memory-recall.sh"]
-        S["Session start"] --> H2["SessionStart hook<br/>memory-primer.sh"]
-        K["Pre-compaction"] --> H3["PreCompact hook<br/>memory-capture-nudge.sh"]
-        M["Claude + sm_* MCP tools"]
+    subgraph Hook tier["Hook tier — automatic lifecycle"]
+        CC["Claude Code"] --> SM["semantic-memory<br/>MCP + hooks"]
+        CX["Codex CLI"] --> SM
+        HE["Hermes Agent"] --> SM
+        CC --> CG["context-governor<br/>MCP + PreCompact hook"]
+        CX --> CG
     end
-    subgraph SM["semantic-memory-mcp (local Rust server)"]
-        E["Candle embedder<br/>nomic-embed-text-v1.5 (CPU)"]
-        DB[("SQLite + FTS5<br/>BM25 keyword")]
-        V[("usearch HNSW<br/>vector index")]
-        G[("Typed knowledge graph<br/>belongs_to / depends_on / …")]
+    subgraph Rule tier["Rule/context tier — MCP + rules + commands"]
+        CU["Cursor"] --> SM
+        CL["Cline"] --> SM
+        RO["Roo Code"] --> SM
+        WI["Windsurf"] --> SM
+        CO["Continue"] --> SM
+        OC["OpenCode"] --> SM
+        CU --> CG
+        CL --> CG
+        RO --> CG
+        WI --> CG
+        CO --> CG
+        OC --> CG
     end
-    H1 -->|sm_search| SM
-    H2 -->|sm_stats| SM
-    M  -->|sm_add_fact / sm_search / graph| SM
-    SM --> E --> V
-    SM --> DB
-    SM --> G
-    H1 -->|injects top hits as context| M
+    SM --> DB[("SQLite + FTS5 + HNSW<br/>local-first")]
+    CG --> RC[("Receipt store<br/>exact fallback")]
+    CL2["claim-ledger"] --> LR[("Claim/evidence ledger<br/>provenance receipts")]
+    SM --> CL2
+    CG --> CL2
 ```
 
-### Per-prompt auto-recall
+- **Hook tier** (Claude Code, Codex, Hermes): real lifecycle hooks inject memory at prompt/session/compaction events. Agents don't need to be told to recall — it happens automatically.
+- **Rule/context tier** (Cursor, Cline, Roo Code, Windsurf, Continue, OpenCode): MCP tools plus host-native rule files and a deterministic context command. Agents get behavioral guidance to retrieve memory and preserve receipts. No false claim of hidden pre-prompt hooks.
+
+---
+
+## Architecture
+
+### Per-prompt auto-recall (hooked agents)
 
 ```mermaid
 sequenceDiagram
     participant U as You
-    participant CC as Claude Code
-    participant Hook as memory-recall.sh
+    participant A as Agent (Claude/Codex/Hermes)
+    participant H as Recall hook
     participant SM as semantic-memory
-    U->>CC: prompt
-    CC->>Hook: UserPromptSubmit (prompt JSON on stdin)
-    Hook->>Hook: gate (skip if <12 chars or slash-command)
-    Hook->>SM: POST /search to warm server (BM25 + vector + RRF)<br/>cold-spawn sm_search only if warm is down
-    SM-->>Hook: ranked hits w/ cosine scores
-    Hook->>Hook: relative gate — best hit ≥ 0.58? keep near-peers
-    Hook-->>CC: inject relevant facts as additionalContext
-    CC->>U: answer, now memory-aware
+    U->>A: prompt
+    A->>H: UserPromptSubmit (prompt JSON on stdin)
+    H->>H: gate (skip if <12 chars or slash-command)
+    H->>SM: POST /search to warm server (BM25 + vector + RRF)
+    SM-->>H: ranked hits w/ cosine scores
+    H->>H: relative gate — best hit ≥ 0.58? keep near-peers
+    H-->>A: inject relevant facts as additionalContext
+    A->>U: answer, now memory-aware
 ```
 
-The hook hits the **warm HTTP server** first (the embedder is already loaded, so this
-is ~milliseconds). If that server isn't up it falls back to cold-spawning the binary
-over stdio — correct, just slower. The warm `/search` endpoint returns the fused RRF
-**score** (not cosine), so on that path the gate keeps hits within `SM_RECALL_SCOREREL`
-of the top score; the cold stdio path returns cosine and uses the absolute gates above.
+The hook hits the **warm HTTP server** first (the embedder is already loaded, so this is ~milliseconds). If that server isn't up it falls back to cold-spawning the binary over stdio — correct, just slower.
 
-**Why a *relative* gate?** `nomic` embeddings sit on a high baseline — even totally
-unrelated text scores ~0.48–0.54 cosine. A flat threshold would inject noise on
-every prompt. Instead the hook requires the **best** hit to clear `MINTOP` (0.58),
-then keeps only its near-peers:
+**Why a relative gate?** `nomic` embeddings sit on a high baseline — even totally unrelated text scores ~0.48–0.54 cosine. A flat threshold would inject noise on every prompt. Instead the hook requires the **best** hit to clear `MINTOP` (0.58), then keeps only its near-peers:
 
 | Prompt | Best cosine | Injected? |
 |---|---|---|
-| "what does the AiDENs runner depend on" | 0.78 | ✅ runner + its kits |
-| "remind me the eBPF security project name" | 0.68 | ✅ the canonical-name fact |
-| "write a haiku about the ocean" | 0.49 | ❌ nothing (below gate) |
-| "hi" / "/clear" | — | ❌ gated (too short / slash) |
+| "what does the AiDENs runner depend on" | 0.78 | yes — runner + its kits |
+| "remind me the eBPF security project name" | 0.68 | yes — the canonical-name fact |
+| "write a haiku about the ocean" | 0.49 | no — below gate |
+| "hi" / "/clear" | — | no — gated (too short / slash) |
 
-Every hook **fails open**: any error, missing binary, or empty result exits cleanly
-and never blocks or delays your prompt.
+Every hook **fails open**: any error, missing binary, or empty result exits cleanly and never blocks or delays your prompt.
+
+### Receipt-backed compaction (context-governor)
+
+```mermaid
+flowchart LR
+    T["Transcript"] --> CG["context-governor<br/>compact"]
+    CG --> K["Kept (exact)"]
+    CG --> S["Summarized"]
+    CG --> O["Omitted<br/>(exact fallback stored)"]
+    CG --> R["Receipt<br/>receipt_id + hashes"]
+    R --> RS[("Receipt store<br/>~/.local/share/<br/>context-governor/receipts")]
+    O --> RS
+    RS --> SE["cg_search<br/>cg_expand<br/>cg_diff_receipt"]
+```
+
+Context Governor classifies transcript spans, preserves active tasks and high-risk evidence, summarizes lower-risk context, and stores exact fallback records. When omitted text matters later, `cg_search` and `cg_expand` recover it from the receipt store.
 
 ---
 
-## Agent-specific plugin packages
+## Capability matrix
 
-Each agent has its own plugin directory with only the files relevant to that agent.
+| Host | semantic-memory | Auto recall | Session primer | Pre-compact hook | Context Governor | ClaimLedger | TurboQuant | Rule/context injection |
+|---|---|---|---|---|---|---|---|---|
+| Claude Code | MCP + hooks | yes | yes | yes | MCP + hook | MCP | env flag | yes |
+| Codex CLI | MCP + hooks | yes | yes | yes / Stop fallback | MCP + hook | MCP | env flag | yes |
+| Hermes Agent | MCP + hooks | yes | yes | — | MCP | MCP | env flag | yes |
+| Cursor | MCP | — | — | — | MCP | MCP | env flag | workspace `.cursor/rules/*.mdc` |
+| Cline | MCP | — | — | — | MCP | MCP | env flag | global/workspace rules |
+| Roo Code | MCP | — | — | — | MCP | MCP | env flag | global/workspace rules |
+| Windsurf | MCP | — | — | — | MCP | MCP | env flag | global/workspace rules |
+| Continue | MCP | — | — | — | MCP | MCP | env flag | `rules: file://...` |
+| OpenCode | MCP | — | — | — | MCP | MCP | env flag | `AGENTS.md` + command file |
 
-### Claude Code (`claude/`)
-```bash
-cp -r claude/plugins/semantic-memory ~/.claude/plugins/
-# Or install from marketplace: claude plugins install semantic-memory
+**Boundary**: dashes mean no verified transcript/prompt lifecycle hook is claimed for that host. Rule/context injection still gives the agent deterministic instructions and commands to retrieve memory and preserve receipts. Receipts prove recoverability and provenance, not task success.
+
+**TurboQuant**: set `SEMANTIC_MEMORY_TURBO_QUANT=1` in the MCP server env to enable compressed vector candidate generation with exact f32 rerank. Requires the `turbo-quant-codec` feature in semantic-memory-mcp.
+
+---
+
+## Install
+
+### Prerequisites
+
+- **Rust toolchain** — for the one-time `cargo install semantic-memory-mcp` ([rustup.rs](https://rustup.rs)).
+- **`python3`** — used by hooks, ingester, and setup scripts.
+- First run downloads the embedding model (~550 MB) once; cached thereafter. No other network use.
+
+### Claude Code
+
+```text
+/plugin marketplace add RecursiveIntell/agent-memory-kits
+/plugin install semantic-memory@semantic-memory-kit
+/memory-setup
 ```
 
-### Hermes Agent (`hermes/`)
+Restart Claude Code once so hooks load. `/memory-setup` installs the binary and allowlists tools.
+
+### Codex CLI
+
+```bash
+git clone https://github.com/RecursiveIntell/agent-memory-kits
+cd agent-memory-kits
+codex plugin marketplace add ./codex
+codex plugin add semantic-memory@semantic-memory-codex-kit
+```
+
+The Codex plugin installs the MCP server config, skills, prompts, warm recall hooks, automatic codebase-ingest hook, context-governor MCP, and claim-ledger MCP. Codex uses warm HTTP port `1739` by default so it does not collide with Hermes/Claude sidecars on `1738`.
+
+### Hermes Agent
+
 ```bash
 cp -r hermes/skills/* ~/.hermes/skills/
 cp -r hermes/agents/* ~/.hermes/agents/
-cp hermes/hooks/* ~/.hermes/agent-hooks/
-# Or: hermes skills install semantic-memory-hermes
+cp hermes/scripts/* ~/.hermes/scripts/
 ```
 
-### Codex CLI (`codex/`)
-```bash
-codex plugin marketplace add ./codex
-codex plugin add semantic-memory@semantic-memory-codex-kit
-# Or copy directly: cp -r codex/plugins/semantic-memory ~/plugins/
-```
-
-### Cursor (`cursor/`) — experimental MCP kit
-```bash
-cursor/scripts/setup.sh
-# Optional project-local config writer:
-cursor/scripts/setup.sh --write-project
-cursor/scripts/doctor.py
-```
-
-Cursor support is MCP-first. It exposes the `sm_*` tools to Cursor. It does not yet claim automatic pre-prompt recall.
-
-### MCP-only kits for other agents
-```bash
-windsurf/scripts/setup.sh
-cline/scripts/setup.sh
-roo-code/scripts/setup.sh
-continue/scripts/setup.sh
-opencode/scripts/setup.sh
-```
-
-These kits expose the `sm_*` tools through each host's MCP configuration surface. They intentionally do not claim automatic recall until a stable host hook/context-injection API is verified and implemented.
-
-## Capability matrix
-
-| Host | MCP tools | Auto recall hook | Session primer | Pre-compact hook | Rule/context injection | Context Governor | ClaimLedger | TurboQuant |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Codex | ✅ | ✅ | ✅ | ✅/Stop fallback | ✅ | ✅ | ✅ | ✅ |
-| Cursor | ✅ | — | — | — | workspace `.cursor/rules/*.mdc` | MCP + command | MCP | env flag |
-| Cline | ✅ | — | — | — | global/workspace rules | MCP + command | MCP | env flag |
-| Roo Code | ✅ | — | — | — | global/workspace rules | MCP + command | MCP | env flag |
-| Windsurf | ✅ | — | — | — | global/workspace rules | MCP + command | MCP | env flag |
-| Continue | ✅ | — | — | — | `rules: file://...` | MCP + command | MCP | env flag |
-| OpenCode | ✅ | — | — | — | `AGENTS.md` + command file | MCP + command | MCP | env flag |
-
-TurboQuant compressed search: set `SEMANTIC_MEMORY_TURBO_QUANT=1` in the MCP server env to enable compressed vector candidate generation with exact f32 rerank. Requires the `turbo-quant-codec` feature in semantic-memory-mcp.
-
-Boundary: dashes mean no verified transcript/prompt lifecycle hook is claimed for that host. Rule/context injection still gives the agent deterministic instructions and commands to retrieve memory and preserve receipts.
-
-### Copy-paste installs for MCP-only kits
+### MCP-only kits (Cursor, Cline, Roo Code, Windsurf, Continue, OpenCode)
 
 ```bash
-# Print snippets only
+git clone https://github.com/RecursiveIntell/agent-memory-kits
+cd agent-memory-kits
+
+# Print MCP config snippets
 cursor/scripts/setup.sh
 cline/scripts/setup.sh
 roo-code/scripts/setup.sh
@@ -210,13 +231,9 @@ windsurf/scripts/setup.sh
 continue/scripts/setup.sh
 opencode/scripts/setup.sh
 
-# Write project-local rules/configs
+# Write project-local rules + MCP config
 cursor/scripts/setup.sh --write-project /path/to/project
 cline/scripts/setup.sh --write-project /path/to/project
-roo-code/scripts/setup.sh --write-project /path/to/project
-windsurf/scripts/setup.sh --write-project /path/to/project
-continue/scripts/setup.sh --write-project /path/to/project
-opencode/scripts/setup.sh --write-project /path/to/project
 
 # Write safe global/user rules where supported
 cline/scripts/setup.sh --write-user
@@ -225,72 +242,58 @@ windsurf/scripts/setup.sh --write-user
 continue/scripts/setup.sh --write-user
 opencode/scripts/setup.sh --write-user
 
-# Verify with receipt bundle
+# Dry run before writing
+cursor/scripts/setup.sh --dry-run --write-project /path/to/project
+
+# Verify everything
 shared/scripts/doctor-all.py --deep
 ```
 
-Generated receipts land in:
+---
 
-```text
-~/.local/share/semantic-memory-agent-kits/receipts/
-```
+## The three MCP companions
 
-## Install
+### semantic-memory
 
-### Prerequisites
+The core memory server. 61 MCP tools (33 lean / 48 standard / 61 full):
 
-- **Rust toolchain** — for the one-time `cargo install semantic-memory-mcp` ([rustup.rs](https://rustup.rs)).
-- **`jq`** and **`python3`** — used by the hooks and the ingester.
-- First run downloads the embedding model (~550 MB) once; cached thereafter. No other network use.
+- **Search**: hybrid BM25 + vector (usearch HNSW) fused with Reciprocal Rank Fusion, RL-routed search (`sm_search_with_routing`), bitemporal as-of search (`sm_search_as_of`), conversation message search (`sm_search_conversations`)
+- **Facts**: add, get, list, supersede (canonical update with audit trail; auto-filtered from search), delete (hard, approval-gated)
+- **Graph**: typed edges (belongs_to, depends_on, semantic, temporal, causal), path traversal, community detection, factor-graph belief propagation, discord second-order discovery
+- **Contradictions**: content-based detection (numeric/value/negation/antonym signals) — no pre-asserted edges needed
+- **Claims**: create claim, add evidence, judge support, verify claim (returns promote/reject/quarantine/defer by risk class)
+- **Conversation**: session create, message add, hybrid search over past sessions
+- **Lifecycle**: autonomous forget/compress candidates, reconcile, vacuum, re-embed stale vectors
+- **Audit/replay**: search receipts, replay prior searches to verify recall stability
 
-### Option A — Plugin (recommended)
+### context-governor
 
-Claude Code:
+Receipt-backed deterministic context compaction. 4 MCP tools:
 
-```text
-/plugin marketplace add RecursiveIntell/semantic-memory-claude-kit
-/plugin install semantic-memory@semantic-memory-kit
-/memory-setup
-```
+- `cg_list_receipts` — list stored compaction receipt IDs
+- `cg_search` — search receipts and exact fallback content
+- `cg_expand` — expand exact fallback text for a receipt item
+- `cg_diff_receipt` — inspect kept/summarized/omitted/quarantined counts and warnings
 
-`/memory-setup` installs the `semantic-memory-mcp` binary and allowlists the `sm_*`
-tools (one time). The MCP server and the three hooks are provided by the plugin.
-Restart Claude Code once so the hooks load.
+The compaction command (`context-governor-compact.py`) accepts an exported transcript JSON, classifies spans, preserves high-risk context, summarizes lower-risk context, stores exact fallback records, and writes a receipt with hashes and token counts.
 
-Codex CLI:
+### claim-ledger
 
-```bash
-git clone https://github.com/RecursiveIntell/semantic-memory-claude-kit
-cd semantic-memory-claude-kit
-codex plugin marketplace add ./codex
-codex plugin add semantic-memory@semantic-memory-codex-kit
-```
+Deterministic, local-first claim/evidence/provenance ledger. 5 MCP tools:
 
-The Codex package installs the `semantic-memory` MCP server config, skills, prompts,
-setup/doctor scripts, warm recall hooks, and automatic codebase-ingest hook. Codex
-uses warm HTTP port `1739` by default so it does not collide with Hermes/Claude
-sidecars that may use `1738`.
+- `cl_run` — run the full ClaimLedger pipeline on a directory
+- `cl_inspect` — inspect a claims JSONL file
+- `cl_validate` — validate a ClaimLedger output directory
+- `cl_export_bundle` — export a generic app-agnostic bundle
+- `cl_ledger_verify` — verify the append-only JSONL ledger digest chain
 
-### Option B — Manual (no plugins)
-
-```bash
-git clone https://github.com/RecursiveIntell/semantic-memory-claude-kit
-./semantic-memory-claude-kit/install.sh
-```
-
-`install.sh` installs the binary, registers the MCP server at user scope, allowlists
-the tools, and **non-destructively merges** the three hooks into
-`~/.claude/settings.json`. Restart Claude Code afterward.
+A claim with evidence is stronger than a fact without. Receipts prove provenance, not task success.
 
 ---
 
 ## The codebase ingester
 
-`/memory-ingest <path>` (or `ingest_codebase.py` directly) turns a repository into
-memory. It is deterministic and **language-agnostic** — facts come straight from
-manifests and source structure (Grade A), never guessed.
-
-### Pipeline
+`/memory-ingest <path>` (or `ingest_codebase.py` directly) turns a repository into memory. It is deterministic and **language-agnostic** — facts come straight from manifests and source structure, never guessed.
 
 ```mermaid
 flowchart LR
@@ -307,45 +310,68 @@ flowchart LR
     GE --> SM
 ```
 
-### Ecosystem support
-
 | Ecosystem | Manifest | Name | Version | Dependencies |
 |---|---|---|:--:|:--:|
-| Rust | `Cargo.toml` | ✅ | ✅ | ✅ |
-| Node / JS / TS | `package.json` | ✅ | ✅ | ✅ |
-| Python | `pyproject.toml` | ✅ | ✅ | ✅ |
-| Go | `go.mod` | ✅ | — | ✅ |
-| Java / JVM | `pom.xml` | ✅ | ✅ | ✅ |
-| .NET | `*.csproj` | ✅ | — | ✅ |
-| PHP | `composer.json` | ✅ | ✅ | ✅ |
+| Rust | `Cargo.toml` | yes | yes | yes |
+| Node / JS / TS | `package.json` | yes | yes | yes |
+| Python | `pyproject.toml` | yes | yes | yes |
+| Go | `go.mod` | yes | — | yes |
+| Java / JVM | `pom.xml` | yes | yes | yes |
+| .NET | `*.csproj` | yes | — | yes |
+| PHP | `composer.json` | yes | yes | yes |
 | Gradle / Ruby / Dart / Elixir / CMake / Swift | various | detected | — | — |
 | **Anything else** | — | repo overview + language stats + layout + README always captured |
 
-### Flags
+Re-running with `--dedupe` writes **0** new facts on an unchanged repo.
 
-| Flag | Purpose |
-|---|---|
-| `--path <repo>` | Repository root (required) |
-| `--name <name>` | Project name (default: directory basename) |
-| `--namespace <ns>` | Memory namespace (default: `code:<repo-slug>`) |
-| `--dedupe` | Skip facts already present (idempotent re-ingest; reuses IDs so the graph still links) |
-| `--dry-run` | Print the plan, write nothing |
-| `--no-graph` | Facts only, skip dependency edges |
-| `--max-components N` | Cap components written (default 400) |
+---
 
-### Example
+## Context injection for MCP-only hosts
 
-```text
-$ python3 ingest_codebase.py --path ./my-rust-workspace --dry-run
-# Ingestion plan for 'my-rust-workspace'  (namespace: code:my-rust-workspace)
-languages: Rust (412), Shell (6)
-ecosystems: Cargo.toml
-components: 14 (writing 14)
-facts to write: 15
-graph edges: 14 belongs_to + 18 depends_on
+Cursor, Cline, Roo Code, Windsurf, Continue, and OpenCode get a shared context-injection layer in addition to MCP registration:
+
+- `shared/scripts/semantic-memory-context.py` — prompt in, compact recall block out; warm HTTP first, stdio MCP fallback
+- `shared/rules/semantic-memory-context.md` — host-neutral rule text (recall protocol, bitemporal as-of guidance, save discipline)
+- `shared/rules/context-governor.md` — compaction guidance (preserve high-risk, store receipts, expand when needed)
+- `shared/rules/claim-ledger.md` — provenance guidance (back material assertions with claims and evidence)
+- `shared/rules/release-gate.md` — gate discipline (run fmt/clippy/test before claiming done, store receipts)
+- `shared/scripts/install-context-rules.py` — installs host-specific rule/instruction files
+
+---
+
+## Receipts and benchmarks
+
+### Doctor receipt bundles
+
+```bash
+shared/scripts/doctor-all.py --deep
 ```
 
-Re-running with `--dedupe` writes **0** new facts on an unchanged repo.
+Runs all doctors (semantic-memory health, context-governor status, claim-ledger checks, MCP tools/list, config paths, optional compaction smoke) and writes a JSON receipt bundle to:
+
+```
+~/.local/share/semantic-memory-agent-kits/receipts/
+```
+
+### Retrieval quality benchmarks
+
+```bash
+shared/scripts/benchmark-retrieval.py
+```
+
+Runs `sm-bench` against the warm HTTP server and stores JSONL quality receipts (precision, recall, latency, namespace accuracy).
+
+### Compaction benchmarks
+
+```bash
+shared/scripts/benchmark-context-governor.py --messages 40
+```
+
+Measures compaction latency, search latency, receipt ID, and compact/original token ratio.
+
+### Release gate
+
+`shared/rules/release-gate.md` instructs agents to run `cargo fmt --check`, `cargo clippy -- -D warnings`, and `cargo test --workspace` before claiming done, and to store gate receipts. A claim of completion without gate receipts is not completion.
 
 ---
 
@@ -355,43 +381,44 @@ Re-running with `--dedupe` writes **0** new facts on an unchanged repo.
 |---|---|---|
 | `SEMANTIC_MEMORY_DIR` | `~/.local/share/semantic-memory` | Where the store lives (`memory.db` + vector sidecar) |
 | `SEMANTIC_MEMORY_MCP_BIN` | auto-resolved | Override the binary path |
-| `SEMANTIC_MEMORY_HTTP_PORT` | `1739` | Warm HTTP port the MCP server co-hosts and the hooks query. Set to `0` to disable the warm endpoint (hooks cold-spawn). Change it if another service already owns the port. |
-| `SEMANTIC_MEMORY_HOOK_DEBUG` | unset | If set to a file path, hooks log each firing there (records `warm HTTP` vs `cold stdio` per call) |
-| `SEMANTIC_MEMORY_TOOL_PROFILE` | `lean` | Tool profile: `lean` (33 daily-use tools), `standard` (48 + maintenance/audit), `full` (61, all tools). Lean keeps the agent's tool-selection accurate by hiding admin/audit/import tools. |
+| `SEMANTIC_MEMORY_HTTP_PORT` | `1739` | Warm HTTP port. Set to `0` to disable (hooks cold-spawn). |
+| `SEMANTIC_MEMORY_TOOL_PROFILE` | `lean` | `lean` (33 tools), `standard` (48), `full` (61) |
+| `SEMANTIC_MEMORY_TURBO_QUANT` | unset | Set to `1` to enable TurboQuant compressed search |
+| `SEMANTIC_MEMORY_TURBO_QUANT_BITS` | `8` | TurboQuant polar angle bits |
+| `SEMANTIC_MEMORY_TURBO_QUANT_PROJECTIONS` | `16` | TurboQuant QJL projection count |
+| `SEMANTIC_MEMORY_HOOK_DEBUG` | unset | If set to a file path, hooks log each firing there |
 | `SM_RECALL_MINTOP` | `0.58` | Best hit must reach this cosine, or nothing is injected |
 | `SM_RECALL_BAND` | `0.12` | Keep hits within this cosine distance of the best hit |
 | `SM_RECALL_ABSFLOOR` | `0.54` | Hard minimum cosine regardless of band |
-| `SM_RECALL_SCOREREL` | `0.5` | Fallback when the server reports no cosine: keep hits scoring ≥ this fraction of the top fused score |
+| `SM_RECALL_SCOREREL` | `0.5` | Fallback when server reports no cosine: keep hits scoring >= this fraction of top fused score |
 | `SM_RECALL_MAXHITS` | `4` | Max facts injected per prompt |
+| `CONTEXT_GOVERNOR_STORE` | `~/.local/share/context-governor/receipts` | Where compaction receipts are stored |
+| `CONTEXT_GOVERNOR_TARGET_TOKENS` | `12000` | Default compact target |
+| `CONTEXT_GOVERNOR_BUDGET_MODE` | `hard_cascade` | `hard_cascade`, `soft_warn`, or `fail_closed` |
 
-Binary resolution order: `$SEMANTIC_MEMORY_MCP_BIN` → `PATH` → `~/.cargo/bin` → `~/.local/bin`.
+Binary resolution order: `$SEMANTIC_MEMORY_MCP_BIN` -> `PATH` -> `~/.cargo/bin` -> `~/.local/bin`.
 
-The warm server is the MCP server itself: `run-server.sh` adds `--http-port`, so a single process serves both stdio MCP and the warm HTTP endpoint for the hooks. The server exposes **10 HTTP endpoints**: `/health`, `/search`, `/stats`, `/search-routed` (full RL-routed pipeline with decoder, discord, and factor-graph), `/verify-integrity` (real store integrity check), `/discord` (second-order related-item discovery), `/record-outcome` (RL routing feedback, persisted to SQLite), `/claim-versions`, `/relation-versions`, and `/episodes`. Across concurrent sessions only the first binds the port; the rest fail open and all hooks share that one warm process.
+The warm server is the MCP server itself: `run-server.sh` adds `--http-port`, so a single process serves both stdio MCP and the warm HTTP endpoint for the hooks. Across concurrent sessions only the first binds the port; the rest fail open and all hooks share that one warm process.
 
 ---
 
 ## Data model
 
-- **Facts** — atomic statements stored under a **namespace** (e.g. `general`,
-  `projects`, `code:<repo>`). Each gets a stable `fact:<uuid>` id.
-- **Graph edges** — typed, append-only relationships between facts:
-  `belongs_to`, `depends_on`, `part_of`, plus `semantic` / `temporal` / `causal`.
-  The ingester builds `belongs_to` (component → repo) and `depends_on` (real
-  dependency edges). Edges are idempotent; corrections use append/supersede, never
-  destructive rewrite.
-- **Retrieval** — hybrid: BM25 (FTS5) + vector (usearch HNSW) fused with Reciprocal
-  Rank Fusion. Graph tools (`sm_topology`, `sm_community`, `sm_factor_graph`) reason
-  over the edges.
+- **Facts** — atomic statements stored under a **namespace** (e.g. `general`, `projects`, `code:<repo>`). Each gets a stable `fact:<uuid>` id.
+- **Graph edges** — typed, append-only relationships between facts: `belongs_to`, `depends_on`, `part_of`, plus `semantic` / `temporal` / `causal`. Edges are idempotent; corrections use append/supersede, never destructive rewrite.
+- **Retrieval** — hybrid: BM25 (FTS5) + vector (usearch HNSW) fused with Reciprocal Rank Fusion. Graph tools (`sm_topology`, `sm_communities`, `sm_factor_graph`) reason over the edges.
+- **Receipts** — context-governor stores compacted transcript receipts with exact fallback. claim-ledger stores claim/evidence/provenance receipts with digest chain verification.
 
 ---
 
 ## Design principles
 
-- **Fail-open.** Hooks never block a prompt. Missing binary, timeout, bad JSON → exit 0, no output.
+- **Fail-open.** Hooks never block a prompt. Missing binary, timeout, bad JSON -> exit 0, no output.
 - **Local-first.** No network beyond the one-time model download. Your knowledge never leaves the machine.
 - **Relative recall.** Precision over recall — unrelated prompts inject nothing.
-- **No autonomous writes.** Memory is written by the model *with judgment*, nudged at the right moments — never auto-dumped by a script (which would be garbage-in, garbage-out).
+- **No autonomous writes.** Memory is written by the model *with judgment*, nudged at the right moments — never auto-dumped by a script.
 - **Append/supersede.** Truth evolves by adding and superseding, not deleting.
+- **Receipts or it didn't happen.** Compaction, claims, benchmarks, and doctor checks all produce receipts. A claim of completion without gate receipts is not completion.
 
 ---
 
@@ -401,107 +428,20 @@ The warm server is the MCP server itself: `run-server.sh` adds `--http-port`, so
 |---|---|
 | Hooks don't fire | Restart Claude Code or open `/hooks` once (config reloads at session start). |
 | "binary not found" | `cargo install semantic-memory-mcp`, or set `SEMANTIC_MEMORY_MCP_BIN`. |
-| First call is slow | One-time model download (~550 MB → `~/.cache/huggingface`). Cached after. |
+| First call is slow | One-time model download (~550 MB -> `~/.cache/huggingface`). Cached after. |
 | Want to see hooks firing | `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log` and tail it. |
 | Recall too eager / too quiet | Tune `SM_RECALL_MINTOP` up/down. |
 | Re-ingest duplicated facts | Use `--dedupe`. |
+| MCP-only host not recalling | Rule/context injection is guidance, not a hook. Run `shared/scripts/semantic-memory-context.py --prompt "..."` to test. |
 
 ---
 
 ## Privacy / local-first
 
-The SQLite database, the usearch vector index, the Candle embedding model, and the
-MCP server process all run locally. There are **no** calls to any hosted service.
-The only network access is a one-time model download from HuggingFace (cached). Your
-knowledge base never leaves your machine.
+The SQLite database, the usearch vector index, the Candle embedding model, the context-governor receipt store, the claim-ledger ledger, and all MCP server processes run locally. There are **no** calls to any hosted service. The only network access is a one-time model download from HuggingFace (cached). Your knowledge base never leaves your machine.
 
 ---
 
 ## License
 
-Apache-2.0. Built on [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp)
-and [`semantic-memory`](https://crates.io/crates/semantic-memory).
-
-
-## Context injection for MCP-only kits
-
-The Cursor, Windsurf, Cline, Roo Code, Continue, and OpenCode kits now include a shared context-injection layer in addition to MCP registration:
-
-- `shared/scripts/semantic-memory-context.py` retrieves compact memory context for a prompt.
-- `shared/rules/semantic-memory-context.md` is the host-neutral rule text.
-- `shared/scripts/install-context-rules.py` installs host-specific rule/instruction files.
-
-Examples:
-
-```bash
-# workspace rule for a project
-shared/scripts/install-context-rules.py cursor --scope workspace --workspace /path/to/project
-shared/scripts/install-context-rules.py cline --scope workspace --workspace /path/to/project
-shared/scripts/install-context-rules.py roo-code --scope workspace --workspace /path/to/project
-shared/scripts/install-context-rules.py windsurf --scope workspace --workspace /path/to/project
-shared/scripts/install-context-rules.py continue --scope workspace --workspace /path/to/project
-shared/scripts/install-context-rules.py opencode --scope workspace --workspace /path/to/project
-
-# global rule where supported by the host
-shared/scripts/install-context-rules.py cline --scope global
-shared/scripts/install-context-rules.py roo-code --scope global
-shared/scripts/install-context-rules.py windsurf --scope global
-shared/scripts/install-context-rules.py continue --scope global
-shared/scripts/install-context-rules.py opencode --scope global
-```
-
-Host boundaries:
-
-- Claude Code and Codex have real hook-based recall.
-- Cursor/Cline/Roo/Windsurf/Continue/OpenCode use documented rule/config surfaces plus the shared context command unless/until a stable pre-prompt hook API is available for that host.
-- Context retrieved from memory is recall to consider, not ground truth; current files and live tool output outrank memory.
-
-
-## Context Governor companion
-
-The MCP-only kits also include Context Governor as a companion for receipt-backed compaction:
-
-- `shared/scripts/context-governor-mcp.py` exposes receipt tools: `cg_list_receipts`, `cg_search`, `cg_expand`, and `cg_diff_receipt`.
-- `shared/scripts/context-governor-compact.py` compacts an exported transcript JSON and stores a receipt.
-- `shared/rules/context-governor.md` tells agents how to use receipts and exact fallback safely.
-- MCP config examples now include both `semantic-memory` and `context-governor` servers.
-
-Capability boundary:
-
-- Claude Code/Codex can use pre-compact hooks where supported.
-- Other agents get MCP receipt search/expand plus rule/command-assisted compaction unless their hook API exposes transcript messages.
-- Receipts prove recoverability of context, not task success.
-
-
-## ClaimLedger companion
-
-The kits include ClaimLedger as a third MCP companion for claim/evidence/provenance receipts:
-
-- `shared/scripts/claim-ledger-mcp.py` exposes tools: `cl_run`, `cl_inspect`, `cl_validate`, `cl_export_bundle`, `cl_ledger_verify`.
-- `shared/rules/claim-ledger.md` tells agents when to back assertions with claim/evidence receipts.
-- MCP config examples include `semantic-memory`, `context-governor`, and `claim-ledger` servers.
-
-ClaimLedger gives agents a formal claim lifecycle: create claims, add evidence, verify integrity, and export bundles for audit. Receipts prove provenance, not task success.
-
-## Retrieval quality benchmarks
-
-- `shared/scripts/benchmark-retrieval.py` runs `sm-bench` against the warm HTTP server and stores JSONL receipts.
-- `shared/scripts/benchmark-context-governor.py` measures compaction latency and ratio.
-- `shared/scripts/doctor-all.py --deep` runs all doctors and writes a receipt bundle.
-
-Receipts land in `~/.local/share/semantic-memory-agent-kits/receipts/`.
-
-## Release gate
-
-- `shared/rules/release-gate.md` instructs agents to run `cargo fmt --check`, `cargo clippy -- -D warnings`, and `cargo test --workspace` before claiming done, and to store gate receipts.
-
-## TurboQuant compressed search
-
-Set `SEMANTIC_MEMORY_TURBO_QUANT=1` in the MCP server environment to enable TurboQuant compressed vector candidate generation with exact f32 rerank for final results. This uses your turbo-quant codec for faster candidate scoring on large stores.
-
-Flags:
-- `SEMANTIC_MEMORY_TURBO_QUANT=1` — enable
-- `SEMANTIC_MEMORY_TURBO_QUANT_BITS=8` — polar angle bits (default 8)
-- `SEMANTIC_MEMORY_TURBO_QUANT_PROJECTIONS=16` — QJL projection count (default 16)
-
-Requires the `turbo-quant-codec` feature in semantic-memory-mcp.
+Apache-2.0. Built on [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp), [`semantic-memory`](https://crates.io/crates/semantic-memory), [`context-governor`](https://github.com/RecursiveIntell/Libraries), and [`claim-ledger`](https://github.com/RecursiveIntell/Libraries).

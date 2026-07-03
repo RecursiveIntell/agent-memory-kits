@@ -7,7 +7,7 @@ Goal: make semantic-memory-mcp easy to install and use from the other popular AI
 Architecture: keep semantic-memory-mcp as the one shared substrate. Build thin host adapters that do only four things: install/register MCP, start or point at a warm HTTP sidecar, add prompt/session recall where the host exposes hooks, and ship host-native commands/docs. Do not fork the memory semantics per agent.
 
 Evidence basis checked 2026-07-02:
-- Current repo: /home/sikmindz/Coding/semantic-memory-claude-kit
+- Current repo: /home/sikmindz/Coding/agent-memory-kits
 - Existing packages: claude/, codex/, hermes/
 - Current README advertises only Claude Code, Hermes Agent, and Codex CLI.
 - Live docs probed for MCP support: Cursor, Windsurf, Continue, OpenCode, Roo Code, Cline.
