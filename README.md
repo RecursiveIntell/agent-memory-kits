@@ -5,6 +5,8 @@
 
 [![crates.io: semantic-memory-mcp](https://img.shields.io/crates/v/semantic-memory-mcp?label=semantic-memory-mcp)](https://crates.io/crates/semantic-memory-mcp)
 [![crates.io: semantic-memory](https://img.shields.io/crates/v/semantic-memory?label=semantic-memory)](https://crates.io/crates/semantic-memory)
+[![crates.io: context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor)](https://crates.io/crates/context-governor)
+[![crates.io: claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger)](https://crates.io/crates/claim-ledger)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](#license)
 [![Local-first](https://img.shields.io/badge/data-100%25%20local-green)](#privacy--local-first)
 
@@ -184,7 +186,7 @@ Context Governor classifies transcript spans, preserves active tasks and high-ri
 
 ### Prerequisites
 
-- **Rust toolchain** — for the one-time `cargo install semantic-memory-mcp` ([rustup.rs](https://rustup.rs)).
+- **Rust toolchain** — for `cargo install semantic-memory-mcp`, `cargo install context-governor`, `cargo install claim-ledger` ([rustup.rs](https://rustup.rs)).
 - **`python3`** — used by hooks, ingester, and setup scripts.
 - First run downloads the embedding model (~550 MB) once; cached thereafter. No other network use.
 
@@ -257,6 +259,7 @@ shared/scripts/doctor-all.py --deep
 
 The core memory server. 61 MCP tools (33 lean / 48 standard / 61 full):
 
+- **LLM output parsing**: `sm_parse_json`, `sm_parse_json_value`, `sm_repair_json`, `sm_strip_think_tags`, `sm_parse_string_list`, `sm_parse_choice`, `sm_parse_number` — production-grade parsing of LLM output without an additional LLM call. Handles think blocks, markdown fences, malformed JSON, trailing text.
 - **Search**: hybrid BM25 + vector (usearch HNSW) fused with Reciprocal Rank Fusion, RL-routed search (`sm_search_with_routing`), bitemporal as-of search (`sm_search_as_of`), conversation message search (`sm_search_conversations`)
 - **Facts**: add, get, list, supersede (canonical update with audit trail; auto-filtered from search), delete (hard, approval-gated)
 - **Graph**: typed edges (belongs_to, depends_on, semantic, temporal, causal), path traversal, community detection, factor-graph belief propagation, discord second-order discovery

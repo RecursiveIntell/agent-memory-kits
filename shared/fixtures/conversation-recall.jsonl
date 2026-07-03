@@ -1,0 +1,5 @@
+{"query": "discussion about adding hooks for memory capture", "expected_namespaces": ["agent-setup"], "expected_top_hit_contains": "hook"}
+{"query": "conversation about Rust workspace crate structure", "expected_namespaces": ["libraries", "coding"], "expected_top_hit_contains": "crate"}
+{"query": "talked about receipt-bench fixtures and validation", "expected_namespaces": ["infrastructure", "agent-setup"], "expected_top_hit_contains": "receipt"}
+{"query": "discussion about context-governor compact mode", "expected_namespaces": ["agent-setup"], "expected_top_hit_contains": "compact"}
+{"query": "prior session about plugin expansion plan for new editors", "expected_namespaces": ["projects"], "expected_top_hit_contains": "plugin"}

@@ -1,0 +1,5 @@
+{"query": "how is the semantic-memory MCP server configured for stdio transport", "expected_namespaces": ["agent-setup", "infrastructure"], "expected_top_hit_contains": "stdio"}
+{"query": "what hooks are registered for memory capture in Claude Code", "expected_namespaces": ["agent-setup", "claude"], "expected_top_hit_contains": "hook"}
+{"query": "MCP server warm HTTP endpoint configuration port 1739", "expected_namespaces": ["infrastructure", "agent-setup"], "expected_top_hit_contains": "1739"}
+{"query": "context-governor plugin setup and MCP tool registration", "expected_namespaces": ["infrastructure", "agent-setup"], "expected_top_hit_contains": "context-governor"}
+{"query": "how to install semantic-memory-mcp via cargo", "expected_namespaces": ["infrastructure", "agent-setup"], "expected_top_hit_contains": "cargo"}

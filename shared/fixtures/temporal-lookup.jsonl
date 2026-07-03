@@ -1,0 +1,5 @@
+{"query": "what is the current state of semantic-memory system as of July 2026", "expected_namespaces": ["agent-setup", "infrastructure"], "expected_top_hit_contains": "2026"}
+{"query": "when did the ESP32 crates get published", "expected_namespaces": ["projects"], "expected_top_hit_contains": "ESP32"}
+{"query": "as of June 2026 how many MCP tools were available", "expected_namespaces": ["agent-setup", "infrastructure"], "expected_top_hit_contains": "tools"}
+{"query": "timeline of agent-memory-kits plugin expansion", "expected_namespaces": ["projects", "agent-setup"], "expected_top_hit_contains": "expansion"}
+{"query": "when was the memory protocol doctrine established", "expected_namespaces": ["doctrine"], "expected_top_hit_contains": "doctrine"}

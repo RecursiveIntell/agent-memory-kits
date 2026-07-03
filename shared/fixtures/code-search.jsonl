@@ -1,0 +1,5 @@
+{"query": "Rust crates in the Libraries workspace for agent memory", "expected_namespaces": ["libraries", "coding"], "expected_top_hit_contains": "crate"}
+{"query": "Cargo.toml dependencies for semantic-memory-mcp", "expected_namespaces": ["libraries", "coding"], "expected_top_hit_contains": "Cargo.toml"}
+{"query": "receipt-bench crate structure and sm-bench binary", "expected_namespaces": ["libraries", "coding"], "expected_top_hit_contains": "receipt-bench"}
+{"query": "context-governor Rust crate modules and exports", "expected_namespaces": ["libraries", "coding"], "expected_top_hit_contains": "context-governor"}
+{"query": "claim-ledger crate types and ledger entry structure", "expected_namespaces": ["libraries", "coding"], "expected_top_hit_contains": "claim-ledger"}

@@ -1,0 +1,5 @@
+{"query": "semantic-memory-mcp is the primary memory backend", "expected_namespaces": ["doctrine", "agent-setup"], "expected_top_hit_contains": "semantic-memory-mcp"}
+{"query": "number of MCP tools exposed by semantic-memory server", "expected_namespaces": ["agent-setup", "infrastructure"], "expected_top_hit_contains": "tools"}
+{"query": "context-governor is deprecated or still active", "expected_namespaces": ["doctrine", "agent-setup"], "expected_top_hit_contains": "context-governor"}
+{"query": "claim-ledger receipt storage location and format", "expected_namespaces": ["infrastructure", "agent-setup"], "expected_top_hit_contains": "receipt"}
+{"query": "receipt-bench is required vs optional for validation", "expected_namespaces": ["doctrine", "infrastructure"], "expected_top_hit_contains": "receipt-bench"}
