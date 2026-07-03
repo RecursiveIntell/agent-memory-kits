@@ -8,7 +8,7 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/memory-primer.sh",
             "timeout": 12,
-            "statusMessage": "Priming semantic memory…"
+            "statusMessage": "Priming semantic memory\u2026"
           }
         ]
       }
@@ -20,7 +20,7 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/memory-recall.sh",
             "timeout": 12,
-            "statusMessage": "Recalling from semantic memory…"
+            "statusMessage": "Recalling from semantic memory\u2026"
           }
         ]
       }
@@ -28,6 +28,27 @@
     "PreCompact": [
       {
         "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/memory-capture-nudge.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/context-governor-mcp.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
         "hooks": [
           {
             "type": "command",

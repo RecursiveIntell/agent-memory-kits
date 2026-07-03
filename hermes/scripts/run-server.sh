@@ -39,7 +39,13 @@ SM_HTTP_PORT="${SEMANTIC_MEMORY_HTTP_PORT:-1739}"
 SM_TOOL_PROFILE="${SEMANTIC_MEMORY_TOOL_PROFILE:-lean}"
 
 if [ -n "$SM_HTTP_PORT" ] && [ "$SM_HTTP_PORT" != "0" ]; then
-  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" --http-port "$SM_HTTP_PORT" --tool-profile "$SM_TOOL_PROFILE" "$@"
+  if [ "$SM_TURBO_QUANT" = "1" ] || [ "$SM_TURBO_QUANT" = "true" ]; then
+  case "$("$SM_BIN" --help 2>&1)" in *"--turbo-quant"*) EXTRA+=(--turbo-quant) ;; esac
+fi
+exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" --http-port "$SM_HTTP_PORT" --tool-profile "$SM_TOOL_PROFILE" "$@"
 else
-  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" --tool-profile "$SM_TOOL_PROFILE" "$@"
+  if [ "$SM_TURBO_QUANT" = "1" ] || [ "$SM_TURBO_QUANT" = "true" ]; then
+  case "$("$SM_BIN" --help 2>&1)" in *"--turbo-quant"*) EXTRA+=(--turbo-quant) ;; esac
+fi
+exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" --tool-profile "$SM_TOOL_PROFILE" "$@"
 fi

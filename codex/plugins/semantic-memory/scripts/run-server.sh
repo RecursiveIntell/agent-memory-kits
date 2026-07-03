@@ -28,7 +28,13 @@ case "$HELP" in *"--http-port"*) [ -n "$SM_HTTP_PORT" ] && EXTRA_ARGS+=(--http-p
 case "$HELP" in *"--llm-model"*) [ -n "$SM_LLM_MODEL" ] && EXTRA_ARGS+=(--llm-model "$SM_LLM_MODEL") ;; esac
 
 if [ -n "$SM_EMBEDDER" ]; then
-  exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" "${EXTRA_ARGS[@]}" "$@"
+  if [ "$SM_TURBO_QUANT" = "1" ] || [ "$SM_TURBO_QUANT" = "true" ]; then
+  case "$("$SM_BIN" --help 2>&1)" in *"--turbo-quant"*) EXTRA+=(--turbo-quant) ;; esac
+fi
+exec "$SM_BIN" --memory-dir "$SM_DIR" --embedder "$SM_EMBEDDER" "${EXTRA_ARGS[@]}" "$@"
 fi
 
+if [ "$SM_TURBO_QUANT" = "1" ] || [ "$SM_TURBO_QUANT" = "true" ]; then
+  case "$("$SM_BIN" --help 2>&1)" in *"--turbo-quant"*) EXTRA+=(--turbo-quant) ;; esac
+fi
 exec "$SM_BIN" --memory-dir "$SM_DIR" "${EXTRA_ARGS[@]}" "$@"

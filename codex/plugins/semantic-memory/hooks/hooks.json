@@ -42,6 +42,17 @@
             "statusMessage": "Checking semantic-memory capture"
           }
         ]
+      },
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONDONTWRITEBYTECODE=1 python3 ${PLUGIN_ROOT:-$PWD}/scripts/context-governor-mcp.py",
+            "timeout": 30,
+            "statusMessage": "Context Governor compaction"
+          }
+        ]
       }
     ],
     "Stop": [

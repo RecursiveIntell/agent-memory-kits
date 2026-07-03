@@ -206,6 +206,24 @@ def managed_block(binary: Path) -> str:
             "",
         ]
     )
+    # Context Governor MCP server
+    cg_script = ROOT / "scripts/context-governor-mcp.py"
+    if cg_script.exists():
+        lines.extend([
+            "[mcp_servers.context_governor]",
+            f"command = {quote('python3')}",
+            f"args = [{quote(str(cg_script))}]",
+            "",
+        ])
+    # ClaimLedger MCP server
+    cl_script = ROOT / "scripts/claim-ledger-mcp.py"
+    if cl_script.exists():
+        lines.extend([
+            "[mcp_servers.claim_ledger]",
+            f"command = {quote('python3')}",
+            f"args = [{quote(str(cl_script))}]",
+            "",
+        ])
     return "\n".join(lines)
 
 
@@ -220,7 +238,7 @@ def main() -> int:
         return 1
 
     text = CONFIG_TOML.read_text(encoding="utf-8") if CONFIG_TOML.exists() else ""
-    text = remove_sections(text, ("mcp_servers.semantic_memory", "agents.memory_keeper"))
+    text = remove_sections(text, ("mcp_servers.semantic_memory", "mcp_servers.context_governor", "mcp_servers.claim_ledger", "agents.memory_keeper"))
     text = remove_table_keys(text, "memories", {"no_memories_if_mcp_or_web_search"})
     text = ensure_table_keys(text, "features", {"hooks": "true", "memories": "true", "multi_agent": "true"})
     text = ensure_table_keys(

@@ -2,6 +2,12 @@
   "mcpServers": {
     "semantic-memory": {
       "command": "./scripts/run-server.sh"
+    },
+    "context-governor": {
+      "command": "./scripts/context-governor-mcp.py"
+    },
+    "claim-ledger": {
+      "command": "./scripts/claim-ledger-mcp.py"
     }
   }
 }

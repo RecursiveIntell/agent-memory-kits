@@ -1,7 +1,7 @@
 {
   "name": "semantic-memory",
   "version": "0.6.0",
-  "description": "Local-first knowledge base with hybrid search, knowledge graphs, and autonomous memory lifecycle — for Hermes Agent",
+  "description": "Local-first knowledge base with hybrid search, knowledge graphs, and autonomous memory lifecycle \u2014 for Hermes Agent",
   "author": "RecursiveIntell",
   "license": "Apache-2.0",
   "hermes": {
@@ -10,7 +10,8 @@
       "memory-curator",
       "memory-maintenance",
       "memory-sync",
-      "knowledge-graph-explorer"
+      "knowledge-graph-explorer",
+      "release-gate"
     ],
     "agents": [
       "memory-keeper"
@@ -28,7 +29,28 @@
     "mcp_servers": {
       "semantic-memory": {
         "command": "semantic-memory-mcp",
-        "args": ["--memory-dir", "$SEMANTIC_MEMORY_DIR", "--tool-profile", "lean", "--http-port", "1738", "--llm-model", "$LLM_MODEL"]
+        "args": [
+          "--memory-dir",
+          "$SEMANTIC_MEMORY_DIR",
+          "--tool-profile",
+          "lean",
+          "--http-port",
+          "1738",
+          "--llm-model",
+          "$LLM_MODEL"
+        ]
+      },
+      "context-governor": {
+        "command": "python3",
+        "args": [
+          "scripts/context-governor-mcp.py"
+        ]
+      },
+      "claim-ledger": {
+        "command": "python3",
+        "args": [
+          "scripts/claim-ledger-mcp.py"
+        ]
       }
     }
   }
