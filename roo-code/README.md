@@ -1,5 +1,13 @@
 # semantic-memory for Roo Code
 
+> **Tier 1 host plugin.** MCP-only integration; rule/context injection for behavioral guidance.
+
+[![Tier 1](https://img.shields.io/badge/tier-1-blueviolet?style=for-the-badge)](#capability-boundary)
+[![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#)
+
+See [top-level README](../../README.md) for the full capability matrix and architecture overview.
+
 This is the Roo Code MCP setup kit for semantic-memory-mcp.
 
 Capability boundary:
@@ -7,6 +15,8 @@ Capability boundary:
 - Works: local-first memory storage, hybrid search, graph tools, provenance, supersession, claims, and manual/codebase-ingest workflows.
 - Works: context-injection via host rule/instruction files. The setup kit can install a semantic-memory rule that tells the agent to retrieve memory through MCP, or through the shared context command when shell execution is available.
 - Boundary: this is rule/instruction based for this host, not a guaranteed pre-prompt hook unless the host exposes a stable hook API.
+
+> **This is a Tier 1 kit.** Tier 1 hosts expose the MCP server to the agent and install host-native rule/instruction files that tell the agent to retrieve memory through MCP and preserve receipts. No transcript/prompt lifecycle hook is claimed.
 
 ## Install
 
@@ -117,3 +127,34 @@ Verify:
 roo-code/scripts/doctor.py
 shared/scripts/doctor-all.py --deep
 ```
+
+## Architecture
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart LR
+    RO["Roo Code"] --> SM["semantic-memory-mcp<br/>MCP stdio"]
+    RO --> R["global/workspace rule"]
+    R --> CI["shared/scripts/<br/>semantic-memory-context.py"]
+    CI --> SM
+    SM --> CG["context-governor MCP"]
+    SM --> CL["claim-ledger MCP"]
+    SM --> DB[("SQLite + HNSW")]
+    CG --> RS[("Receipt store")]
+    CL --> LR[("Claim/evidence ledger")]
+```
+
+## Design principles
+
+- **Rule-injection, not hook-injection.** Tier 1 hosts install host-native rule files that tell the agent to retrieve memory through MCP; no pre-prompt hook is claimed.
+- **MCP stdio is the only lifecycle path.** The host starts `semantic-memory-mcp` when it loads the MCP config; no warm HTTP sidecar is started by this host.
+
+These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `mcp_settings.json.example` not parseable | `python3 -m json.tool roo-code/mcp_settings.json.example` — should print valid JSON. |
+| MCP not loading in Roo Code | Restart Roo Code after writing the MCP config; check Roo Code's MCP logs. |
+| Rule not auto-applying | Verify the rule path with `roo-code/scripts/setup.sh --write-user` produced the expected rule file. |

@@ -1,11 +1,21 @@
 # semantic-memory for Cursor
 
+> **Tier 1 host plugin.** MCP-only integration; rule/context injection for behavioral guidance.
+
+[![Tier 1](https://img.shields.io/badge/tier-1-blueviolet?style=for-the-badge)](#capability-boundary)
+[![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#)
+
+See [top-level README](../../README.md) for the full capability matrix and architecture overview.
+
 This is the Cursor MCP setup kit for semantic-memory-mcp.
 
 Capability boundary:
 - Works: Cursor can call the `sm_*` semantic-memory MCP tools from this server.
 - Works: local-first memory storage, hybrid search, graph tools, provenance, supersession, claims, and codebase-ingest scripts.
 - Not claimed yet: automatic pre-prompt recall. This package does not assume Cursor exposes a stable hook that can inject recall context before every model call.
+
+> **This is a Tier 1 kit.** Tier 1 hosts expose the MCP server to the agent and install host-native rule/instruction files that tell the agent to retrieve memory through MCP and preserve receipts. No transcript/prompt lifecycle hook is claimed.
 
 ## Install
 
@@ -135,3 +145,34 @@ Verify:
 cursor/scripts/doctor.py
 shared/scripts/doctor-all.py --deep
 ```
+
+## Architecture
+
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart LR
+    CU["Cursor"] --> SM["semantic-memory-mcp<br/>MCP stdio"]
+    CU --> R["workspace rule<br/>.cursor/rules/*.mdc"]
+    R --> CI["shared/scripts/<br/>semantic-memory-context.py"]
+    CI --> SM
+    SM --> CG["context-governor MCP"]
+    SM --> CL["claim-ledger MCP"]
+    SM --> DB[("SQLite + HNSW")]
+    CG --> RS[("Receipt store")]
+    CL --> LR[("Claim/evidence ledger")]
+```
+
+## Design principles
+
+- **Rule-injection, not hook-injection.** Tier 1 hosts install host-native rule files that tell the agent to retrieve memory through MCP; no pre-prompt hook is claimed.
+- **MCP stdio is the only lifecycle path.** The host starts `semantic-memory-mcp` when it loads the MCP config; no warm HTTP sidecar is started by this host.
+
+These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `mcp.json.example` not parseable | `python3 -m json.tool cursor/mcp.json.example` — should print valid JSON. |
+| MCP not loading in Cursor | Restart Cursor after writing the MCP config; check Cursor's MCP logs. |
+| Rule not auto-applying | Verify the rule path with `cursor/scripts/setup.sh --write-project /path/to/project` produces `.cursor/rules/*.mdc`. |

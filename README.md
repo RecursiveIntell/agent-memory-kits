@@ -3,23 +3,34 @@
 > **Persistent local-first memory, receipt-backed compaction, and claim/evidence provenance — for every AI coding agent.**
 > One repo, three companion MCP servers, nine agent hosts.
 
-[![crates.io: semantic-memory-mcp](https://img.shields.io/crates/v/semantic-memory-mcp?label=semantic-memory-mcp)](https://crates.io/crates/semantic-memory-mcp)
-[![crates.io: semantic-memory](https://img.shields.io/crates/v/semantic-memory?label=semantic-memory)](https://crates.io/crates/semantic-memory)
-[![crates.io: context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor)](https://crates.io/crates/context-governor)
-[![crates.io: claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger)](https://crates.io/crates/claim-ledger)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](#license)
-[![Local-first](https://img.shields.io/badge/data-100%25%20local-green)](#privacy--local-first)
+[![crates.io: semantic-memory-mcp](https://img.shields.io/crates/v/semantic-memory-mcp?label=semantic-memory-mcp&style=for-the-badge)](https://crates.io/crates/semantic-memory-mcp)
+[![crates.io: semantic-memory](https://img.shields.io/crates/v/semantic-memory?label=semantic-memory&style=for-the-badge)](https://crates.io/crates/semantic-memory)
+[![crates.io: context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor&style=for-the-badge)](https://crates.io/crates/context-governor)
+[![crates.io: claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger&style=for-the-badge)](https://crates.io/crates/claim-ledger)
+[![9 host plugins](https://img.shields.io/badge/hosts-9-blueviolet?style=for-the-badge)](./#capability-matrix)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#license)
+[![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#privacy--local-first)
+
+![Architecture overview](.github/hero.svg)
 
 AI coding agents forget everything between sessions. This repo fixes that.
 
-It wraps three local-first Rust tools — [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp), [`context-governor`](https://github.com/RecursiveIntell/Libraries), and [`claim-ledger`](https://github.com/RecursiveIntell/Libraries) — into agent-native packages so that:
+## 60-second demo
 
-- relevant facts are automatically recalled when useful (hooked agents)
-- context compaction preserves high-risk spans with searchable exact-fallback receipts
-- material agent assertions can be backed by claim/evidence/provenance receipts
-- any repository can be ingested into a searchable fact + dependency graph
+```bash
+# 1. Install the three companion MCP servers (one cargo command, one build)
+cargo install semantic-memory-mcp context-governor claim-ledger
 
-Everything runs on your machine. SQLite for storage, an in-process Rust embedder (`nomic-embed-text-v1.5`, CPU-only), no API keys, no cloud, no telemetry.
+# 2. Install a host plugin — Claude Code shown; the same shape works for all 9 hosts
+/plugin marketplace add RecursiveIntell/agent-memory-kits
+/plugin install semantic-memory@semantic-memory-kit
+/memory-setup
+
+# 3. Restart the host so hooks load, then ask a question that crosses sessions
+# "what does the AiDENs runner depend on?"
+```
+
+The hooked host's recall hook queries the warm HTTP server (BM25 + vector + RRF, fail-open) and injects only hits that clear `SM_RECALL_MINTOP=0.58`. A second-prompt later, the same facts come back without re-indexing. Receipts are written to `~/.local/share/semantic-memory-agent-kits/receipts/`.
 
 ---
 
@@ -28,6 +39,7 @@ Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 - [What this repo is](#what-this-repo-is)
 - [Architecture](#architecture)
 - [Capability matrix](#capability-matrix)
+- [Per-host docs](#per-host-docs)
 - [Install](#install)
 - [The three MCP companions](#the-three-mcp-companions)
 - [The codebase ingester](#the-codebase-ingester)
@@ -36,6 +48,7 @@ Everything runs on your machine. SQLite for storage, an in-process Rust embedder
 - [Configuration](#configuration)
 - [Data model](#data-model)
 - [Design principles](#design-principles)
+- [Design tokens](#design-tokens)
 - [Troubleshooting](#troubleshooting)
 - [Privacy / local-first](#privacy--local-first)
 - [License](#license)
@@ -56,27 +69,78 @@ A collection of plugins and setup kits that give AI coding agents:
 
 ```
 agent-memory-kits/
-├── claude/              # Claude Code plugin (marketplace + plugin)
-├── codex/               # Codex CLI plugin (marketplace + plugin)
-├── hermes/              # Hermes Agent plugin
-├── cursor/              # Cursor MCP + context-injection kit
-├── windsurf/            # Windsurf MCP + context-injection kit
-├── cline/               # Cline MCP + context-injection kit
-├── roo-code/            # Roo Code MCP + context-injection kit
-├── continue/            # Continue MCP + context-injection kit
-├── opencode/            # OpenCode MCP + context-injection kit
+├── README.md
+├── claude/                            # Claude Code plugin (Tier 0, reference impl)
+│   ├── README.md
+│   ├── .claude-plugin/marketplace.json
+│   ├── install.sh
+│   └── plugins/semantic-memory/
+│       ├── README.md                  # (this PR — see Per-host docs)
+│       ├── .claude-plugin/plugin.json
+│       ├── .mcp.json
+│       ├── agents/memory-keeper.md
+│       ├── commands/{memory-setup,memory-ingest}.md
+│       ├── hooks/{memory-recall,memory-primer,memory-capture-nudge,_resolve}.sh
+│       ├── scripts/                   # 7 .py + run-server.sh (MCP wrappers, doctor, ingest)
+│       └── skills/                    # 9 SKILL.md (capture, curator, maintenance, sync, ...)
+├── codex/                             # Codex CLI plugin (Tier 0, reference impl)
+│   ├── README.md                      # (this PR — see Per-host docs)
+│   ├── .agents/plugins/marketplace.json
+│   └── plugins/semantic-memory/
+│       ├── README.md
+│       ├── .codex-plugin/plugin.json
+│       ├── .mcp.json
+│       ├── agents/memory-keeper.md
+│       ├── assets/icon.svg
+│       ├── hooks/                     # 7 .py hooks (recall, primer, capture, ingest, compact)
+│       ├── prompts/                   # 11 prompts (search, capture, curator, doctor, ...)
+│       ├── scripts/                   # MCP wrappers, doctor, ingest, eval, audit, install
+│       └── skills/                    # 13 SKILL.md (each with agents/openai.yaml)
+├── hermes/                            # Hermes Agent plugin (Tier 0, reference impl)
+│   ├── README.md                      # (this PR — see Per-host docs)
+│   ├── plugin.json
+│   ├── agents/memory-keeper.md
+│   ├── commands/{memory-setup,memory-ingest}.md
+│   ├── scripts/                       # 7 .py + run-server.sh
+│   └── skills/                        # 9 SKILL.md (capture, curator, maintenance, sync, ...)
+├── cursor/                            # Cursor MCP + context-injection kit (Tier 1)
+│   ├── README.md
+│   ├── mcp.json.example
+│   └── scripts/{setup,doctor,run-server}.sh
+├── windsurf/                          # Windsurf MCP + context-injection kit (Tier 1)
+│   ├── README.md
+│   ├── mcp_config.json.example
+│   └── scripts/{setup,doctor,run-server}.sh
+├── cline/                             # Cline MCP + context-injection kit (Tier 1)
+│   ├── README.md
+│   ├── mcp_settings.json.example
+│   └── scripts/{setup,doctor,run-server}.sh
+├── roo-code/                          # Roo Code MCP + context-injection kit (Tier 1)
+│   ├── README.md
+│   ├── mcp_settings.json.example
+│   └── scripts/{setup,doctor,run-server}.sh
+├── continue/                          # Continue MCP + context-injection kit (Tier 1)
+│   ├── README.md
+│   ├── config.json.example
+│   └── scripts/{setup,doctor,run-server}.sh
+├── opencode/                          # OpenCode MCP + context-injection kit (Tier 1)
+│   ├── README.md
+│   ├── opencode.json.example
+│   └── scripts/{setup,doctor,run-server}.sh
 ├── shared/
-│   ├── scripts/         # shared MCP wrappers, installers, doctors, benchmarks
-│   ├── rules/           # host-neutral rule text injected into agent configs
-│   └── snippets/        # reusable MCP config snippets
+│   ├── scripts/                       # shared MCP wrappers, installers, doctors, benchmarks
+│   ├── rules/                         # host-neutral rule text injected into agent configs
+│   ├── snippets/                      # reusable MCP config snippets
+│   └── fixtures/                      # test fixtures
 ├── scripts/
-│   └── validate-all-kits.sh
+│   └── validate-all-kits.sh           # validates bash + python + JSON across all hosts
 └── README.md
 ```
 
 ### Two tiers of integration
 
 ```mermaid
+%%{init: {'theme':'neutral'}}%%
 flowchart TD
     subgraph Hook tier["Hook tier — automatic lifecycle"]
         CC["Claude Code"] --> SM["semantic-memory<br/>MCP + hooks"]
@@ -116,6 +180,7 @@ flowchart TD
 ### Per-prompt auto-recall (hooked agents)
 
 ```mermaid
+%%{init: {'theme':'neutral'}}%%
 sequenceDiagram
     participant U as You
     participant A as Agent (Claude/Codex/Hermes)
@@ -147,6 +212,7 @@ Every hook **fails open**: any error, missing binary, or empty result exits clea
 ### Receipt-backed compaction (context-governor)
 
 ```mermaid
+%%{init: {'theme':'neutral'}}%%
 flowchart LR
     T["Transcript"] --> CG["context-governor<br/>compact"]
     CG --> K["Kept (exact)"]
@@ -179,6 +245,27 @@ Context Governor classifies transcript spans, preserves active tasks and high-ri
 **Boundary**: dashes mean no verified transcript/prompt lifecycle hook is claimed for that host. Rule/context injection still gives the agent deterministic instructions and commands to retrieve memory and preserve receipts. Receipts prove recoverability and provenance, not task success.
 
 **TurboQuant**: set `SEMANTIC_MEMORY_TURBO_QUANT=1` in the MCP server env to enable compressed vector candidate generation with exact f32 rerank. Requires the `turbo-quant-codec` feature in semantic-memory-mcp.
+
+### Tier breakdown
+
+Tier is assigned per `PLUGIN_EXPANSION_PLAN_2026-07-02.md` based on lifecycle-hook availability, plugin surface, and reference-implementation status:
+
+- **Tier 0 — reference implementations (hooked)**: Claude Code, Codex CLI, Hermes Agent. These ship lifecycle hooks (SessionStart, UserPromptSubmit, PreCompact, Stop) plus skills, agents, and commands. Every new host should reuse the same shared scripts.
+- **Tier 1 — MCP + rule/context kit**: Cursor, Cline, Roo Code, Windsurf, Continue, OpenCode. These register the MCP server and install host-native rule/instruction files that tell the agent to retrieve memory through MCP and preserve receipts. No transcript/prompt lifecycle hook is claimed.
+
+### Per-host docs
+
+| Host | Tier | README |
+|---|---|---|
+| Claude Code | 0 | [claude/README.md](claude/README.md) |
+| Codex CLI | 0 | [codex/README.md](codex/README.md) |
+| Hermes Agent | 0 | [hermes/README.md](hermes/README.md) |
+| Cursor | 1 | [cursor/README.md](cursor/README.md) |
+| Windsurf | 1 | [windsurf/README.md](windsurf/README.md) |
+| Cline | 1 | [cline/README.md](cline/README.md) |
+| Roo Code | 1 | [roo-code/README.md](roo-code/README.md) |
+| Continue | 1 | [continue/README.md](continue/README.md) |
+| OpenCode | 1 | [opencode/README.md](opencode/README.md) |
 
 ---
 
@@ -299,6 +386,7 @@ A claim with evidence is stronger than a fact without. Receipts prove provenance
 `/memory-ingest <path>` (or `ingest_codebase.py` directly) turns a repository into memory. It is deterministic and **language-agnostic** — facts come straight from manifests and source structure, never guessed.
 
 ```mermaid
+%%{init: {'theme':'neutral'}}%%
 flowchart LR
     A["Repo"] --> B["Walk<br/>(git ls-files)"]
     B --> C["Detect ecosystems<br/>by manifest"]
@@ -355,6 +443,31 @@ Runs all doctors (semantic-memory health, context-governor status, claim-ledger 
 ```
 ~/.local/share/semantic-memory-agent-kits/receipts/
 ```
+
+#### Example doctor receipt (anonymized)
+
+The bundle is a single JSON file with the schema `semantic-memory-agent-kit-doctor-all-v1`. The shape (paths and tool list abbreviated):
+
+```json
+{
+  "schema": "semantic-memory-agent-kit-doctor-all-v1",
+  "created_at": "2026-07-03T18:42:11Z",
+  "repo": "/home/<user>/Coding/agent-memory-kits",
+  "passed": true,
+  "commands": [
+    {"cmd": ["python3", "shared/scripts/doctor_core.py", "--host", "all", "--deep"], "exit_code": 0},
+    {"cmd": ["python3", "cursor/scripts/doctor.py"], "exit_code": 0},
+    {"cmd": ["python3", "cline/scripts/doctor.py"], "exit_code": 0}
+  ],
+  "path_status": [
+    {"path": "<repo>/cursor/mcp.json.example", "exists": true, "bytes": 281},
+    {"path": "<repo>/shared/snippets/mcp-stdio.json", "exists": true, "bytes": 412}
+  ],
+  "core_receipt": "<home>/.local/share/semantic-memory-agent-kits/receipts/doctor-core-20260703T184200Z.json"
+}
+```
+
+The companion `doctor-core-*.json` lists per-check `OK` / `WARN` / `FAIL` rows (binary present, memory dir present, MCP `tools/list` exposes the four required `sm_*` tools, warm HTTP health, etc.). Anonymize by replacing your home path and repo path before sharing.
 
 ### Retrieval quality benchmarks
 
@@ -422,6 +535,17 @@ The warm server is the MCP server itself: `run-server.sh` adds `--http-port`, so
 - **No autonomous writes.** Memory is written by the model *with judgment*, nudged at the right moments — never auto-dumped by a script.
 - **Append/supersede.** Truth evolves by adding and superseding, not deleting.
 - **Receipts or it didn't happen.** Compaction, claims, benchmarks, and doctor checks all produce receipts. A claim of completion without gate receipts is not completion.
+
+## Design tokens
+
+Visual vocabulary used across every README in this repo. Borrow these; do not invent new ones.
+
+- **Code font** — `ui-monospace, Menlo, Consolas, monospace` for all code blocks, file paths, and command examples.
+- **Badge style** — `?style=for-the-badge` for every shields.io badge. Badge palette: blue (crates), blueviolet (host count), green (local-first), standard blue (license). No rainbow badges.
+- **Mermaid theme** — `%%{init: {'theme':'neutral'}}%%` at the top of every mermaid block. Use two-color subgraph convention (one color for hook tier, one for rule tier).
+- **Headings** — no emoji, no decorative punctuation. Section titles are sentence case, not title case.
+- **Links** — relative paths for in-repo references (`shared/scripts/...`), absolute URLs for crates.io / GitHub.
+- **Code blocks** — fenced with a language tag (`bash`, `text`, `json`, `python`). No bare fences.
 
 ---
 
