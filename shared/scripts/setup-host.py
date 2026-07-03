@@ -38,11 +38,15 @@ def mcp_config(host: str) -> dict:
                     "SEMANTIC_MEMORY_DIR": os.environ.get("SEMANTIC_MEMORY_DIR", "${HOME}/.local/share/semantic-memory"),
                     "SEMANTIC_MEMORY_TOOL_PROFILE": os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "lean"),
                     "SEMANTIC_MEMORY_HTTP_PORT": os.environ.get("SEMANTIC_MEMORY_HTTP_PORT", "1739"),
+                    "SEMANTIC_MEMORY_TURBO_QUANT": os.environ.get("SEMANTIC_MEMORY_TURBO_QUANT", ""),
                 },
             },
             "context-governor": {
                 "command": str(ROOT / "shared/scripts/context-governor-mcp.py"),
                 "env": {"CONTEXT_GOVERNOR_STORE": os.environ.get("CONTEXT_GOVERNOR_STORE", "${HOME}/.local/share/context-governor/receipts")},
+            },
+            "claim-ledger": {
+                "command": str(ROOT / "shared/scripts/claim-ledger-mcp.py"),
             },
         }
     }

@@ -13,6 +13,9 @@
       "env": {
         "CONTEXT_GOVERNOR_STORE": "${HOME}/.local/share/context-governor/receipts"
       }
+    },
+    "claim-ledger": {
+      "command": "/ABSOLUTE/PATH/TO/semantic-memory-agent-kits/shared/scripts/claim-ledger-mcp.py"
     }
   }
 }

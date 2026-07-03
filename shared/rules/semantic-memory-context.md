@@ -20,6 +20,7 @@ When starting a task, retrieve relevant memory first by one of these routes:
 4. Save only durable, high-signal facts. Prefer append/supersession over deletion. Do not save task progress, temporary TODOs, commit IDs, PR IDs, or facts likely stale within a week.
 
 5. If a task touches a codebase, prefer namespace `code:<repo-name>` for codebase facts and include source/path evidence where possible.
+6. For "what was true on date X" or "when did this change" queries, use `sm_search_as_of` with an ISO date. This gives bitemporal results that filter superseded facts as of that date.
 
 
 When context is large or a handoff/compaction is likely, use context-governor for receipt-backed compaction instead of lossy ad-hoc summarization.

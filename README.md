@@ -184,16 +184,18 @@ These kits expose the `sm_*` tools through each host's MCP configuration surface
 
 ## Capability matrix
 
-| Host | MCP tools | Auto recall hook | Session primer | Pre-compact hook | Rule/context injection | Context Governor receipts |
-|---|---:|---:|---:|---:|---:|---:|
-| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Codex | ✅ | ✅ | ✅ | ✅/Stop fallback | ✅ | ✅ |
-| Cursor | ✅ | — | — | — | workspace `.cursor/rules/*.mdc` | MCP + command assisted |
-| Cline | ✅ | — | — | — | global/workspace rules | MCP + command assisted |
-| Roo Code | ✅ | — | — | — | global/workspace rules | MCP + command assisted |
-| Windsurf | ✅ | — | — | — | global/workspace rules | MCP + command assisted |
-| Continue | ✅ | — | — | — | `rules: file://...` | MCP + command assisted |
-| OpenCode | ✅ | — | — | — | `AGENTS.md` + command file | MCP + command assisted |
+| Host | MCP tools | Auto recall hook | Session primer | Pre-compact hook | Rule/context injection | Context Governor | ClaimLedger | TurboQuant |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Claude Code | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Codex | ✅ | ✅ | ✅ | ✅/Stop fallback | ✅ | ✅ | ✅ | ✅ |
+| Cursor | ✅ | — | — | — | workspace `.cursor/rules/*.mdc` | MCP + command | MCP | env flag |
+| Cline | ✅ | — | — | — | global/workspace rules | MCP + command | MCP | env flag |
+| Roo Code | ✅ | — | — | — | global/workspace rules | MCP + command | MCP | env flag |
+| Windsurf | ✅ | — | — | — | global/workspace rules | MCP + command | MCP | env flag |
+| Continue | ✅ | — | — | — | `rules: file://...` | MCP + command | MCP | env flag |
+| OpenCode | ✅ | — | — | — | `AGENTS.md` + command file | MCP + command | MCP | env flag |
+
+TurboQuant compressed search: set `SEMANTIC_MEMORY_TURBO_QUANT=1` in the MCP server env to enable compressed vector candidate generation with exact f32 rerank. Requires the `turbo-quant-codec` feature in semantic-memory-mcp.
 
 Boundary: dashes mean no verified transcript/prompt lifecycle hook is claimed for that host. Rule/context injection still gives the agent deterministic instructions and commands to retrieve memory and preserve receipts.
 
@@ -469,3 +471,37 @@ Capability boundary:
 - Claude Code/Codex can use pre-compact hooks where supported.
 - Other agents get MCP receipt search/expand plus rule/command-assisted compaction unless their hook API exposes transcript messages.
 - Receipts prove recoverability of context, not task success.
+
+
+## ClaimLedger companion
+
+The kits include ClaimLedger as a third MCP companion for claim/evidence/provenance receipts:
+
+- `shared/scripts/claim-ledger-mcp.py` exposes tools: `cl_run`, `cl_inspect`, `cl_validate`, `cl_export_bundle`, `cl_ledger_verify`.
+- `shared/rules/claim-ledger.md` tells agents when to back assertions with claim/evidence receipts.
+- MCP config examples include `semantic-memory`, `context-governor`, and `claim-ledger` servers.
+
+ClaimLedger gives agents a formal claim lifecycle: create claims, add evidence, verify integrity, and export bundles for audit. Receipts prove provenance, not task success.
+
+## Retrieval quality benchmarks
+
+- `shared/scripts/benchmark-retrieval.py` runs `sm-bench` against the warm HTTP server and stores JSONL receipts.
+- `shared/scripts/benchmark-context-governor.py` measures compaction latency and ratio.
+- `shared/scripts/doctor-all.py --deep` runs all doctors and writes a receipt bundle.
+
+Receipts land in `~/.local/share/semantic-memory-agent-kits/receipts/`.
+
+## Release gate
+
+- `shared/rules/release-gate.md` instructs agents to run `cargo fmt --check`, `cargo clippy -- -D warnings`, and `cargo test --workspace` before claiming done, and to store gate receipts.
+
+## TurboQuant compressed search
+
+Set `SEMANTIC_MEMORY_TURBO_QUANT=1` in the MCP server environment to enable TurboQuant compressed vector candidate generation with exact f32 rerank for final results. This uses your turbo-quant codec for faster candidate scoring on large stores.
+
+Flags:
+- `SEMANTIC_MEMORY_TURBO_QUANT=1` — enable
+- `SEMANTIC_MEMORY_TURBO_QUANT_BITS=8` — polar angle bits (default 8)
+- `SEMANTIC_MEMORY_TURBO_QUANT_PROJECTIONS=16` — QJL projection count (default 16)
+
+Requires the `turbo-quant-codec` feature in semantic-memory-mcp.

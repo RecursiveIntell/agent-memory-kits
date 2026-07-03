@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RULE = (ROOT / "shared/rules/semantic-memory-context.md").read_text(encoding="utf-8")
 CG_RULE = (ROOT / "shared/rules/context-governor.md").read_text(encoding="utf-8")
+CL_RULE = (ROOT / "shared/rules/claim-ledger.md").read_text(encoding="utf-8")
+RG_RULE = (ROOT / "shared/rules/release-gate.md").read_text(encoding="utf-8")
 CONTEXT = ROOT / "shared/scripts/semantic-memory-context.py"
 CG_COMPACT = ROOT / "shared/scripts/context-governor-compact.py"
 START = "<!-- semantic-memory-context:start -->"
@@ -18,7 +20,7 @@ END = "<!-- semantic-memory-context:end -->"
 def material() -> str:
     sm = RULE.replace("/ABSOLUTE/PATH/TO/semantic-memory-agent-kits/shared/scripts/semantic-memory-context.py", str(CONTEXT))
     cg = CG_RULE.replace("/ABSOLUTE/PATH/TO/semantic-memory-agent-kits/shared/scripts/context-governor-compact.py", str(CG_COMPACT))
-    return sm.rstrip() + "\n\n---\n\n" + cg.rstrip() + "\n"
+    return sm.rstrip() + "\n\n---\n\n" + cg.rstrip() + "\n\n---\n\n" + CL_RULE.rstrip() + "\n\n---\n\n" + RG_RULE.rstrip() + "\n"
 
 
 def managed_write(path: Path, content: str, append: bool = False) -> None:
