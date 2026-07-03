@@ -1,0 +1,1 @@
+Use $context-compaction to compact this session with context-governor, store the receipt, and report the receipt ID, kept/summarized/omitted counts, and any warnings. Then use $context-compaction to search the receipt for any high-risk omitted context that should be expanded.

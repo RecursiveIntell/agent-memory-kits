@@ -11,7 +11,10 @@
       "memory-maintenance",
       "memory-sync",
       "knowledge-graph-explorer",
-      "release-gate"
+      "release-gate",
+      "context-compaction",
+      "claim-provenance",
+      "llm-output-parsing"
     ],
     "agents": [
       "memory-keeper"

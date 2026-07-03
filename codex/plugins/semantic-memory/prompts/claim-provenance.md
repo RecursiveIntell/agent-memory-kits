@@ -1,0 +1,1 @@
+Use $claim-provenance to create a claim from a verified semantic-memory fact, add evidence supporting the claim, and validate the ClaimLedger output. Report the claim ID, evidence bundle ID, and validation result.
