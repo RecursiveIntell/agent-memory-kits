@@ -15,10 +15,32 @@
 
 AI coding agents forget everything between sessions. This repo fixes that.
 
-## 60-second demo
+## The memory builds over time
+
+Day 1 is empty. That is by design, not a bug. The recall hook gates on `SM_RECALL_MINTOP=0.58` cosine — an empty store returns nothing, and the hook fails open (no output, no block) on every prompt until the store has facts worth recalling. The system is not failing; it is waiting.
+
+The product is the compounding curve, not the first session.
+
+```
+day 1        day 7         day 30        day 90+
+  |           |              |              |
+  o-----------o--------------o--------------o-->
+  install     ~50 facts     ~500 facts    ~5000+ facts
+  empty store starting to   recall        recall
+              fill          useful        indispensable
+```
+
+**What to expect, honestly:**
+
+- **Day 1 (install day).** Empty store. The recall hook fires on every prompt and returns nothing every time. The MCP tools work. The doctor passes. Nothing to recall. This is correct.
+- **Days 2–14 (filling in).** The agent saves facts as it works — with judgment, never auto-dumped. `/memory-ingest <repo>` on each repo you touch populates the codebase namespace fast. Recall starts firing on the prompts where it has a hit, ignoring the rest. The user notices on a few specific questions.
+- **Days 15–60 (useful).** Recall fires on a meaningful fraction of prompts. The agent knows your stack, your conventions, your open questions. You stop restating context the agent should already have.
+- **Days 60+ (indispensable).** The agent answers cross-session questions that you would have to look up manually. Failed approaches don't get retried. Decisions don't get re-debated. The store is large enough that the cosine gate fires often and the answers are accurate.
+
+**What speeds the curve (do these on day 1):**
 
 ```bash
-# 1. Install the three companion MCP servers (one cargo command, one build)
+# 1. Install the three companion MCP servers
 cargo install semantic-memory-mcp context-governor claim-ledger
 
 # 2. Install a host plugin — Claude Code shown; the same shape works for all 9 hosts
@@ -26,11 +48,14 @@ cargo install semantic-memory-mcp context-governor claim-ledger
 /plugin install semantic-memory@semantic-memory-kit
 /memory-setup
 
-# 3. Restart the host so hooks load, then ask a question that crosses sessions
-# "what does the AiDENs runner depend on?"
+# 3. Ingest the repos you actually work in
+/memory-ingest .
+/memory-ingest ../other-repo
+
+# 4. Restart the host so hooks load. Then work normally.
 ```
 
-The hooked host's recall hook queries the warm HTTP server (BM25 + vector + RRF, fail-open) and injects only hits that clear `SM_RECALL_MINTOP=0.58`. A second-prompt later, the same facts come back without re-indexing. Receipts are written to `~/.local/share/semantic-memory-agent-kits/receipts/`.
+The hooked host's recall hook queries the warm HTTP server (BM25 + vector + RRF, fail-open) and injects only hits that clear `SM_RECALL_MINTOP=0.58`. A second-prompt later, the same facts come back without re-indexing. Receipts are written to `~/.local/share/semantic-memory-agent-kits/receipts/`. The day-1 install is the same in every README; the difference between day 1 and day 90 is what you do between.
 
 ---
 
