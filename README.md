@@ -66,6 +66,7 @@ The hooked host's recall hook queries the warm HTTP server (BM25 + vector + RRF,
 - [Capability matrix](#capability-matrix)
 - [Per-host docs](#per-host-docs)
 - [Install](#install)
+- [RecursiveIntell Pro](#recursiveintell-pro)
 - [The three MCP companions](#the-three-mcp-companions)
 - [The codebase ingester](#the-codebase-ingester)
 - [Context injection for MCP-only hosts](#context-injection-for-mcp-only-hosts)
@@ -125,9 +126,16 @@ agent-memory-kits/
 │   ├── README.md                      # (this PR — see Per-host docs)
 │   ├── plugin.json
 │   ├── agents/memory-keeper.md
-│   ├── commands/{memory-setup,memory-ingest}.md
+│   ├── commands/{memory-setup,memory-ingest,memory-gaps,proof-packet}.md
 │   ├── scripts/                       # MCP wrappers, doctor, ingest, proof/audit/admin helpers
 │   └── skills/                        # capture, curator, maintenance, sync, proof, compaction, ...
+├── pro/                               # RecursiveIntell Pro overlay plugin
+│   ├── plugin.json                    # packaged Pro manifest, no missing local refs
+│   ├── install.py                     # license-verified installer
+│   ├── license-server.py              # local/managed license server
+│   ├── commands/                      # release-gate, verify-patch, proof-packet
+│   ├── scripts/                       # claim-ledger, forge-admin, agent-guard MCP wrappers
+│   └── skills/                        # release-gate + claim-provenance skills
 ├── cursor/                            # Cursor MCP + context-injection kit (Tier 1)
 │   ├── README.md
 │   ├── mcp.json.example
@@ -367,6 +375,46 @@ shared/scripts/doctor-all.py --deep
 
 ---
 
+## RecursiveIntell Pro
+
+`pro/` is the paid overlay for receipt-backed verification and admin/security workflows. It is intentionally separate from the free local-first memory kit.
+
+What Pro adds:
+
+- **Release Gate v2** — command receipts, adjudication (`promote` / `reject` / `quarantine`), packet digests, optional claim-ledger writeback, and proof-debt checks.
+- **Verify Patch** — runs an operator-supplied check command in a sandbox copy and emits `PatchVerificationReceiptV1`.
+- **Proof packets** — join command receipts, claim/disposition JSON, SHA-256 digests, and claim boundaries.
+- **Forge admin MCP** — patch verification, evidence export, attribution, and risk-prediction admin surface.
+- **Agent Guard MCP** — Linux security posture reporting only; it reports mechanism availability and basic process posture, not sandbox enforcement.
+- **License-gated receipts** — Pro receipts embed `RecursiveIntellProLicenseStateV1`; production trust requires a valid license token.
+
+Hardening status:
+
+- `pro/plugin.json` now resolves all packaged local refs under `pro/` (`skills/`, `commands/`, `scripts/`).
+- `pro/license_client.py` is kept in sync with the shared enforcement-capable client and exports `require_license_state`.
+- The license server no longer accepts a default `change-me` admin secret; admin endpoints are disabled unless `LICENSE_ADMIN_SECRET` is set.
+- High/critical release gates quarantine if the proof-debt check errors instead of silently promoting.
+- `verify-patch.py` uses `SEMANTIC_MEMORY_HTTP_URL` / `SEMANTIC_MEMORY_HTTP_PORT`; no hardcoded `localhost:8082`.
+
+Install smoke:
+
+```bash
+export RI_PRO_LICENSE_KEY="RI-PRO-XXXXXXXXXXXXXXXXXXXX"
+export RI_PRO_LICENSE_SERVER="https://license.recursiveintell.com"
+python pro/install.py
+```
+
+Developer verification:
+
+```bash
+python -m pytest tests/test_pro_plugin_hardening.py tests/test_release_gate_v2.py -q
+python -m pytest -q
+```
+
+Claim boundary: Pro verification receipts prove the listed commands ran with captured exit codes and digests. They do not prove untested behavior or total correctness. Agent Guard currently proves posture reporting only, not enforcement.
+
+---
+
 ## The three MCP companions
 
 ### semantic-memory
@@ -598,4 +646,4 @@ The SQLite database, the usearch vector index, the Candle embedding model, the c
 
 ## License
 
-Apache-2.0. Built on [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp), [`semantic-memory`](https://crates.io/crates/semantic-memory), [`context-governor`](https://github.com/RecursiveIntell/Libraries), and [`claim-ledger`](https://github.com/RecursiveIntell/Libraries).
+Free kits are Apache-2.0. `pro/` is LicenseRef-RecursiveIntell-Pro and is not freely redistributable. Built on [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp), [`semantic-memory`](https://crates.io/crates/semantic-memory), [`context-governor`](https://github.com/RecursiveIntell/Libraries), and [`claim-ledger`](https://github.com/RecursiveIntell/Libraries).

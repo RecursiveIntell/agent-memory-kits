@@ -70,6 +70,7 @@ def main() -> int:
         "context-governor-audit.py",
         "forge-admin-mcp.py",
         "claim-ledger-mcp.py",
+        "agent-guard-mcp.py",
     ]
 
     shared_scripts = FREE_DIR / "shared" / "scripts"

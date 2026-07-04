@@ -199,8 +199,10 @@ def main() -> int:
                     # Incur debt for this promotion
                     proof_debt_entry_id = budget.incur(case_id, args.namespace, rc)
         except Exception as exc:
-            # Fail open — don't block promotion on proof_debt errors
             proof_debt_error = str(exc)
+            if args.risk_class in {"high", "critical"}:
+                disposition = "quarantine"
+                reason = f"proof debt check failed for {args.risk_class}: {proof_debt_error}"
 
     # Build verification case
     evidence_refs = [f"sha256:{r['combined_sha256']}" for r in command_receipts]

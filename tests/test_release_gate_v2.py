@@ -15,6 +15,11 @@ SCRIPT = os.path.join(
 
 
 class TestReleaseGateV2(unittest.TestCase):
+    def _env(self, tmpdir: str) -> dict:
+        env = os.environ.copy()
+        env["RI_PROOF_DEBT_STORE"] = os.path.join(tmpdir, "proof-debt.jsonl")
+        return env
+
     def test_produces_proof_packet_with_disposition(self) -> None:
         """release-gate-v2 should emit a proof packet with adjudication disposition."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -35,6 +40,7 @@ class TestReleaseGateV2(unittest.TestCase):
                 capture_output=True,
                 text=True,
                 timeout=30,
+                env=self._env(tmpdir),
             )
             self.assertEqual(result.returncode, 0, f"stderr: {result.stderr}")
             packets = [f for f in os.listdir(tmpdir) if f.endswith(".json")]
@@ -70,6 +76,7 @@ class TestReleaseGateV2(unittest.TestCase):
                 capture_output=True,
                 text=True,
                 timeout=30,
+                env=self._env(tmpdir),
             )
             self.assertNotEqual(result.returncode, 0)
             packets = [f for f in os.listdir(tmpdir) if f.endswith(".json")]
@@ -100,6 +107,7 @@ class TestReleaseGateV2(unittest.TestCase):
                 capture_output=True,
                 text=True,
                 timeout=30,
+                env=self._env(tmpdir),
             )
             self.assertNotEqual(result.returncode, 0)
             packets = [f for f in os.listdir(tmpdir) if f.endswith(".json")]
@@ -130,6 +138,7 @@ class TestReleaseGateV2(unittest.TestCase):
                 capture_output=True,
                 text=True,
                 timeout=30,
+                env=self._env(tmpdir),
             )
             self.assertEqual(result.returncode, 0)
             packets = [f for f in os.listdir(tmpdir) if f.endswith(".json")]

@@ -196,8 +196,12 @@ class LicenseHandler(BaseHTTPRequestHandler):
         elif self.path == "/create-license":
             # Admin endpoint — in production, protect with admin token
             body = self._read_body()
+            configured_admin_secret = os.environ.get("LICENSE_ADMIN_SECRET")
+            if not configured_admin_secret:
+                self._send_json(503, {"error": "admin endpoint disabled: LICENSE_ADMIN_SECRET is not set"})
+                return
             admin_secret = body.get("admin_secret", "")
-            if admin_secret != os.environ.get("LICENSE_ADMIN_SECRET", "change-me"):
+            if not hmac.compare_digest(admin_secret, configured_admin_secret):
                 self._send_json(403, {"error": "admin secret required"})
                 return
             license_key = f"RI-PRO-{uuid.uuid4().hex[:20].upper()}"
@@ -221,8 +225,12 @@ class LicenseHandler(BaseHTTPRequestHandler):
 
         elif self.path == "/revoke-license":
             body = self._read_body()
+            configured_admin_secret = os.environ.get("LICENSE_ADMIN_SECRET")
+            if not configured_admin_secret:
+                self._send_json(503, {"error": "admin endpoint disabled: LICENSE_ADMIN_SECRET is not set"})
+                return
             admin_secret = body.get("admin_secret", "")
-            if admin_secret != os.environ.get("LICENSE_ADMIN_SECRET", "change-me"):
+            if not hmac.compare_digest(admin_secret, configured_admin_secret):
                 self._send_json(403, {"error": "admin secret required"})
                 return
             license_key = body.get("license_key", "")

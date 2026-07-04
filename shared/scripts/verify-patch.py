@@ -138,8 +138,12 @@ def _try_forge_engine(binary: Path, sandbox: Path, check_result: dict) -> dict |
     return None
 
 
+def _semantic_memory_base_url() -> str:
+    return os.environ.get("SEMANTIC_MEMORY_HTTP_URL") or f"http://127.0.0.1:{os.environ.get('SEMANTIC_MEMORY_HTTP_PORT', '1739')}"
+
+
 def _write_semantic_memory(claim: str, receipt: dict) -> bool:
-    """Best-effort POST to the semantic-memory HTTP /add endpoint."""
+    """Best-effort POST to the configured semantic-memory HTTP /add endpoint."""
     try:
         import urllib.request
 
@@ -151,7 +155,7 @@ def _write_semantic_memory(claim: str, receipt: dict) -> bool:
             "evidence_refs": [receipt["trace_id"]],
         }).encode("utf-8")
         req = urllib.request.Request(
-            "http://localhost:8082/add",
+            _semantic_memory_base_url().rstrip("/") + "/add",
             data=payload,
             headers={"Content-Type": "application/json"},
             method="POST",
