@@ -51,6 +51,14 @@ class TestLicenseEnforcement(unittest.TestCase):
         }
         self.cache.write_text(json.dumps(token), encoding="utf-8")
 
+    def test_missing_license_not_blocked_when_not_enforced(self) -> None:
+        os.environ.pop("RI_PRO_ENFORCE", None)
+        mod = load_module("license_client_shared_not_enforced", SCRIPT_DIR / "license_client.py")
+        state = mod.license_state_for_receipt("forge-admin")
+        self.assertFalse(state["trusted"])
+        self.assertFalse(state["blocked"])
+        self.assertEqual(state["reason"], "not enforced")
+
     def test_missing_license_blocks_when_enforced(self) -> None:
         os.environ["RI_PRO_ENFORCE"] = "1"
         mod = load_module("license_client_shared_missing", SCRIPT_DIR / "license_client.py")

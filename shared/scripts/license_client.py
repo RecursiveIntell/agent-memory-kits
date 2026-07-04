@@ -169,6 +169,15 @@ def license_state_for_receipt(feature: str, *, enforce: bool | None = None) -> d
             "reason": "development skip",
             "token": None,
         }
+    if not enforced:
+        return {
+            **base,
+            "trusted": False,
+            "blocked": False,
+            "skipped": False,
+            "reason": "not enforced",
+            "token": None,
+        }
     token = get_token([feature])
     if token:
         return {
