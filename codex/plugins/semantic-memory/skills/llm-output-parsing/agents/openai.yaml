@@ -1,1 +1,13 @@
-name: llm-output-parsing
+interface:
+  display_name: "LLM Output Parsing"
+  short_description: "Parse raw LLM output deterministically"
+  brand_color: "#2563EB"
+  default_prompt: "Use $llm-output-parsing to parse JSON, lists, choices, or numbers from raw model output."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "semantic_memory"
+      description: "semantic-memory MCP parser tools for JSON, choices, lists, numbers, and think-tag cleanup"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

@@ -1,6 +1,6 @@
 # semantic-memory for Hermes Agent
 
-> **Tier 0 reference implementation.** 9 skills, 1 subagent, 2 slash commands, and a plugin manifest — over `semantic-memory-mcp` + `context-governor` + `claim-ledger`. Installs locally (no marketplace).
+> **Tier 0 reference implementation.** Manifest-driven skills, hooks, commands, MCP companions, proof helpers, and a memory-keeper subagent — over `semantic-memory-mcp` + `context-governor` + `claim-ledger`. Installs locally (no marketplace).
 
 [![Tier 0](https://img.shields.io/badge/tier-0-blueviolet?style=for-the-badge)](#tier--scope)
 [![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#)
@@ -13,7 +13,7 @@ See the [top-level README](../../README.md) for the full capability matrix, arch
 
 ## Tier / scope
 
-Tier 0 host plugin. This kit is the **reference implementation** for Hermes Agent. The Tier 0 contract is the same as Claude/Codex: real lifecycle hooks (here, `on_session_start`, `pre_llm_call`, `post_tool_use`, `post_llm_call`) plus 9 skills, 1 subagent, and 2 slash commands. Hermes is installed by `cp -r`-ing the skills/agents/scripts directories into `~/.hermes/`; there is no marketplace path.
+Tier 0 host plugin. This kit is the **reference implementation** for Hermes Agent. The Tier 0 contract is the same as Claude/Codex: real lifecycle hooks (here, `on_session_start`, `pre_llm_call`, `post_tool_use`, `post_llm_call`) plus manifest-declared skills, commands, MCP companions, proof helpers, and the memory-keeper subagent. Hermes is installed by `cp -r`-ing the skills/agents/scripts directories into `~/.hermes/`; there is no marketplace path.
 
 ## Architecture
 
@@ -70,31 +70,41 @@ Restart Hermes so the new skills/agents/commands are picked up.
 
 - `agents/memory-keeper.md` — subagent that audits memory health, runs the curator, and re-anchors stale facts
 
-### Commands (2)
+### Commands
+
+Declared in `hermes/plugin.json`:
 
 - `/memory-setup` — install binary, allowlist tools, write rules (see `hermes/commands/memory-setup.md`)
 - `/memory-ingest <path>` — run `ingest_codebase.py` on a repo path (see `hermes/commands/memory-ingest.md`)
+- `/memory-gaps` — inspect semantic-memory coverage gaps (see `hermes/commands/memory-gaps.md`)
+- `/evidence-workbench` — create evidence/proof packets from command output (see `hermes/commands/evidence-workbench.md`)
+- `/proof-packet` — join receipts into an adjudicated proof packet (see `hermes/commands/proof-packet.md`)
 
-### Scripts (8)
+### Scripts
 
-`hermes/scripts/`:
+`hermes/scripts/` includes MCP wrappers, doctor/benchmark helpers, ingestion, proof/evidence helpers, admin server launchers, context-governor audit wrappers, and Forge admin wiring. Treat `hermes/plugin.json` plus the script directory as source of truth instead of hardcoding script counts in docs.
+
+Key entries:
 
 - `context-governor-mcp.py` — MCP server entry for `context-governor`
 - `claim-ledger-mcp.py` — MCP server entry for `claim-ledger`
 - `context-governor-compact.py` — deterministic transcript compaction
+- `context-governor-audit.py` — audit wrapper for context-governor high-ROI checks
 - `doctor-all.py` — runs all kit doctors and writes a JSON receipt bundle
 - `benchmark-retrieval.py` — quality benchmark over warm HTTP
 - `benchmark-context-governor.py` — compaction latency / ratio benchmark
 - `ingest_codebase.py` — language-agnostic repo ingester
-- `run-server.sh` — wraps `semantic-memory-mcp` with `--http-port 1738`
+- `evidence-workbench.py`, `proof-packet.py` — proof/evidence packet helpers
+- `run-server.sh`, `run-server-admin.sh` — daily and admin semantic-memory launchers
+- `forge-admin-mcp.py` — admin-only patch verification MCP wrapper
 
 ### Plugin manifest
 
-`hermes/plugin.json` declares the 9 skills, 1 agent, 4 hook events (`on_session_start`, `pre_llm_call`, `post_tool_use`, `post_llm_call`), 2 commands, and 3 MCP servers (semantic-memory, context-governor, claim-ledger). Hermes reads this manifest at startup.
+`hermes/plugin.json` declares skills, the memory-keeper agent, 4 hook events (`on_session_start`, `pre_llm_call`, `post_tool_use`, `post_llm_call`), commands, and MCP servers for semantic memory, context-governor, claim-ledger, admin semantic-memory, and Forge admin patch verification. Hermes reads this manifest at startup.
 
 ### MCP tools exposed
 
-`semantic-memory-mcp` exposes 61 tools (33 lean / 48 standard / 61 full). `context-governor` exposes 4. `claim-ledger` exposes 5. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
+`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
 
 Hermes uses warm HTTP port `1738` by default (the manifest passes `--http-port 1738` to `run-server.sh`).
 
@@ -105,6 +115,8 @@ Hermes uses warm HTTP port `1738` by default (the manifest passes `--http-port 1
 - Hook debug log: `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log`
 - Compaction receipts: `~/.local/share/context-governor/receipts/`
 - Claim ledger: append-only JSONL at `~/.local/share/claim-ledger/ledger.jsonl`
+- Admin/full MCP profile: use the `semantic-memory-admin` server entry (or run `hermes/scripts/run-server-admin.sh`) for maintenance tools hidden by the daily lean profile.
+- Release-gate proof packets: run `hermes/scripts/proof-packet.py` or `shared/scripts/proof-packet.py` to join command receipts with claim/disposition JSON; only disposition `promote` exits 0.
 
 This host has no host-specific `doctor.py` separate from `doctor-all.py`.
 

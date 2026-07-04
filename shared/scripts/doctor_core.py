@@ -17,6 +17,7 @@ HTTP_URL = os.environ.get("SEMANTIC_MEMORY_HTTP_URL") or f"http://127.0.0.1:{os.
 CG_STORE = Path(os.environ.get("CONTEXT_GOVERNOR_STORE", Path.home() / ".local/share/context-governor/receipts")).expanduser()
 
 RESULTS: list[dict] = []
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def record(status: str, label: str, detail: str = "") -> None:
@@ -185,6 +186,113 @@ def config_paths() -> None:
         (ok if p.exists() else warn)("config path", str(p) + (" exists" if p.exists() else " missing"))
 
 
+def hook_manifest_paths(host: str) -> None:
+    """Validate Tier-0 plugin manifests do not point at missing hook files."""
+    hosts = ["hermes"] if host in {"all", "hermes"} else []
+    for name in hosts:
+        manifest = ROOT / name / "plugin.json"
+        if not manifest.exists():
+            warn("hook manifest", f"{manifest} missing")
+            continue
+        try:
+            data = json.loads(manifest.read_text(encoding="utf-8"))
+        except Exception as exc:
+            fail("hook manifest", f"{manifest}: invalid JSON: {exc}")
+            continue
+        host_cfg = data.get(name) if isinstance(data.get(name), dict) else None
+        hooks = ((host_cfg or data.get("hermes") or {}).get("hooks") or {})
+        if not isinstance(hooks, dict):
+            warn("hook manifest", f"{manifest}: no hooks object")
+            continue
+        missing = []
+        nonexec = []
+        for event, rel in hooks.items():
+            path = manifest.parent / str(rel)
+            if not path.exists():
+                missing.append(f"{event}:{rel}")
+            elif path.suffix in {".sh", ".bash", ".py"} and not os.access(path, os.X_OK):
+                nonexec.append(f"{event}:{rel}")
+        if missing:
+            fail("hook manifest paths", "; ".join(missing))
+        elif nonexec:
+            fail("hook manifest executability", "; ".join(nonexec))
+        else:
+            ok("hook manifest paths", f"{manifest}: {len(hooks)} hook file(s) present and executable")
+
+
+def claim_ledger_check() -> None:
+    """Check if claim-ledger companion MCP is reachable and responds to tools/list."""
+    script = ROOT / "shared" / "scripts" / "claim-ledger-mcp.py"
+    if not script.exists():
+        script = Path(__file__).resolve().parent / "claim-ledger-mcp.py"
+    if not script.exists():
+        warn("claim-ledger companion", f"script not found at {script}")
+        return
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(script)],
+            input=json.dumps({"jsonrpc": "2.0", "method": "tools/list", "id": 1}),
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+        if proc.returncode != 0:
+            warn("claim-ledger companion", f"exit {proc.returncode}: {proc.stderr[-200:]}")
+            return
+        tools_found = False
+        for line in (proc.stdout or "").strip().split("\n"):
+            try:
+                msg = json.loads(line)
+                if "result" in msg and "tools" in msg.get("result", {}):
+                    tool_count = len(msg["result"]["tools"])
+                    ok("claim-ledger companion", f"{tool_count} tools available")
+                    tools_found = True
+                    break
+            except json.JSONDecodeError:
+                continue
+        if not tools_found:
+            warn("claim-ledger companion", "no tools/list response parsed")
+    except subprocess.TimeoutExpired:
+        warn("claim-ledger companion", "timed out waiting for tools/list")
+    except Exception as exc:
+        warn("claim-ledger companion", f"error: {exc}")
+
+
+def tool_surface_drift_check() -> None:
+    """Generate tool-surface docs and report counts in doctor output."""
+    script = Path(__file__).resolve().parent / "generate-tool-surface-docs.py"
+    if not script.exists():
+        warn("tool-surface docs", f"script not found at {script}")
+        return
+    out_path = "/tmp/doctor-tool-surface.json"
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(script), "--out", out_path],
+            capture_output=True, text=True, timeout=60, check=False,
+        )
+        if proc.returncode != 0:
+            warn("tool-surface docs", f"generation failed: {proc.stderr[-200:]}")
+            return
+        if not os.path.exists(out_path):
+            warn("tool-surface docs", "artifact not generated")
+            return
+        with open(out_path) as f:
+            doc = json.load(f)
+        for profile_name, data in doc.get("profiles", {}).items():
+            if data.get("available"):
+                ok(f"tool-surface {profile_name}", f"{data['tool_count']} tools")
+            else:
+                warn(f"tool-surface {profile_name}", f"unavailable: {data.get('error', 'unknown')}")
+        for companion_name, data in doc.get("companions", {}).items():
+            if data.get("available"):
+                ok(f"tool-surface {companion_name}", f"{data['tool_count']} tools")
+            else:
+                warn(f"tool-surface {companion_name}", f"unavailable: {data.get('error', 'unknown')}")
+    except Exception as exc:
+        warn("tool-surface docs", f"error: {exc}")
+
+
 def write_receipt(path: str | None, host: str) -> None:
     if not path: return
     out = Path(path).expanduser()
@@ -208,8 +316,8 @@ def main() -> int:
     if not sem: fail("semantic-memory-mcp binary", "not found; run shared/scripts/install_semantic_memory_mcp.sh or cargo install semantic-memory-mcp")
     else:
         ok("semantic-memory-mcp binary", str(sem)); MEMORY_DIR.mkdir(parents=True, exist_ok=True); ok("memory dir", str(MEMORY_DIR)); http_get("/health", "warm HTTP health"); http_get("/verify-integrity", "warm HTTP integrity", timeout=4); rpc_tools_list(sem)
-    cg = resolve_cg_binary(); cg_status(cg); cg_mcp_tools_list(); config_paths()
-    if args.deep: compact_smoke()
+    cg = resolve_cg_binary(); cg_status(cg); cg_mcp_tools_list(); config_paths(); hook_manifest_paths(args.host)
+    if args.deep: compact_smoke(); claim_ledger_check(); tool_surface_drift_check()
     write_receipt(args.receipt, args.host)
     return 1 if any(r["status"] == "FAIL" for r in RESULTS) else 0
 

@@ -1,1 +1,13 @@
-name: context-compaction
+interface:
+  display_name: "Context Compaction"
+  short_description: "Preserve handoff context with receipts"
+  brand_color: "#2563EB"
+  default_prompt: "Use $context-compaction to create or inspect receipt-backed context handoffs."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "context_governor"
+      description: "Context-governor MCP server for compaction receipts and exact fallback expansion"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

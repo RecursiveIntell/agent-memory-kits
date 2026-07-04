@@ -3,6 +3,9 @@
     "semantic-memory": {
       "command": "./scripts/run-server.sh"
     },
+    "semantic-memory-admin": {
+      "command": "./scripts/run-server-admin.sh"
+    },
     "context-governor": {
       "command": "./scripts/context-governor-mcp.py"
     },

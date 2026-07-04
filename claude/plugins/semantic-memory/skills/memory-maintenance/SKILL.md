@@ -69,7 +69,7 @@ Keep the semantic-memory store healthy at the storage layer. This is the *mainte
 
 ## Tool profile note
 
-These maintenance tools (sm_reconcile, sm_vacuum, sm_reembed_all, sm_embeddings_are_dirty, sm_get_search_receipt, sm_replay_search_receipt) are hidden in the default "lean" tool profile. If they don't appear in the tool list, switch to standard or full by setting `SEMANTIC_MEMORY_TOOL_PROFILE=standard` (or `full`) and restarting the MCP server. No recompilation needed -- it's a runtime gate via rmcp's ToolRouter::disable_route().
+These maintenance tools (sm_reconcile, sm_vacuum, sm_reembed_all, sm_embeddings_are_dirty, sm_get_search_receipt, sm_replay_search_receipt) are hidden in the default "lean" tool profile. If they do not appear in the daily `semantic-memory` tool list, use the admin path: start/register `semantic-memory-admin` via `scripts/run-server-admin.sh` (standard by default, override with `SEMANTIC_MEMORY_ADMIN_TOOL_PROFILE=full`) or switch the main server by setting `SEMANTIC_MEMORY_TOOL_PROFILE=standard`/`full` and restarting it. No recompilation needed -- it's a runtime gate via rmcp's ToolRouter::disable_route().
 
 ## Guardrails
 

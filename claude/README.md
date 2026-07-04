@@ -1,6 +1,6 @@
 # semantic-memory for Claude Code
 
-> **Tier 0 reference implementation.** Lifecycle hooks (SessionStart / UserPromptSubmit / PreCompact / Stop), a memory-keeper subagent, capture/curator/maintenance/sync skills, and 2 slash commands — over `semantic-memory-mcp` (61 tools) + `context-governor` (4 tools) + `claim-ledger` (5 tools).
+> **Tier 0 reference implementation.** Lifecycle hooks (SessionStart / UserPromptSubmit / PreCompact / Stop), a memory-keeper subagent, capture/curator/maintenance/sync skills, and manifest-declared commands — over `semantic-memory-mcp` (profile-based tool counts, run `generate-tool-surface-docs.py` for current) + `context-governor` (13 CLI commands) + `claim-ledger` (5 tools).
 > Plugin marketplace path: `semantic-memory@semantic-memory-kit`.
 
 [![Tier 0](https://img.shields.io/badge/tier-0-blueviolet?style=for-the-badge)](#tier--scope)
@@ -62,9 +62,9 @@ Restart Claude Code once so hooks load. `/memory-setup` installs the binary and 
 | `memory-capture-nudge.sh` | `PreCompact` and `Stop` | Reminds the model to save durable facts / decisions before the conversation ends or compacts | yes — 5s timeout |
 | `_resolve.sh` | helper, not a hook event | Resolves the plugin's `${CLAUDE_PLUGIN_ROOT}` to the absolute path so siblings can find binaries | n/a |
 
-### Scripts (8)
+### Scripts
 
-`claude/plugins/semantic-memory/scripts/`:
+`claude/plugins/semantic-memory/scripts/` includes MCP wrappers, doctor/benchmark helpers, ingestion, proof/evidence helpers, admin server launchers, and context-governor audit wrappers. Avoid hardcoded script counts here; the script directory is the source of truth.
 
 - `context-governor-mcp.py` — MCP server entry for `context-governor` (4 `cg_*` tools)
 - `claim-ledger-mcp.py` — MCP server entry for `claim-ledger` (5 `cl_*` tools)
@@ -73,7 +73,9 @@ Restart Claude Code once so hooks load. `/memory-setup` installs the binary and 
 - `benchmark-retrieval.py` — quality benchmark over warm HTTP
 - `benchmark-context-governor.py` — compaction latency / ratio benchmark
 - `ingest_codebase.py` — language-agnostic repo ingester
-- `run-server.sh` — wraps `semantic-memory-mcp` with `--http-port` so a single process serves both stdio MCP and warm HTTP
+- `evidence-workbench.py`, `proof-packet.py` — proof/evidence packet helpers
+- `context-governor-audit.py` — context-governor audit wrapper
+- `run-server.sh`, `run-server-admin.sh` — daily and admin semantic-memory launchers
 
 ### Commands (2)
 
@@ -102,7 +104,7 @@ Each skill is `claude/plugins/semantic-memory/skills/<name>/SKILL.md`:
 
 ### MCP tools exposed
 
-The `semantic-memory-mcp` server exposes 61 tools (33 lean / 48 standard / 61 full profile). See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions) for the full breakdown. `context-governor` exposes 4 tools, `claim-ledger` exposes 5.
+The `semantic-memory-mcp` server exposes profile-based tool counts (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions) for the full breakdown. `context-governor` exposes 13 CLI commands, `claim-ledger` exposes 5.
 
 ## Receipts
 

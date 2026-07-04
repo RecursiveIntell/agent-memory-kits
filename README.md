@@ -84,7 +84,7 @@ The hooked host's recall hook queries the warm HTTP server (BM25 + vector + RRF,
 
 A collection of plugins and setup kits that give AI coding agents:
 
-1. **Persistent memory** — semantic-memory-mcp: hybrid BM25 + vector search, knowledge graphs, conversation recall, contradiction detection, bitemporal as-of queries, claim verification, and autonomous lifecycle. 61 MCP tools (33 lean / 48 standard / 61 full).
+1. **Persistent memory** — semantic-memory-mcp: hybrid BM25 + vector search, knowledge graphs, conversation recall, contradiction detection, bitemporal as-of queries, claim verification, and autonomous lifecycle. Profile-based tool counts (run `generate-tool-surface-docs.py` for current).
 
 2. **Receipt-backed compaction** — context-governor: deterministic pre-compaction that preserves active tasks and high-risk evidence, summarizes lower-risk context, and stores exact fallback records that can be searched and expanded later. Never silently loses context.
 
@@ -106,8 +106,8 @@ agent-memory-kits/
 │       ├── agents/memory-keeper.md
 │       ├── commands/{memory-setup,memory-ingest}.md
 │       ├── hooks/{memory-recall,memory-primer,memory-capture-nudge,_resolve}.sh
-│       ├── scripts/                   # 7 .py + run-server.sh (MCP wrappers, doctor, ingest)
-│       └── skills/                    # 9 SKILL.md (capture, curator, maintenance, sync, ...)
+│       ├── scripts/                   # MCP wrappers, doctor, ingest, proof/audit helpers
+│       └── skills/                    # capture, curator, maintenance, sync, proof, compaction, ...
 ├── codex/                             # Codex CLI plugin (Tier 0, reference impl)
 │   ├── README.md                      # (this PR — see Per-host docs)
 │   ├── .agents/plugins/marketplace.json
@@ -126,8 +126,8 @@ agent-memory-kits/
 │   ├── plugin.json
 │   ├── agents/memory-keeper.md
 │   ├── commands/{memory-setup,memory-ingest}.md
-│   ├── scripts/                       # 7 .py + run-server.sh
-│   └── skills/                        # 9 SKILL.md (capture, curator, maintenance, sync, ...)
+│   ├── scripts/                       # MCP wrappers, doctor, ingest, proof/audit/admin helpers
+│   └── skills/                        # capture, curator, maintenance, sync, proof, compaction, ...
 ├── cursor/                            # Cursor MCP + context-injection kit (Tier 1)
 │   ├── README.md
 │   ├── mcp.json.example
@@ -323,6 +323,8 @@ codex plugin add semantic-memory@semantic-memory-codex-kit
 
 The Codex plugin installs the MCP server config, skills, prompts, warm recall hooks, automatic codebase-ingest hook, context-governor MCP, and claim-ledger MCP. Codex uses warm HTTP port `1739` by default so it does not collide with Hermes/Claude sidecars on `1738`.
 
+Maintenance tools hidden by the daily lean profile are reachable through the `semantic-memory-admin` MCP server entry, which runs `scripts/run-server-admin.sh` with `SEMANTIC_MEMORY_TOOL_PROFILE=full` and disables the competing warm HTTP sidecar port for that stdio server.
+
 ### Hermes Agent
 
 ```bash
@@ -369,7 +371,7 @@ shared/scripts/doctor-all.py --deep
 
 ### semantic-memory
 
-The core memory server. 61 MCP tools (33 lean / 48 standard / 61 full):
+The core memory server. Profile-based MCP tool counts (lean/standard/full/admin — run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts):
 
 - **LLM output parsing**: `sm_parse_json`, `sm_parse_json_value`, `sm_repair_json`, `sm_strip_think_tags`, `sm_parse_string_list`, `sm_parse_choice`, `sm_parse_number` — production-grade parsing of LLM output without an additional LLM call. Handles think blocks, markdown fences, malformed JSON, trailing text.
 - **Search**: hybrid BM25 + vector (usearch HNSW) fused with Reciprocal Rank Fusion, RL-routed search (`sm_search_with_routing`), bitemporal as-of search (`sm_search_as_of`), conversation message search (`sm_search_conversations`)

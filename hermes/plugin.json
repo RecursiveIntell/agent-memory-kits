@@ -27,7 +27,10 @@
     },
     "commands": {
       "/memory-setup": "commands/memory-setup.md",
-      "/memory-ingest": "commands/memory-ingest.md"
+      "/memory-ingest": "commands/memory-ingest.md",
+      "/memory-gaps": "commands/memory-gaps.md",
+      "/evidence-workbench": "commands/evidence-workbench.md",
+      "/proof-packet": "commands/proof-packet.md"
     },
     "mcp_servers": {
       "semantic-memory": {
@@ -38,7 +41,7 @@
           "--tool-profile",
           "lean",
           "--http-port",
-          "1738",
+          "1739",
           "--llm-model",
           "$LLM_MODEL"
         ]
@@ -53,6 +56,18 @@
         "command": "python3",
         "args": [
           "scripts/claim-ledger-mcp.py"
+        ]
+      },
+      "semantic-memory-admin": {
+        "command": "bash",
+        "args": [
+          "scripts/run-server-admin.sh"
+        ]
+      },
+      "forge-admin": {
+        "command": "python3",
+        "args": [
+          "scripts/forge-admin-mcp.py"
         ]
       }
     }

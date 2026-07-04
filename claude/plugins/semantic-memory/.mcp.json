@@ -1,13 +1,16 @@
 {
   "mcpServers": {
     "semantic-memory": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/run-server.sh"
+      "command": "./scripts/run-server.sh"
+    },
+    "semantic-memory-admin": {
+      "command": "./scripts/run-server-admin.sh"
     },
     "context-governor": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/context-governor-mcp.py"
+      "command": "./scripts/context-governor-mcp.py"
     },
     "claim-ledger": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/scripts/claim-ledger-mcp.py"
+      "command": "./scripts/claim-ledger-mcp.py"
     }
   }
 }

@@ -1,0 +1,33 @@
+{
+  "name": "recursiveintell-pro",
+  "version": "0.1.0",
+  "description": "RecursiveIntell Pro — receipt-backed verification, patch verification, admin preflight, and proof packet pipeline. Requires a valid license key.",
+  "author": "RecursiveIntell",
+  "license": "LicenseRef-RecursiveIntell-Pro",
+  "hermes": {
+    "skills": [
+      "release-gate",
+      "claim-provenance"
+    ],
+    "hooks": {},
+    "commands": {
+      "/release-gate": "commands/release-gate.md",
+      "/verify-patch": "commands/verify-patch.md",
+      "/proof-packet": "commands/proof-packet.md"
+    },
+    "mcp_servers": {
+      "claim-ledger": {
+        "command": "python3",
+        "args": ["scripts/claim-ledger-mcp.py"]
+      },
+      "forge-admin": {
+        "command": "python3",
+        "args": ["scripts/forge-admin-mcp.py"]
+      },
+      "agent-guard": {
+        "command": "python3",
+        "args": ["scripts/agent-guard-mcp.py"]
+      }
+    }
+  }
+}

@@ -1,1 +1,13 @@
-name: claim-provenance
+interface:
+  display_name: "Claim Provenance"
+  short_description: "Back assertions with claim receipts"
+  brand_color: "#2563EB"
+  default_prompt: "Use $claim-provenance to create and verify evidence-backed claim receipts."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "claim_ledger"
+      description: "ClaimLedger MCP server for claim, evidence, and provenance receipts"
+      transport: "stdio"
+policy:
+  allow_implicit_invocation: true

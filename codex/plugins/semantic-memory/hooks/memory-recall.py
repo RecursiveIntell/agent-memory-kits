@@ -178,6 +178,31 @@ def prepare_hits(result: dict, warm: bool) -> tuple[list[dict], str]:
     return hits, score_key
 
 
+def route_outcome(hits: list[dict], score_key: str, emitted: bool) -> str:
+    """Score-based RL feedback for the semantic-memory router.
+
+    This is intentionally coarse and fail-open: the hook can tell the server that
+    a route produced usable recall, weak/no recall, or recall that was filtered
+    before emission, but the feedback call itself must never block prompting.
+    """
+    if emitted:
+        top = max((float(hit.get(score_key) or 0) for hit in hits), default=0.0)
+        if score_key == "cosine_similarity":
+            return "good" if top >= float(os.environ.get("SM_RECALL_GOOD_COSINE", "0.62")) else "neutral"
+        return "good" if top > 0 else "neutral"
+    return "bad" if hits else "neutral"
+
+
+def record_route_outcome(prompt: str, hits: list[dict], score_key: str, emitted: bool, routed: bool) -> None:
+    if not routed or os.environ.get("SM_RECALL_RECORD_OUTCOME", "1").lower() in {"0", "false", "no"}:
+        return
+    outcome = route_outcome(hits, score_key, emitted)
+    try:
+        http_post("/record-outcome", {"query": prompt[:4000], "outcome": outcome}, timeout=1.0)
+    except Exception:
+        pass
+
+
 def merge_hits(existing: list[dict], incoming: list[dict], priority: int) -> list[dict]:
     seen = {hit.get("result_id") for hit in existing}
     merged = list(existing)
@@ -189,6 +214,15 @@ def merge_hits(existing: list[dict], incoming: list[dict], priority: int) -> lis
         seen.add(result_id)
         merged.append(hit)
     return merged
+
+
+def record_routing_outcome(prompt: str, query_class: str, outcome: str) -> None:
+    if not prompt or query_class == "A" or os.environ.get("SM_RECALL_RECORD_OUTCOME", "1").lower() in {"0", "false", "no"}:
+        return
+    try:
+        http_post("/record-outcome", {"query": prompt[:4000], "query_class": query_class, "outcome": outcome}, timeout=1.0)
+    except Exception:
+        pass
 
 
 def freshness_rank(hit: dict) -> int:
@@ -213,6 +247,7 @@ def main() -> int:
     top_k = int(os.environ.get("SM_RECALL_TOPK", "8"))
     search_k = max(top_k * 3, 24)
     query_class = classify_query(prompt)
+    routed_attempted = query_class != "A"
     result = None
     warm = False
     hits: list[dict] = []
@@ -233,6 +268,7 @@ def main() -> int:
         broad_warm = False
     if not result or not result.get("ok"):
         if not hits:
+            record_route_outcome(prompt, hits, score_key, emitted=False, routed=routed_attempted)
             return 0
     else:
         broad_hits, broad_key = prepare_hits(result, broad_warm)
@@ -246,6 +282,7 @@ def main() -> int:
             fallback_hits, score_key = prepare_hits(fallback, False)
             hits = merge_hits(hits, fallback_hits, 100)
     if not hits:
+        record_routing_outcome(prompt, query_class, "bad")
         return 0
 
     query_terms = terms(prompt)
@@ -280,6 +317,7 @@ def main() -> int:
     top = float(hits[0].get(score_key) or 0)
     if score_key == "cosine_similarity":
         if top < mintop:
+            record_routing_outcome(prompt, query_class, "bad")
             return 0
         floor = max(absfloor, top - band)
         kept = [hit for hit in hits if float(hit.get(score_key) or 0) >= floor][:max_hits]
@@ -299,10 +337,12 @@ def main() -> int:
                 fallback_hits, score_key = prepare_hits(fallback, False)
                 hits = merge_hits([], fallback_hits, 100)
                 if not hits:
+                    record_route_outcome(prompt, hits, score_key, emitted=False, routed=routed_attempted)
                     return 0
                 top = float(hits[0].get(score_key) or 0)
                 if score_key == "cosine_similarity":
                     if top < mintop:
+                        record_routing_outcome(prompt, query_class, "bad")
                         return 0
                     floor = max(absfloor, top - band)
                     kept = [hit for hit in hits if float(hit.get(score_key) or 0) >= floor][:max_hits]
@@ -316,6 +356,7 @@ def main() -> int:
                     if len(query_terms & terms(str(hit.get("content") or ""))) >= min_overlap
                 ]
             if not overlapped:
+                record_routing_outcome(prompt, query_class, "bad")
                 return 0
         kept = overlapped
     lines = []
@@ -326,6 +367,7 @@ def main() -> int:
         if content:
             lines.append(f"- {content}")
     if not lines:
+        record_route_outcome(prompt, kept, score_key, emitted=False, routed=routed_attempted)
         return 0
 
     route_note = "" if query_class == "A" else f" (routed: class {query_class})"
@@ -334,6 +376,7 @@ def main() -> int:
         "Treat as recall to consider, not ground truth; verify against current artifacts before acting, "
         "and never let memory outrank current sources:"
     )
+    record_route_outcome(prompt, kept, score_key, emitted=True, routed=routed_attempted)
     emit_context("UserPromptSubmit", header + "\n" + "\n".join(lines))
     return 0
 

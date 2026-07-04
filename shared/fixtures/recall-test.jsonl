@@ -1,0 +1,3 @@
+{"query": "semantic memory plugin hooks", "expected_result_ids": ["fact:00000000-0000-0000-0000-000000000001"], "namespace": "infrastructure", "top_k": 10}
+{"query": "context governor audit receipt", "expected_result_ids": ["fact:00000000-0000-0000-0000-000000000002"], "namespace": "general", "top_k": 5}
+{"query": "claim ledger MCP tool", "expected_result_ids": ["fact:00000000-0000-0000-0000-000000000003"], "top_k": 10}

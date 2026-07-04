@@ -1,1 +1,7 @@
-name: release-gate
+interface:
+  display_name: "Release Gate"
+  short_description: "Run and record release checks"
+  brand_color: "#2563EB"
+  default_prompt: "Use $release-gate to run formatting, lint, test, and receipt checks before release."
+policy:
+  allow_implicit_invocation: true

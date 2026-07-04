@@ -1,6 +1,6 @@
 # semantic-memory for Codex CLI
 
-> **Tier 0 reference implementation.** Session / prompt / PreCompact / Stop hooks, an automatic codebase-ingest hook, 11 prompts, 1 subagent, an icon asset, and 16 scripts — over `semantic-memory-mcp` + `context-governor` + `claim-ledger`.
+> **Tier 0 reference implementation.** Session / prompt / PreCompact / Stop hooks, an automatic codebase-ingest hook, 11 prompts, 1 subagent, an icon asset, and script wrappers — over `semantic-memory-mcp` + `context-governor` + `claim-ledger`.
 > Plugin marketplace path: `semantic-memory@semantic-memory-codex-kit`.
 
 [![Tier 0](https://img.shields.io/badge/tier-0-blueviolet?style=for-the-badge)](#tier--scope)
@@ -95,9 +95,9 @@ The Codex plugin installs the MCP server config, skills, prompts, warm recall ho
 
 (15 SKILL.md dirs; the count includes the `semantic-memory` meta-skill and the `memory-keeper` skill in addition to the agent file.)
 
-### Scripts (16)
+### Scripts
 
-`codex/plugins/semantic-memory/scripts/`:
+`codex/plugins/semantic-memory/scripts/` includes MCP wrappers, doctor/benchmark helpers, retrieval audits, installer helpers, ingestion, proof/evidence helpers, admin server launchers, and context-governor audit wrappers. Avoid hardcoded script counts here; the script directory is the source of truth.
 
 - `context-governor-mcp.py` — MCP server entry for `context-governor`
 - `claim-ledger-mcp.py` — MCP server entry for `claim-ledger`
@@ -108,8 +108,9 @@ The Codex plugin installs the MCP server config, skills, prompts, warm recall ho
 - `ingest_codebase.py` — language-agnostic repo ingester
 - `audit_memory.py`, `eval_recall.py` — quality audits
 - `install-global-config.py`, `install-global-hooks.sh`, `install-project-hooks.sh` — installer scripts
-- `setup.sh` — host setup helper
-- `run-server.sh` — wraps `semantic-memory-mcp` with `--http-port`
+- `evidence-workbench.py`, `proof-packet.py` — proof/evidence packet helpers
+- `context-governor-audit.py` — context-governor audit wrapper
+- `run-server.sh`, `run-server-admin.sh` — daily and admin semantic-memory launchers
 
 ### Asset (1)
 
@@ -117,7 +118,7 @@ The Codex plugin installs the MCP server config, skills, prompts, warm recall ho
 
 ### MCP tools exposed
 
-`semantic-memory-mcp` exposes 61 tools (33 lean / 48 standard / 61 full). `context-governor` exposes 4. `claim-ledger` exposes 5. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
+`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
 
 ## Receipts
 
