@@ -24,6 +24,19 @@ Present a concise health report: store size, duplicates, contradictions, stale o
 
 Read [references/reconciliation.md](references/reconciliation.md) when actually reconciling.
 
+## Hostile audit before promotion
+
+Before promoting any high-risk, public-facing, business, contested, or cross-namespace fact, run the Pro hostile auditor when available:
+
+```bash
+python shared/scripts/hostile-audit.py --fact-json '<fact-json>' --fact-id '<fact-id>'
+```
+
+Interpretation:
+- `valid=true` supports promotion but does not prove truth by itself; still keep evidence/provenance.
+- `valid=false` means quarantine or supersede the candidate; do not promote it.
+- `valid=null` with reason `auditor unavailable` means the auditor failed open; record audit_state=unavailable and do not mark the fact verified by hostile audit.
+
 ## Phase 2: Reconcile
 
 After approval:
