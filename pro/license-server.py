@@ -174,7 +174,7 @@ class LicenseHandler(BaseHTTPRequestHandler):
             features = record.get("features", [
                 "evidence-workbench", "claim-ledger", "admin-preflight",
                 "authority-delegation", "forge-admin", "context-governor-audit",
-                "benchmark-recall", "release-gate",
+                "benchmark-recall", "release-gate", "agent-guard",
             ])
             ttl = int(record.get("ttl_seconds", 3600))
 
@@ -213,7 +213,7 @@ class LicenseHandler(BaseHTTPRequestHandler):
                 "features": body.get("features", [
                     "evidence-workbench", "claim-ledger", "admin-preflight",
                     "authority-delegation", "forge-admin", "context-governor-audit",
-                    "benchmark-recall", "release-gate",
+                    "benchmark-recall", "release-gate", "agent-guard",
                 ]),
             }
             save_licenses(db)
