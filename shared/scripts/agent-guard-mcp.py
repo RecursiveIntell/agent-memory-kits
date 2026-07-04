@@ -21,6 +21,10 @@ import os
 import subprocess
 import sys
 from datetime import datetime, timezone
+try:
+    from license_client import license_state_for_receipt
+except Exception:
+    license_state_for_receipt = None  # type: ignore
 
 TOOLS = [
     {
@@ -85,6 +89,9 @@ def check_bpf_lsm() -> bool:
 
 
 def handle_tool_call(name: str, arguments: dict) -> dict:
+    license_state = license_state_for_receipt("agent-guard") if license_state_for_receipt is not None else None
+    if license_state and license_state.get("blocked"):
+        return {"ok": False, "error": "license required", "license_state": license_state}
     if name == "agent_guard_security_posture":
         return {
             "schema": "SecurityPostureV1",

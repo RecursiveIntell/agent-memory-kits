@@ -28,6 +28,10 @@ from pathlib import Path
 _SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_SCRIPT_DIR))
 from trace_ids import generate_trace_id  # noqa: E402
+try:  # noqa: E402
+    from license_client import require_license_state
+except Exception:  # noqa: E402
+    require_license_state = None  # type: ignore
 
 
 # --- constants --------------------------------------------------------------
@@ -205,6 +209,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if require_license_state is not None:
+        license_state = require_license_state("forge-admin")
+    else:
+        license_state = {
+            "schema": "RecursiveIntellProLicenseStateV1",
+            "feature": "forge-admin",
+            "trusted": False,
+            "blocked": False,
+            "skipped": False,
+            "reason": "license client unavailable",
+            "token": None,
+        }
+
     repo = Path(args.repo).resolve()
     out_dir = Path(args.out_dir).resolve()
     binary = Path(args.binary_path).resolve()
@@ -250,6 +267,7 @@ def main(argv: list[str] | None = None) -> int:
             trace_id=trace_id,
             timestamp=timestamp,
         )
+        receipt["license_state"] = license_state
 
         # 6. Semantic-memory write (best-effort, unless --no-memory)
         if not args.no_memory:

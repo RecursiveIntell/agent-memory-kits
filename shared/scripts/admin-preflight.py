@@ -18,6 +18,10 @@ import json
 import uuid
 import sys
 from datetime import datetime, timezone
+try:
+    from license_client import require_license_state
+except Exception:
+    require_license_state = None  # type: ignore
 
 RISK_LEVELS: dict[str, str] = {
     "delete_namespace": "critical",
@@ -65,6 +69,7 @@ def cmd_preflight(args: argparse.Namespace) -> int:
         }))
         return 1
 
+    license_state = require_license_state("admin-preflight") if require_license_state is not None else None
     intent = {
         "schema": "EffectIntentV1",
         "trace_id": f"trace:admin-preflight:{uuid.uuid4().hex[:16]}",
@@ -75,6 +80,8 @@ def cmd_preflight(args: argparse.Namespace) -> int:
         "confirmed": confirmed,
         "timestamp": _iso_now(),
     }
+    if license_state is not None:
+        intent["license_state"] = license_state
     print(json.dumps(intent))
     return 0
 
@@ -84,6 +91,7 @@ def cmd_preflight(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 def cmd_postflight(args: argparse.Namespace) -> int:
+    license_state = require_license_state("admin-preflight") if require_license_state is not None else None
     receipt = {
         "schema": "EffectExecutionReceiptV1",
         "operation": args.operation,
@@ -92,6 +100,8 @@ def cmd_postflight(args: argparse.Namespace) -> int:
         "duration_secs": args.duration_secs,
         "timestamp": _iso_now(),
     }
+    if license_state is not None:
+        receipt["license_state"] = license_state
     print(json.dumps(receipt))
     return 0
 

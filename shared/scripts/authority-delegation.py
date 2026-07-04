@@ -8,6 +8,10 @@ import os
 import sys
 import uuid
 from datetime import datetime, timedelta, timezone
+try:
+    from license_client import require_license_state
+except Exception:
+    require_license_state = None  # type: ignore
 
 
 def _now() -> datetime:
@@ -19,6 +23,7 @@ def _iso(dt: datetime) -> str:
 
 
 def create_lease(args: argparse.Namespace) -> int:
+    license_state = require_license_state("authority-delegation") if require_license_state is not None else None
     created_at = _now()
     expires_at = created_at + timedelta(minutes=args.duration_mins)
     lease = {
@@ -30,6 +35,8 @@ def create_lease(args: argparse.Namespace) -> int:
         "created_at": _iso(created_at),
         "expires_at": _iso(expires_at),
     }
+    if license_state is not None:
+        lease["license_state"] = license_state
     # Append to store (create parent dirs if needed)
     store_dir = os.path.dirname(args.store)
     if store_dir:

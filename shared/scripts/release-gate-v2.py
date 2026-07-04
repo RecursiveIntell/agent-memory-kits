@@ -30,6 +30,10 @@ from pathlib import Path
 from urllib import request, error
 
 DEFAULT_OUT = Path.home() / ".local/share/semantic-memory-agent-kits/receipts"
+try:
+    from license_client import require_license_state
+except Exception:
+    require_license_state = None  # type: ignore
 
 
 def sha256_text(text: str) -> str:
@@ -154,6 +158,15 @@ def main() -> int:
     out_dir = Path(args.out_dir).expanduser()
     out_dir.mkdir(parents=True, exist_ok=True)
     trace_id = generate_trace_id("release-gate")
+    license_state = require_license_state("release-gate") if require_license_state is not None else {
+        "schema": "RecursiveIntellProLicenseStateV1",
+        "feature": "release-gate",
+        "trusted": False,
+        "blocked": False,
+        "skipped": False,
+        "reason": "license client unavailable",
+        "token": None,
+    }
     case_id = f"case:{uuid.uuid4().hex[:16]}"
 
     # Run commands
@@ -219,6 +232,7 @@ def main() -> int:
         "command_receipts": command_receipts,
         "evidence_refs": evidence_refs,
         "git_commit": git_commit(str(cwd)),
+        "license_state": license_state,
         "claim_boundary": "Command receipts prove the listed gates ran with the captured exit codes; they do not prove untested behavior or total correctness.",
     }
     packet_json = json.dumps(packet, sort_keys=True)

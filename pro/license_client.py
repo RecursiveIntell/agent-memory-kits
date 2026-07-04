@@ -58,6 +58,7 @@ PRO_FEATURES = [
     "context-governor-audit",
     "benchmark-recall",
     "release-gate",
+    "agent-guard",
 ]
 
 
