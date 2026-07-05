@@ -29,8 +29,8 @@ class HermesToolReceiptTests(unittest.TestCase):
             self.assertEqual(sm_auto_edge.main(), 0)
 
         content = calls[0][1]["content"]
-        self.assertIn("semantic-memory-tool-receipt-v1", content)
-        self.assertIn("trace_id:tool:terminal:", content)
+        self.assertIn("llm-tool-runtime-compatible-tool-receipt-v1", content)
+        self.assertIn("trace_id:trace:tool:", content)
         self.assertIn('"algorithm":"sha256"', content)
         self.assertIn('"type":"tool_action_receipt"', content)
         self.assertIn('"exit_code":0', content)
