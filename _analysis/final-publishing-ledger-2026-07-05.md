@@ -1,8 +1,19 @@
 # Final publishing ledger — 2026-07-05
 
-Scope: finish the publishable crates and Forge/CEA/governance/queue chain after the plugin/pro hardening work.
+Scope: finish the publishable crates and Forge/CEA/governance/queue/AiDENs chain after the plugin/pro hardening work.
 
-## Published in the final continuation
+## Final result
+
+All targeted publish work completed.
+
+Newly published across the top-7/topoff work:
+
+- Forge/CEA + governance/runtime + queue chain: 30 crates
+- AiDENs workspace + extra kernel/schema deps from this completion pass: 41 crates
+
+Total newly published in this overall run: 71 crates.
+
+## Forge/CEA, governance, runtime, queue chain
 
 Published successfully to crates.io:
 
@@ -40,7 +51,57 @@ Previously published in the same top-7 execution thread:
 - `mindstate-core v0.1.0`
 - `sandbox-workspace v0.1.0`
 
-Total newly published in the top-7 work: 30 crates.
+## AiDENs workspace and dependent closure
+
+Published successfully to crates.io:
+
+- `aidens v0.1.0`
+- `aidens-agency-kit v0.1.0`
+- `aidens-app-kit v0.1.0`
+- `aidens-arbiter-kit v0.1.0`
+- `aidens-autonomous v0.1.0`
+- `aidens-boundary-kit v0.1.0`
+- `aidens-budget-kit v0.1.0`
+- `aidens-capability-kit v0.1.0`
+- `aidens-cli v0.1.0`
+- `aidens-config v0.1.0`
+- `aidens-contracts v0.1.0`
+- `aidens-daemon-kit v0.1.0`
+- `aidens-delegation-kit v0.1.0`
+- `aidens-governance-kit v0.1.0`
+- `aidens-integration-tests v0.1.0`
+- `aidens-kernel-kit v0.1.0`
+- `aidens-memory-kit v0.1.0`
+- `aidens-memory-tools v0.1.0`
+- `aidens-permit-kit v0.1.0`
+- `aidens-plan-kit v0.1.0`
+- `aidens-profile-coding v0.1.0`
+- `aidens-profile-daemon v0.1.0`
+- `aidens-profile-desktop v0.1.0`
+- `aidens-profile-memory v0.1.0`
+- `aidens-profile-research v0.1.0`
+- `aidens-provider-kit v0.1.0`
+- `aidens-queue-kit v0.1.0`
+- `aidens-receipts v0.1.0`
+- `aidens-repair-kit v0.1.0`
+- `aidens-runner v0.1.0`
+- `aidens-schedule-kit v0.1.0`
+- `aidens-security-kit v0.1.0`
+- `aidens-testkit v0.1.0`
+- `aidens-tool-kit v0.1.0`
+- `aidens-tui v0.1.0`
+- `aidens-wake-kit v0.1.0`
+- `boundary-compiler-core v0.1.0`
+
+Additional dependent crates published to complete the AiDENs/kernel/schema closure:
+
+- `federated-settlement v0.1.0`
+- `remote-oracle-admission v0.1.0`
+- `discovery-portfolio v0.1.0`
+- `spec-execution v0.1.0`
+- `kernel-conformance v0.1.0`
+- `profile-runtime v0.1.0`
+- `contract-schema-gen v0.1.0`
 
 ## Queue resolution
 
@@ -58,11 +119,13 @@ This preserves the internal Rust import path (`job_queue::...`) while publishing
 
 agent-memory-kits:
 
-- `python -m unittest discover tests/` → 123 tests pass
+- `python -m unittest discover tests/` → 128 tests pass
 - `python -m pytest tests/test_pro_plugin_hardening.py -q -o 'addopts='` → 5 pass
 
 Libraries:
 
+- `cargo test --workspace --all-targets` in `AiDENs/` → pass
+- crates.io API visibility audit for AiDENs workspace → 37 / 37 packages visible at their local versions
 - `cargo test -p agent-queue --all-targets` → 44 tests pass
 - `cargo test -p tauri-queue --all-targets` → pass
 - `cargo test -p agent-graph --all-targets` → pass
@@ -85,9 +148,20 @@ Libraries:
 
 `agent-queue v0.2.0` and `tauri-queue v0.3.0` are now both published and visible via `cargo search`.
 
+### AiDENs closure
+
+All 37 AiDENs workspace packages are now visible on crates.io. The final blockers were:
+
+- `kernel-conformance` required `discovery-portfolio` and `spec-execution`
+- `aidens-cli` required `contract-schema-gen`
+- `contract-schema-gen` required `profile-runtime`
+- `aidens-integration-tests` required `aidens-cli`
+
+All were published in dependency order.
+
 ### Missing version metadata
 
-Several local path dependencies needed version fields before crates.io would accept dependent crates. Added version metadata to queue, Forge, governance, verification, and runtime crates as needed.
+Several local path dependencies needed version fields before crates.io would accept dependent crates. Added version metadata to queue, Forge, governance, verification, runtime, AiDENs, kernel-conformance, profile-runtime, and contract-schema-gen crates as needed.
 
 ## crates.io rate limits
 
