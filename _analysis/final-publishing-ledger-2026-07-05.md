@@ -1,10 +1,10 @@
 # Final publishing ledger — 2026-07-05
 
-Scope: finish the publishable non-queue crates and Forge/CEA chain after the plugin/pro hardening work.
+Scope: finish the publishable crates and Forge/CEA/governance/queue chain after the plugin/pro hardening work.
 
-## Published in this continuation
+## Published in the final continuation
 
-Published successfully to crates.io in the final continuation:
+Published successfully to crates.io:
 
 - `typed-patch v0.1.0`
 - `check-runner-sys v0.1.0`
@@ -27,6 +27,8 @@ Published successfully to crates.io in the final continuation:
 - `verification-calibration v0.1.0`
 - `verification-adjudication v0.1.0`
 - `forge-pilot v0.1.0`
+- `agent-queue v0.2.0`
+- `tauri-queue v0.3.0`
 
 Previously published in the same top-7 execution thread:
 
@@ -38,7 +40,19 @@ Previously published in the same top-7 execution thread:
 - `mindstate-core v0.1.0`
 - `sandbox-workspace v0.1.0`
 
-Total newly published in the top-7 work: 28 crates.
+Total newly published in the top-7 work: 30 crates.
+
+## Queue resolution
+
+The original local crate directory remains `job-queue`, but the package was renamed to `agent-queue` for crates.io because `job-queue` normalizes to the existing `job_queue` crate name on crates.io, which this account does not own.
+
+`tauri-queue` now depends on it as:
+
+```toml
+job_queue = { package = "agent-queue", version = "0.2.0", path = "../job-queue" }
+```
+
+This preserves the internal Rust import path (`job_queue::...`) while publishing under the available product name `agent-queue`.
 
 ## Verified gates
 
@@ -49,9 +63,10 @@ agent-memory-kits:
 
 Libraries:
 
+- `cargo test -p agent-queue --all-targets` → 44 tests pass
+- `cargo test -p tauri-queue --all-targets` → pass
 - `cargo test -p agent-graph --all-targets` → pass
 - `cargo test -p quant-codec-core --all-targets` → pass
-- `cargo test -p tauri-queue --all-targets` → pass
 - `cargo test -p claim-ledger --all-targets` → pass
 - `cargo test -p forge-engine --all-targets` → pass
 - `cargo test -p forge-pilot --all-targets` → pass
@@ -66,24 +81,13 @@ Libraries:
 
 `forge-engine v0.2.0` and `forge-pilot v0.1.0` are now both published. `forge-pilot` was published with its default `governance` feature intact; no semantics were weakened to force the publish.
 
+### Queue chain
+
+`agent-queue v0.2.0` and `tauri-queue v0.3.0` are now both published and visible via `cargo search`.
+
 ### Missing version metadata
 
-Several local path dependencies needed version fields before crates.io would accept dependent crates. Added version metadata to:
-
-- `attestation-exchange` → `stack-ids = 0.1.1`
-- `constitutional-memory` → `stack-ids = 0.1.1`
-- `effect-runtime` → `stack-ids = 0.1.1` and description metadata
-- `mechanism-runtime` → `stack-ids = 0.1.1`
-- verification family → `llm-tool-runtime`, `stack-ids`, `semantic-memory-forge`, and verification cross-deps
-
-## Remaining blocker intentionally not chased
-
-### Queue crates
-
-User explicitly said agent/job queue is fine; do not chase this now.
-
-- `job-queue v0.2.0` dry-run passes but crates.io publish is blocked by ownership: the crate exists but this account is not an owner.
-- `tauri-queue v0.3.0` tests pass but publish depends on the job-queue ownership decision.
+Several local path dependencies needed version fields before crates.io would accept dependent crates. Added version metadata to queue, Forge, governance, verification, and runtime crates as needed.
 
 ## crates.io rate limits
 
