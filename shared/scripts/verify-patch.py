@@ -40,7 +40,10 @@ CLAIM_BOUNDARY = (
     "Receipt proves command execution and exit code; "
     "it does not prove total correctness or untested behavior."
 )
-DEFAULT_BINARY = Path.home() / ".cargo" / "bin" / "forge-engine"
+DEFAULT_BINARIES = [
+    Path.home() / ".cargo" / "bin" / "forge-pilot",
+    Path.home() / ".cargo" / "bin" / "forge-engine",
+]
 EXCLUDE_DIRS = {".git", "target", "node_modules"}
 TIMEOUT_SECS = 300
 
@@ -113,10 +116,27 @@ def _run_check(check_cmd: str, sandbox: Path, timeout: int = TIMEOUT_SECS) -> di
     }
 
 
-def _try_forge_engine(binary: Path, sandbox: Path, check_result: dict) -> dict | None:
-    """If the forge-engine binary exists and is executable, call it and return
+def _resolve_forge_binary(binary_arg: str) -> Path | None:
+    """Resolve a requested Forge binary.
+
+    `auto` prefers forge-pilot, then forge-engine, then `RI_FORGE_BINARY` if set.
+    Explicit paths preserve backwards compatibility and may intentionally be
+    nonexistent to force fallback-mode tests.
+    """
+    if binary_arg != "auto":
+        return Path(binary_arg)
+    env_binary = os.environ.get("RI_FORGE_BINARY")
+    candidates = ([Path(env_binary)] if env_binary else []) + DEFAULT_BINARIES
+    for candidate in candidates:
+        if candidate.exists() and os.access(candidate, os.X_OK):
+            return candidate
+    return None
+
+
+def _try_forge_engine(binary: Path | None, sandbox: Path, check_result: dict) -> dict | None:
+    """If a Forge binary exists and is executable, call it and return
     an attribution dict.  Return *None* on any failure (caller falls back)."""
-    if not binary.exists() or not os.access(binary, os.X_OK):
+    if binary is None or not binary.exists() or not os.access(binary, os.X_OK):
         return None
     try:
         proc = subprocess.run(
@@ -129,7 +149,7 @@ def _try_forge_engine(binary: Path, sandbox: Path, check_result: dict) -> dict |
             data = json.loads(proc.stdout)
             return {
                 "available": True,
-                "engine": "forge-engine",
+                "engine": binary.name,
                 "cea": data.get("cea", {}),
                 "raw": data,
             }
@@ -208,8 +228,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--write-claim-ledger", action="store_true", help="Write verification claim to claim-ledger MCP if available")
     parser.add_argument(
         "--binary-path",
-        default=str(DEFAULT_BINARY),
-        help="Path to forge-engine binary (default: ~/.cargo/bin/forge-engine)",
+        default="auto",
+        help="Path to Forge binary, or 'auto' to prefer RI_FORGE_BINARY, forge-pilot, then forge-engine",
     )
     args = parser.parse_args(argv)
 
@@ -228,7 +248,7 @@ def main(argv: list[str] | None = None) -> int:
 
     repo = Path(args.repo).resolve()
     out_dir = Path(args.out_dir).resolve()
-    binary = Path(args.binary_path).resolve()
+    binary = _resolve_forge_binary(args.binary_path)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. Create sandbox
@@ -243,17 +263,22 @@ def main(argv: list[str] | None = None) -> int:
         # 3. Run check-cmd
         check_result = _run_check(args.check_cmd, sandbox)
 
-        # 4. Try forge-engine binary; fall back to pure-Python
+        # 4. Try Forge binary; fall back to pure-Python
         cea = _try_forge_engine(binary, sandbox, check_result)
         if cea is None:
-            if not binary.exists():
+            if binary is None:
                 print(
-                    f"forge-engine binary not found at {binary} — using pure-Python fallback",
+                    "no Forge binary found (checked RI_FORGE_BINARY, forge-pilot, forge-engine) — using pure-Python fallback",
+                    file=sys.stderr,
+                )
+            elif not binary.exists():
+                print(
+                    f"Forge binary not found at {binary} — using pure-Python fallback",
                     file=sys.stderr,
                 )
             attribution = {
                 "available": False,
-                "reason": "forge-engine binary not available",
+                "reason": "Forge binary not available",
             }
         else:
             attribution = cea
