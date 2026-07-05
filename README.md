@@ -91,6 +91,8 @@ A collection of plugins and setup kits that give AI coding agents:
 
 3. **Claim/evidence provenance** — claim-ledger: a deterministic, local-first ledger that creates receipts for all material operations. Claims get evidence, support judgments, contradiction resolution, and export bundles for audit.
 
+4. **Typed receipt spine** — shared hook receipts use an `llm-tool-runtime`-compatible `ToolReceipt` shape plus stack-ids-style `trace_ctx`, stable SHA-256 digests, and compact status fields. This prevents host hooks from drifting into incompatible ad-hoc JSON.
+
 ### Repo structure
 
 ```
