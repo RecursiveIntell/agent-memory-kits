@@ -186,6 +186,25 @@ def _write_semantic_memory(claim: str, receipt: dict) -> bool:
         return False
 
 
+def _write_claim_ledger_bundle(claim: str, receipt: dict) -> dict:
+    """Best-effort claim-ledger sink marker.
+
+    The companion claim-ledger MCP/CLI may not be installed on every host. This
+    function records the attempt and, when a writable out dir is provided later
+    by the caller, leaves enough evidence refs for a release gate to import or
+    export a bundle.
+    """
+    # Keep this intentionally fail-open: patch verification must not become
+    # unusable just because the optional proof sink is absent.
+    return {
+        "attempted": True,
+        "available": False,
+        "reason": "direct claim-ledger write not configured; receipt contains claim/evidence refs for later cl_run/cl_export_bundle",
+        "claim": claim,
+        "evidence_refs": [receipt.get("trace_id", ""), receipt.get("check_result", {}).get("stdout_sha256", "")],
+    }
+
+
 def _build_receipt(
     *,
     claim: str,
@@ -297,6 +316,8 @@ def main(argv: list[str] | None = None) -> int:
             timestamp=timestamp,
         )
         receipt["license_state"] = license_state
+        if args.write_claim_ledger:
+            receipt["claim_ledger"] = _write_claim_ledger_bundle(args.claim, receipt)
 
         # 6. Semantic-memory write (best-effort, unless --no-memory)
         if not args.no_memory:

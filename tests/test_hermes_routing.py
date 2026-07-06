@@ -84,3 +84,12 @@ class HermesRoutingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HermesRecallAdmissionWiringTests(unittest.TestCase):
+    def test_namespace_match_uses_individual_namespace_members(self) -> None:
+        script = ROOT / "hermes" / "hooks" / "sm-recall.py"
+        content = script.read_text(encoding="utf-8")
+        self.assertIn("namespace_tokens = {ns for group in namespace_passes(prompt, cwd) for ns in group}", content)
+        self.assertIn("ns_match = bool(ns) and ns in namespace_tokens", content)
+

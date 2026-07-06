@@ -55,6 +55,32 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(data["operation"], "delete_namespace")
         self.assertEqual(data["risk_level"], "critical")
 
+
+    def test_delete_fact_is_critical_admin_operation(self):
+        """delete_fact is a critical destructive operation and requires confirmation."""
+        buf = io.StringIO()
+        with patch("sys.stdout", buf):
+            rc = admin_preflight.main([
+                "preflight",
+                "--operation", "delete_fact",
+                "--target", "fact:abc",
+                "--operator", "tester",
+            ])
+        data = json.loads(buf.getvalue().strip())
+        self.assertEqual(rc, 1)
+        self.assertTrue(data.get("blocked"))
+
+    def test_claim_ledger_export_operation_is_low_risk(self):
+        """claim_ledger_export is allowed as a low-risk admin operation."""
+        rc, data = self._run_preflight([
+            "--operation", "claim_ledger_export",
+            "--target", "/tmp/bundle.json",
+            "--operator", "tester",
+        ])
+        self.assertEqual(rc, 0)
+        self.assertEqual(data["schema"], "EffectIntentV1")
+        self.assertEqual(data["risk_level"], "low")
+
     def test_blocks_destructive_without_confirmation(self):
         """delete_namespace without --confirm exits 1 and has blocked=true."""
         rc, data = self._run_preflight([

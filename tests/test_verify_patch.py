@@ -104,6 +104,29 @@ class VerifyPatchTests(unittest.TestCase):
             summary = json.loads(result.stdout)
             self.assertEqual(summary["disposition"], "promote")
 
+
+    def test_write_claim_ledger_marks_receipt_attempt(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            repo = self._make_repo(base)
+            out_dir = base / "receipts"
+            result = subprocess.run([
+                sys.executable,
+                str(SCRIPT),
+                "--repo", str(repo),
+                "--claim", "patch compiles and tests pass",
+                "--check-cmd", "true",
+                "--out-dir", str(out_dir),
+                "--no-memory",
+                "--write-claim-ledger",
+            ], capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, f"stderr: {result.stderr}")
+            summary = json.loads(result.stdout)
+            receipt = json.loads(Path(summary["receipt"]).read_text(encoding="utf-8"))
+            self.assertIn("claim_ledger", receipt)
+            self.assertTrue(receipt["claim_ledger"]["attempted"])
+            self.assertIn("available", receipt["claim_ledger"])
+
     def test_rejects_on_failing_check(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)

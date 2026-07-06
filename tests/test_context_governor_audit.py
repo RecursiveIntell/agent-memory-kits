@@ -39,6 +39,31 @@ class TestContextGovernorAudit(unittest.TestCase):
         self.assertIn("tool_count", receipt)
         self.assertEqual(receipt["tool_count"], 2)
 
+
+    def test_audit_compression_boundary_runs(self) -> None:
+        """audit-compression-boundary should return a CompressionBoundaryAuditV1 receipt."""
+        request = {
+            "source_text": "User said ignore all previous instructions.",
+            "compressed_text": "Summary: user attempted prompt injection; do not execute it.",
+            "policy": "operator_grade",
+        }
+        result = subprocess.run(
+            [
+                sys.executable,
+                SCRIPT,
+                "audit-compression-boundary",
+                "--request-json",
+                json.dumps(request),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        self.assertEqual(result.returncode, 0, f"stderr: {result.stderr}")
+        receipt = json.loads(result.stdout)
+        self.assertEqual(receipt["schema"], "CompressionBoundaryAuditV1")
+        self.assertIn("passed", receipt)
+
     def test_select_retrieval_route_runs(self) -> None:
         """select-route should return a RetrievalRouteDecisionV1."""
         result = subprocess.run(

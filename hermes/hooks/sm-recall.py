@@ -205,6 +205,7 @@ def main() -> int:
         admiss_path = Path(os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".local/share/semantic-memory"))) / "recall-admission.jsonl"
         try:
             ledger = RecallAdmissionLedger(str(admiss_path))
+            namespace_tokens = {ns for group in namespace_passes(prompt, cwd) for ns in group}
             admitted_hits = []
             for hit in hits:
                 rid = hit.get("result_id") or hit.get("id") or ""
@@ -212,7 +213,7 @@ def main() -> int:
                 score_val = float(hit.get(score_key) or 0)
                 cosine_val = float(hit.get("cosine_similarity") or score_val)
                 content_terms = terms(str(hit.get("content") or ""))
-                ns_match = bool(ns) and ns in [",".join(ns_group) for ns_group in namespace_passes(prompt, cwd)]
+                ns_match = bool(ns) and ns in namespace_tokens
                 record = ledger.evaluate(
                     query=prompt[:4000],
                     result_id=rid,

@@ -25,12 +25,15 @@ except Exception:
 
 RISK_LEVELS: dict[str, str] = {
     "delete_namespace": "critical",
+    "delete_fact": "critical",
     "reembed_all": "high",
     "import_envelope": "medium",
     "reconcile": "low",
     "vacuum": "low",
     "reembed_missing": "low",
     "export_bundle": "low",
+    "claim_ledger_export": "low",
+    "verify_patch": "medium",
     "release_gate_promotion": "high",
 }
 

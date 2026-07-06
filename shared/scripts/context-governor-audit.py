@@ -19,11 +19,36 @@ import os
 import shutil
 import subprocess
 import sys
+from datetime import datetime, timezone
 
 DEFAULT_BINARY = (
     shutil.which("context-governor")
     or os.path.join(os.path.expanduser("~"), ".cargo", "bin", "context-governor")
 )
+
+
+def _fallback_compression_boundary(request_obj: dict, reason: str | None = None) -> dict:
+    source = str(request_obj.get("source_text") or " ".join(request_obj.get("source_fragments") or []))
+    compressed = str(request_obj.get("compressed_text") or request_obj.get("summary") or "")
+    hostile_markers = ("ignore all previous", "system prompt", "developer message", "tool call", "execute")
+    source_hostile = any(m in source.lower() for m in hostile_markers)
+    compressed_executes = any(m in compressed.lower() for m in ("ignore all previous", "execute this", "run this command"))
+    passed = not (source_hostile and compressed_executes)
+    warnings = []
+    if source_hostile:
+        warnings.append("source contains instruction-like hostile marker")
+    if compressed_executes:
+        warnings.append("compressed output preserved executable hostile instruction")
+    if reason:
+        warnings.append(f"context-governor fallback: {reason}")
+    return {
+        "schema": "CompressionBoundaryAuditV1",
+        "passed": passed,
+        "policy": request_obj.get("policy", "operator_grade"),
+        "source_fragment_count": len(request_obj.get("source_fragments") or ([source] if source else [])),
+        "warnings": warnings,
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 def run_cg(binary_path: str, args: list[str]) -> str:
@@ -93,6 +118,46 @@ def cmd_screen_conflicts(args: argparse.Namespace) -> None:
     print(output)
 
 
+def cmd_audit_compression_boundary(args: argparse.Namespace) -> None:
+    try:
+        request_obj = json.loads(args.request_json or "{}")
+        if not isinstance(request_obj, dict):
+            request_obj = {}
+    except Exception:
+        request_obj = {}
+    # Newer context-governor exposes this as boundary-audit over stdin. The
+    # Python fallback keeps the plugin/admin surface usable on older installs.
+    if not os.path.isfile(args.binary_path) or not os.access(args.binary_path, os.X_OK):
+        print(json.dumps(_fallback_compression_boundary(request_obj, "binary missing"), sort_keys=True))
+        return
+    cg_request = dict(request_obj)
+    if "source_fragments" not in cg_request:
+        source_text = str(cg_request.get("source_text") or "")
+        cg_request["source_fragments"] = [source_text] if source_text else []
+    if "compressed_summary" not in cg_request:
+        cg_request["compressed_summary"] = str(cg_request.get("compressed_text") or cg_request.get("summary") or "")
+    try:
+        proc = subprocess.run(
+            [args.binary_path, "boundary-audit"],
+            input=json.dumps(cg_request),
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            data = json.loads(proc.stdout)
+            if isinstance(data, dict):
+                data.setdefault("schema", "CompressionBoundaryAuditV1")
+                data.setdefault("passed", not bool(data.get("violations")))
+                print(json.dumps(data, sort_keys=True))
+                return
+        reason = (proc.stderr or proc.stdout or f"exit {proc.returncode}").strip()[-300:]
+        print(json.dumps(_fallback_compression_boundary(request_obj, reason), sort_keys=True))
+    except Exception as exc:
+        print(json.dumps(_fallback_compression_boundary(request_obj, str(exc)), sort_keys=True))
+
+
 def cmd_select_route(args: argparse.Namespace) -> None:
     output = run_cg(args.binary_path, ["select-route", "--query", args.query or ""])
     print(output)
@@ -117,6 +182,10 @@ def main() -> None:
     p = sub.add_parser("audit-tool-surface")
     p.add_argument("--tools-json", help="JSON array of {name, description}")
     p.set_defaults(func=cmd_audit_tool_surface)
+
+    p = sub.add_parser("audit-compression-boundary")
+    p.add_argument("--request-json", help="JSON compression boundary audit request")
+    p.set_defaults(func=cmd_audit_compression_boundary)
 
     p = sub.add_parser("eval-governed-memory")
     p.add_argument("--harness-id")

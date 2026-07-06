@@ -93,8 +93,8 @@ def get_context_governor_tools() -> dict:
         return {"tool_count": None, "tools": [], "available": False, "error": "binary not found"}
     commands = [
         "compact", "store", "expand", "search", "status", "prune", "diff", "boundary-audit",
-        "audit-tool-surface", "eval-governed-memory", "eval-rag-leakage", "screen-conflicts",
-        "select-route",
+        "audit-tool-surface", "audit-compression-boundary", "eval-governed-memory",
+        "eval-rag-leakage", "screen-conflicts", "select-route",
     ]
     return {
         "tool_count": len(commands),
