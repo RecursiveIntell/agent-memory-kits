@@ -19,7 +19,20 @@
       "properties": {"dimensions": {"type": "integer", "minimum": 1}}
     },
     "repositories": {"type": "object", "required": ["agent_memory_kits", "semantic_memory", "semantic_memory_mcp"]},
-    "execution": {"type": "object", "required": ["launcher", "launcher_sha256", "runner_sha256", "receipt_schema_path", "receipt_schema_sha256", "launcher_command", "command", "single_service", "store_path", "namespace", "production_tools", "stats"]},
+    "execution": {
+      "type": "object",
+      "required": ["launcher", "launcher_sha256", "runner_sha256", "receipt_schema_path", "receipt_schema_sha256", "launcher_command", "command", "single_service", "store_path", "namespace", "production_tools", "stats", "runtime_binary"],
+      "properties": {
+        "runtime_binary": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+          }
+        }
+      }
+    },
     "ingestion": {"type": "object", "required": ["requested_docs", "checkpointed_docs", "checkpoint_path", "checkpoint_sha256", "failures", "active_pass_elapsed_seconds", "checkpoint_timing"]},
     "modes": {
       "type": "object",
@@ -27,17 +40,17 @@
       "properties": {
         "hybrid": {
           "type": "object",
-          "required": ["status", "metrics"],
+          "required": ["status"],
           "properties": {
-            "status": {"const": "measured"},
+            "status": {"enum": ["measured", "not_selected", "not_exposed"]},
             "metrics": {
               "type": "object",
               "required": ["query_count", "qrels_count", "failures", "ndcg_at_10", "recall_at_k", "mrr_at_10", "map_at_10", "success_at_k", "latency_ms"]
             }
           }
         },
-        "fts_only": {"type": "object", "required": ["status", "reason"]},
-        "vector_only": {"type": "object", "required": ["status", "reason"]}
+        "fts_only": {"type": "object", "required": ["status"]},
+        "vector_only": {"type": "object", "required": ["status"]}
       }
     },
     "config": {"type": "object"},

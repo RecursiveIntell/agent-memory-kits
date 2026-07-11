@@ -203,8 +203,8 @@ def document_content(row: dict[str, Any], max_chars: int) -> str:
     marker = f"[beir-scifact-doc-id:{doc_id}]"
     title = str(row.get("title") or "").strip()
     body = str(row.get("text") or "").strip()
-    text = "\n".join(part for part in (marker, title, body) if part)
-    return text[:max_chars]
+    semantic_text = "\n".join(part for part in (title, body) if part)[:max_chars]
+    return "\n".join(part for part in (marker, semantic_text) if part)
 
 
 def extract_doc_ids(payload: dict[str, Any]) -> list[str]:
@@ -213,10 +213,26 @@ def extract_doc_ids(payload: dict[str, Any]) -> list[str]:
     for result in payload.get("results", []):
         if not isinstance(result, dict):
             continue
+        metadata = result.get("metadata")
+        metadata_id = metadata.get("beir_scifact_doc_id") if isinstance(metadata, dict) else None
+        if metadata_id is not None:
+            identifiers.append(str(metadata_id))
+            continue
         match = DOC_MARKER.search(str(result.get("content", "")))
         if match:
             identifiers.append(match.group(1))
     return identifiers
+
+
+def select_query_ids(qrels: dict[str, dict[str, int]], query_split: str) -> list[str]:
+    ordered = sorted(qrels)
+    if query_split == "calibration":
+        return ordered[:100]
+    if query_split == "heldout":
+        return ordered[100:]
+    if query_split == "all":
+        return ordered
+    raise ValueError(f"unknown query split: {query_split}")
 
 
 def git_state(path: Path) -> dict[str, Any]:
@@ -226,6 +242,20 @@ def git_state(path: Path) -> dict[str, Any]:
 
     status = run("status", "--porcelain")
     return {"path": str(path), "commit": run("rev-parse", "HEAD"), "dirty": bool(status)}
+
+
+def resolved_semantic_memory_binary() -> Path:
+    candidates = [
+        os.environ.get("SEMANTIC_MEMORY_MCP_BIN"),
+        str(Path.home() / "Coding/Libraries/semantic-memory-mcp/target/release/semantic-memory-mcp"),
+        str(Path.home() / ".local/bin/semantic-memory-mcp"),
+        shutil.which("semantic-memory-mcp"),
+        str(Path.home() / ".cargo/bin/semantic-memory-mcp"),
+    ]
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return Path(candidate).resolve()
+    raise RuntimeError("semantic-memory-mcp binary cannot be resolved")
 
 
 def load_mcp_client_module() -> Any:
@@ -358,6 +388,7 @@ def retrieve_queries(
                 "query": str(query.get("text") or ""),
                 "namespaces": [namespace],
                 "top_k": 10,
+                "retrieval_mode": mode,
             },
         )
         latency_ms = (time.perf_counter() - started) * 1000
@@ -379,6 +410,8 @@ def retrieve_queries(
                 "ranked_doc_ids": ranked_ids,
                 "returned_results": len(payload.get("results", [])) if isinstance(payload, dict) else 0,
                 "receipt_id": payload.get("receipt_id") if isinstance(payload, dict) else None,
+                "retrieval_execution": payload.get("execution") if isinstance(payload, dict) else None,
+                "stage_outcomes": payload.get("stage_outcomes") if isinstance(payload, dict) else None,
                 "status": "measured" if failure is None else "failed",
                 "failure": failure,
                 "latency_ms": latency_ms,
@@ -411,7 +444,8 @@ def validate_receipt(receipt: dict[str, Any], schema_path: Path = SCHEMA_PATH) -
 
 
 def render_report(receipt: dict[str, Any]) -> str:
-    mode = receipt["modes"]["hybrid"]
+    selected_mode = receipt["config"].get("retrieval_mode", "hybrid")
+    mode = receipt["modes"][selected_mode]
     metrics = mode["metrics"]
     latency = metrics["latency_ms"]
     lines = [
@@ -425,7 +459,7 @@ def render_report(receipt: dict[str, Any]) -> str:
         f"- Embedder: Ollama `{receipt['embedding']['model']}`, {receipt['embedding']['dimensions']} dimensions",
         f"- Production path: `sm_add_fact` -> `sm_search_witnessed`",
         "",
-        "## Hybrid results",
+        f"## {selected_mode} results",
         "",
         "| nDCG@10 | Recall@1 | Recall@5 | Recall@10 | MRR@10 | MAP@10 | Success@1 | Success@5 | Success@10 | Failures |",
         "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
@@ -443,9 +477,11 @@ def render_report(receipt: dict[str, Any]) -> str:
         "",
         "## Mode boundary",
         "",
-        f"- FTS-only: **{receipt['modes']['fts_only']['status']}** — {receipt['modes']['fts_only']['reason']}",
-        f"- Vector-only: **{receipt['modes']['vector_only']['status']}** — {receipt['modes']['vector_only']['reason']}",
-        "- Hybrid results are not presented as either unavailable mode.",
+        *[
+            f"- {name}: **{details['status']}**"
+            + (f" — {details['reason']}" if details.get("reason") else "")
+            for name, details in receipt["modes"].items()
+        ],
         "",
         "## Provenance and artifacts",
         "",
@@ -482,7 +518,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     missing_queries = sorted(set(qrels) - set(queries_by_id))
     if missing_queries:
         raise RuntimeError(f"qrels reference missing queries: {missing_queries[:5]}")
-    query_ids = list(qrels)
+    query_ids = select_query_ids(qrels, args.query_split)
     if args.smoke:
         query_ids = query_ids[:5]
         documents = select_smoke_documents(corpus, query_ids, qrels, 20)
@@ -520,6 +556,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "--embedding-model", args.model,
         "--embedding-dims", str(args.dimensions),
     ]
+    runtime_binary = resolved_semantic_memory_binary()
     client = trust_kernel.McpClient(command, env)
     started = time.perf_counter()
     try:
@@ -543,20 +580,20 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         if not stats_ok:
             raise RuntimeError(f"sm_stats failed after ingestion: {stats}")
         rows = retrieve_queries(
-            client, queries, qrels, namespace=namespace, mode="hybrid", cutoffs=(1, 5, 10)
+            client, queries, qrels, namespace=namespace, mode=args.mode, cutoffs=(1, 5, 10)
         )
     finally:
         client.close()
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    prefix = "smoke-" if args.smoke else ""
+    prefix = "smoke-" if args.smoke else f"{args.query_split}-{args.mode}-"
     per_query_path = output_dir / f"{prefix}per-query.jsonl"
     per_query_path.write_text(
         "".join(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n" for row in rows),
         encoding="utf-8",
     )
     metrics = aggregate_query_rows(rows, cutoffs=(1, 5, 10))
-    modes_not_exposed = "production MCP tool list exposes no mode-selecting FTS-only/vector-only retrieval API"
+    not_selected = "not selected for this mode-separated run"
     exact_command = ["python3", str(Path(__file__).relative_to(ROOT))]
     if args.smoke:
         exact_command.append("--smoke")
@@ -564,6 +601,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "--work-dir", str(args.work_dir), "--output-dir", str(args.output_dir),
         "--model", args.model, "--dimensions", str(args.dimensions),
         "--max-chars", str(args.max_chars),
+        "--mode", args.mode, "--query-split", args.query_split,
     ])
     receipt: dict[str, Any] = {
         "schema": SCHEMA,
@@ -591,6 +629,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "receipt_schema_path": str(SCHEMA_PATH),
             "receipt_schema_sha256": sha256_path(SCHEMA_PATH),
             "launcher_command": command,
+            "runtime_binary": {"path": str(runtime_binary), "sha256": sha256_path(runtime_binary)},
             "command": " ".join(exact_command),
             "single_service": True,
             "store_path": str(store_dir),
@@ -601,11 +640,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         },
         "ingestion": ingestion,
         "modes": {
-            "hybrid": {"status": "measured", "metrics": metrics},
-            "fts_only": {"status": "not_exposed", "reason": modes_not_exposed},
-            "vector_only": {"status": "not_exposed", "reason": modes_not_exposed},
+            mode: ({"status": "measured", "metrics": metrics} if mode == args.mode else {"status": "not_selected", "reason": not_selected})
+            for mode in ("hybrid", "fts_only", "vector_only")
         },
-        "config": {"top_k": 10, "cutoffs": [1, 5, 10], "relevance": "positive official qrels", "metric_averaging": "macro over official qrel queries", "doc_id_marker": "[beir-scifact-doc-id:<corpus-id>]"},
+        "config": {"top_k": 10, "cutoffs": [1, 5, 10], "query_split": args.query_split, "retrieval_mode": args.mode, "relevance": "positive official qrels", "metric_averaging": "macro over official qrel queries", "doc_id_marker": "[beir-scifact-doc-id:<corpus-id>]"},
         "artifacts": {"per_query": {"path": str(per_query_path), "sha256": sha256_path(per_query_path), "rows": len(rows)}},
         "claim_boundary": "ordinary retrieval ranking only; no competitor comparison or superiority claim",
     }
@@ -620,7 +658,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     return receipt
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--work-dir", type=Path, default=ROOT / ".bench-data/beir-scifact-ranking")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "docs/benchmarks/beir-scifact-ranking")
@@ -631,6 +669,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ollama-url", default=os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434"))
     parser.add_argument("--timeout", type=float, default=60.0)
     parser.add_argument("--namespace", default="benchmark-beir-scifact-test-v1")
+    parser.add_argument("--mode", choices=("hybrid", "fts_only", "vector_only"), default="hybrid")
+    parser.add_argument("--query-split", choices=("calibration", "heldout", "all"), default="all")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
     args = parser.parse_args(argv)
     run(args)
     return 0

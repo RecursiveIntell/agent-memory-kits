@@ -1,0 +1,23 @@
+{
+  "schema": "BeirScifactRuntimeSupersessionV1",
+  "date": "2026-07-11",
+  "status": "superseded_runtime_provenance",
+  "superseded_receipt": "../aggregate.json",
+  "superseded_result": {
+    "ndcg_at_10": 0.05471433581072205,
+    "recall_at_10": 0.13611111111111113,
+    "mrr_at_10": 0.03211507936507937
+  },
+  "reason": "The original receipt did not record the resolved semantic-memory-mcp executable path and SHA-256 and could not be replayed. Fresh current and installed runtimes both produced strong calibration results, so the low result is retained as an unreplayable execution artifact rather than ranking evidence.",
+  "canonical_runtime": {
+    "path": "/home/sikmindz/Coding/Libraries/semantic-memory-mcp/target/release/semantic-memory-mcp",
+    "sha256": "sha256:0f55b21e28dc52f48a8db430ef972d8bb92452c31706bbf33f1ce86ada7f23cf"
+  },
+  "canonical_receipts": {
+    "heldout_hybrid": "../ablations/heldout-hybrid-aggregate.json",
+    "all_hybrid": "all-hybrid-aggregate.json",
+    "all_fts_only": "all-fts_only-aggregate.json",
+    "all_vector_only": "all-vector_only-aggregate.json"
+  },
+  "heldout_tuning": false
+}

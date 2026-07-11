@@ -69,13 +69,19 @@ Boundary:
 
 ## Valid ordinary retrieval ranking: BEIR Scifact
 
-Semantic-memory was measured on the official public BEIR Scifact corpus and test qrels through production `sm_add_fact` ingestion and `sm_search_witnessed` hybrid retrieval. The run used all 5,183 documents, all 300 official test-qrel queries, 339 positive qrels, and Ollama `all-minilm:latest` at 384 dimensions. It completed with zero query failures.
+Semantic-memory was measured on the official public BEIR Scifact corpus and test qrels through production `sm_add_fact` ingestion and mode-selecting `sm_search_witnessed` retrieval. The frozen held-out set contained 200 queries; final receipts cover all 5,183 documents, all 300 official test-qrel queries, and 339 positive qrels using Ollama `all-minilm:latest` at 384 dimensions. Every mode completed with zero query failures.
 
-| nDCG@10 | Recall@1 | Recall@5 | Recall@10 | MRR@10 | MAP@10 | Success@1 | Success@5 | Success@10 |
-|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0.054714 | 0.010000 | 0.038333 | 0.136111 | 0.032115 | 0.030592 | 0.010000 | 0.040000 | 0.146667 |
+Final all-query results:
 
-Retrieval latency was 60.561 ms p50, 69.624 ms p95, and 60.695 ms mean. The production MCP surface exposes no mode-selecting FTS-only or vector-only retrieval API, so those modes are explicitly not measured and are not conflated with hybrid. Full provenance, configuration, per-query results, and the exact reproduction command are in `docs/benchmarks/beir-scifact-ranking/aggregate.json`, `per-query.jsonl`, and `report.md`. These are ordinary retrieval-ranking numbers, not a competitor comparison or superiority claim.
+| Mode | nDCG@10 | Recall@1 | Recall@5 | Recall@10 | MRR@10 | MAP@10 | Mean latency |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Hybrid | 0.661843 | 0.510222 | 0.748944 | 0.798333 | 0.623611 | 0.612899 | 62.751 ms |
+| FTS-only | 0.618415 | 0.487222 | 0.686333 | 0.734500 | 0.586710 | 0.575558 | 17.665 ms |
+| Vector-only exact f32 | 0.610336 | 0.437889 | 0.693778 | 0.766667 | 0.565517 | 0.555485 | 52.260 ms |
+
+Frozen held-out hybrid results were nDCG@10 `0.669671`, Recall@10 `0.803250`, MRR@10 `0.631821`, and MAP@10 `0.621090`. Hybrid outperformed both constituent modes, so the calibration evidence does not implicate BM25, exact dense retrieval, candidate merging, or RRF.
+
+Every canonical receipt pins the resolved production executable `/home/sikmindz/Coding/Libraries/semantic-memory-mcp/target/release/semantic-memory-mcp` at SHA-256 `0f55b21e28dc52f48a8db430ef972d8bb92452c31706bbf33f1ce86ada7f23cf`. The earlier low receipt (nDCG@10 `0.054714`) lacked executable identity, could not be replayed, and is superseded as a runtime-provenance artifact. It remains retained for audit. Canonical receipts are under `docs/benchmarks/beir-scifact-ranking/final-modes/`, with held-out receipts under `ablations/`. These are ordinary retrieval-ranking numbers, not a competitor comparison or superiority claim.
 
 ## Retracted multi-candidate ranking result
 

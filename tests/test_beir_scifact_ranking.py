@@ -21,6 +21,45 @@ def load_benchmark():
 
 
 class BeirScifactRankingTests(unittest.TestCase):
+    def test_sorted_query_split_is_deterministic_and_disjoint(self) -> None:
+        benchmark = load_benchmark()
+        qrels = {str(value): {"d": 1} for value in range(300, 0, -1)}
+
+        calibration = benchmark.select_query_ids(qrels, "calibration")
+        heldout = benchmark.select_query_ids(qrels, "heldout")
+
+        self.assertEqual(calibration, sorted(qrels)[:100])
+        self.assertEqual(heldout, sorted(qrels)[100:])
+        self.assertEqual(len(calibration), 100)
+        self.assertEqual(len(heldout), 200)
+        self.assertFalse(set(calibration) & set(heldout))
+
+    def test_document_marker_does_not_reduce_semantic_budget_and_is_utf8_safe(self) -> None:
+        benchmark = load_benchmark()
+        row = {"_id": "42", "title": "Title", "text": "é" * 20}
+
+        content = benchmark.document_content(row, 10)
+
+        self.assertTrue(content.startswith("[beir-scifact-doc-id:42]\n"))
+        semantic = content.split("\n", 1)[1]
+        self.assertEqual(semantic, "Title\néééé")
+        self.assertEqual(len(semantic), 10)
+
+    def test_extract_doc_ids_prefers_metadata_over_content_marker(self) -> None:
+        benchmark = load_benchmark()
+        payload = {"results": [{"metadata": {"beir_scifact_doc_id": "meta-id"}, "content": "no marker"}]}
+
+        self.assertEqual(benchmark.extract_doc_ids(payload), ["meta-id"])
+
+    def test_cli_accepts_modes_and_query_splits(self) -> None:
+        benchmark = load_benchmark()
+        parser = benchmark.build_parser()
+
+        args = parser.parse_args(["--mode", "vector_only", "--query-split", "calibration"])
+
+        self.assertEqual(args.mode, "vector_only")
+        self.assertEqual(args.query_split, "calibration")
+
     def test_load_qrels_preserves_multiple_relevant_documents(self) -> None:
         benchmark = load_benchmark()
 
