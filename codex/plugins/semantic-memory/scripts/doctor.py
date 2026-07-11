@@ -38,8 +38,6 @@ READ_ONLY_TOOLS = {
 EXPECTED_TOOLS = READ_ONLY_TOOLS | {
     "sm_add_fact",
     "sm_add_graph_edge",
-    "sm_add_message",
-    "sm_create_session",
     "sm_delete_fact",
     "sm_delete_namespace",
     "sm_ingest_document",
@@ -265,7 +263,7 @@ def rpc_call(binary: Path, method: str, params: dict | None = None, timeout: int
         os.environ.get("SEMANTIC_MEMORY_EMBEDDER", "candle"),
     ]
     if binary_supports(binary, "--tool-profile"):
-        cmd.extend(["--tool-profile", os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "lean")])
+        cmd.extend(["--tool-profile", os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "full")])
     try:
         proc = subprocess.run(cmd, input=stdin, text=True, capture_output=True, timeout=20, check=False)
     except Exception as exc:
@@ -310,7 +308,7 @@ def rpc_stats(binary: Path) -> bool:
 def check_tool_surface(binary: Path) -> None:
     msg = rpc_call(binary, "tools/list", {})
     tools = {tool.get("name") for tool in (msg or {}).get("result", {}).get("tools", [])}
-    profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "lean")
+    profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "full")
     required = EXPECTED_TOOLS if profile in {"standard", "full"} else LEAN_REQUIRED_TOOLS
     missing = sorted(required - tools)
     if missing:

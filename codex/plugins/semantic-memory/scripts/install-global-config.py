@@ -174,8 +174,8 @@ def remove_table_keys(text: str, table: str, keys: set[str]) -> str:
 
 
 def managed_block(binary: Path) -> str:
-    tool_profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "lean")
-    http_port = os.environ.get("SEMANTIC_MEMORY_HTTP_PORT", "1739")
+    tool_profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "full")
+    http_port = os.environ.get("SEMANTIC_MEMORY_HTTP_PORT", "0")
     llm_model = os.environ.get("SEMANTIC_MEMORY_LLM_MODEL", os.environ.get("LLM_MODEL", "granite4.1:3b"))
     mcp_args = [
         "--memory-dir",
@@ -185,7 +185,7 @@ def managed_block(binary: Path) -> str:
     ]
     if tool_profile and binary_supports(binary, "--tool-profile"):
         mcp_args.extend(["--tool-profile", tool_profile])
-    if http_port and binary_supports(binary, "--http-port"):
+    if http_port and http_port != "0" and binary_supports(binary, "--http-port"):
         mcp_args.extend(["--http-port", http_port])
     if llm_model and binary_supports(binary, "--llm-model"):
         mcp_args.extend(["--llm-model", llm_model])

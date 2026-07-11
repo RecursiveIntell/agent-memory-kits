@@ -1,6 +1,6 @@
 {
   "name": "semantic-memory",
-  "version": "0.7.0+codex.20260703075521",
+  "version": "0.7.1+codex.20260711",
   "description": "Local-first persistent semantic memory for Codex: lean/standard/full sm_* MCP profiles, warm HTTP recall hooks, adaptive routing, codebase ingestion, conversation memory, graph exploration, supersession, and memory curation skills.",
   "author": {
     "name": "Josh Stevenson",

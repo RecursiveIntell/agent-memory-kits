@@ -67,7 +67,7 @@ def http_base() -> str:
     explicit = os.environ.get("SEMANTIC_MEMORY_HTTP_URL")
     if explicit:
         return explicit.rstrip("/")
-    port = os.environ.get("SEMANTIC_MEMORY_HTTP_PORT", "1739")
+    port = os.environ.get("SEMANTIC_MEMORY_HTTP_PORT", "1741")
     return f"http://127.0.0.1:{port}"
 
 

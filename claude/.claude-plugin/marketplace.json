@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "Local-first persistent semantic memory for Claude Code — plugin + language-agnostic codebase ingestion.",
-    "version": "0.6.0"
+    "version": "0.6.1"
   },
   "plugins": [
     {
       "name": "semantic-memory",
       "source": "./plugins/semantic-memory",
       "description": "Persistent semantic memory for Claude Code: low-latency per-prompt auto-recall via a warm HTTP server (with SM_RECALL_EXCLUDE_NS namespace blocklist), project-scoped priming, pre-compaction capture, conversation persistence, codebase ingestion, a memory-keeper subagent, and capture/curate/explore/sync skills. Backed by the local-first semantic-memory-mcp server (profile-based tool counts, run generate-tool-surface-docs.py for current). Includes knowledge-runtime orchestration, claim-ledger verification, and llm-output-parser integration.",
-      "version": "0.6.0"
+      "version": "0.6.1"
     }
   ]
 }
