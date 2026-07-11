@@ -174,7 +174,7 @@ def remove_table_keys(text: str, table: str, keys: set[str]) -> str:
 
 
 def managed_block(binary: Path) -> str:
-    tool_profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "full")
+    tool_profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "agent")
     http_port = os.environ.get("SEMANTIC_MEMORY_HTTP_PORT", "0")
     llm_model = os.environ.get("SEMANTIC_MEMORY_LLM_MODEL", os.environ.get("LLM_MODEL", "granite4.1:3b"))
     mcp_args = [

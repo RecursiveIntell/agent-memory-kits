@@ -47,25 +47,26 @@ EXPECTED_TOOLS = READ_ONLY_TOOLS | {
     "sm_supersede_fact",
 }
 LEAN_REQUIRED_TOOLS = {
+    "sm_decide_action_authority",
+    "sm_decide_assertion_authority",
+    "sm_search_witnessed",
+}
+AGENT_REQUIRED_TOOLS = {
     "sm_add_fact",
     "sm_add_graph_edge",
-    "sm_delete_fact",
-    "sm_delete_namespace",
-    "sm_discord_search",
+    "sm_decide_action_authority",
+    "sm_decide_assertion_authority",
     "sm_get_fact",
     "sm_get_fact_neighbors",
-    "sm_get_messages",
+    "sm_get_search_receipt",
     "sm_graph_path",
-    "sm_ingest_document",
-    "sm_list_facts",
-    "sm_list_graph_edges",
     "sm_list_namespaces",
-    "sm_search",
     "sm_search_conversations",
-    "sm_search_with_routing",
+    "sm_search_witnessed",
     "sm_set_provenance",
     "sm_stats",
     "sm_supersede_fact",
+    "sm_update_fact",
 }
 
 
@@ -263,7 +264,7 @@ def rpc_call(binary: Path, method: str, params: dict | None = None, timeout: int
         os.environ.get("SEMANTIC_MEMORY_EMBEDDER", "candle"),
     ]
     if binary_supports(binary, "--tool-profile"):
-        cmd.extend(["--tool-profile", os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "full")])
+        cmd.extend(["--tool-profile", os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "agent")])
     try:
         proc = subprocess.run(cmd, input=stdin, text=True, capture_output=True, timeout=20, check=False)
     except Exception as exc:
@@ -308,13 +309,13 @@ def rpc_stats(binary: Path) -> bool:
 def check_tool_surface(binary: Path) -> None:
     msg = rpc_call(binary, "tools/list", {})
     tools = {tool.get("name") for tool in (msg or {}).get("result", {}).get("tools", [])}
-    profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "full")
-    required = EXPECTED_TOOLS if profile in {"standard", "full"} else LEAN_REQUIRED_TOOLS
+    profile = os.environ.get("SEMANTIC_MEMORY_TOOL_PROFILE", "agent")
+    required = EXPECTED_TOOLS if profile == "full" else AGENT_REQUIRED_TOOLS if profile == "agent" else LEAN_REQUIRED_TOOLS
     missing = sorted(required - tools)
     if missing:
         fail("MCP tools", "missing " + ", ".join(missing))
     else:
-        ok("MCP tools", f"{len(tools)} exposed with {profile} profile; direct-read, supersession, and recall tools present")
+        ok("MCP tools", f"{len(tools)} exposed with {profile} profile; bounded daily recall/capture surface present")
 
 
 def check_cleanliness() -> None:
