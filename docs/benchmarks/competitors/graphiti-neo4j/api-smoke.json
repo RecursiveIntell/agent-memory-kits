@@ -1,0 +1,44 @@
+{
+  "claim_boundary": "Raw observations of Graphiti.add_episode and Graphiti.search only. No simulated history, conflict, current-state, stale-suppression, or score metrics are present.",
+  "elapsed_ms": 437859.707,
+  "input": {
+    "path": "/home/sikmindz/.cache/semantic-memory-bench/graphiti-final/output/official-projected-smoke.jsonl",
+    "requested_cases": 5,
+    "sha256": "sha256:31fcc5db8e833c5b5c58205fe2526ed8cf31fd4e42ebca6f7e423cf14c95df17"
+  },
+  "observed": {
+    "completed_cases": 5,
+    "conflict_or_score_inference": false,
+    "failed_cases": 0,
+    "history_or_as_of_calls": 0
+  },
+  "output": {
+    "path": "/home/sikmindz/.cache/semantic-memory-bench/graphiti-final/output/graphiti-smoke-raw.jsonl",
+    "rows_written": 5,
+    "sha256": "sha256:5249b1f86de7bae71a7e5c506e0943683532decdce299d1ef705a16018bc0c38"
+  },
+  "receipt_kind": "GraphitiPinnedStalePublicApiRunV1",
+  "runtime": {
+    "active_services_modified": false,
+    "disposable_container_only": true,
+    "embedding_dimensions": 384,
+    "embedding_model": "all-minilm:latest",
+    "graphiti_cleanup_api": "graphiti_core.utils.maintenance.graph_data_operations.clear_data",
+    "graphiti_public_apis": [
+      "Graphiti.build_indices_and_constraints",
+      "Graphiti.add_episode",
+      "Graphiti.search"
+    ],
+    "llm_model": "qwen2.5:0.5b",
+    "neo4j_uri": "bolt://127.0.0.1:17687",
+    "ollama_base_url": "http://127.0.0.1:11434/v1",
+    "structured_output_mode": "json_schema"
+  },
+  "status": "green",
+  "upstream": {
+    "commit": "526dcad7a300f3c5c506ff96a68bcdc7ca9f97ed",
+    "package": "graphiti-core",
+    "repository": "https://github.com/getzep/graphiti",
+    "version": "0.29.2"
+  }
+}

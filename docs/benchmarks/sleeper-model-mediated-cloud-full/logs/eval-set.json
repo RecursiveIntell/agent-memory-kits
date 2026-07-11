@@ -1,0 +1,50 @@
+{
+  "eval_set_id": "iULd4J6rw762STgiVUcuzj",
+  "tasks": [
+    {
+      "name": "sleeper_eval",
+      "task_id": "2HYmJeiWQpbfGwsEEccGJA",
+      "task_file": "sleeper_eval/task.py",
+      "task_args": {
+        "dataset_file": "/tmp/sleeper-official/datasets/released/generated/behaviour_true_optimized_with_memories.json",
+        "defense": "",
+        "defense_suffix_override": "",
+        "attack": "universal_v2_optimized_without_markers",
+        "evaluation_mode": "attack",
+        "memory_backend": "tool",
+        "mem0_runtime": "local",
+        "mem0_provider": "deepseek",
+        "mem0_model": "deepseek-v4-pro",
+        "mem0_prompt_variant": "mem0_default",
+        "mem0_include_document_content": true,
+        "mem0_thinking": "enabled",
+        "mem0_reasoning_effort": "high",
+        "mem0_qdrant_mode": "local",
+        "mem0_qdrant_url": "",
+        "mem0_qdrant_api_key_env": "QDRANT_API_KEY",
+        "mem0_qdrant_collection_name": "recursiveintell-local-model-mediated-smoke-sleeper-model-mediated-cloud-full-fcaba869",
+        "mention_memory_system": true,
+        "subcategory": "",
+        "category": "",
+        "doc_domain": "",
+        "domain_seed": "",
+        "provider": "generic",
+        "subject_model": "openai-api/ollama/minimax-m3:cloud",
+        "prompt_model": "minimax-m3:cloud",
+        "sample_shuffle": false,
+        "sample_shuffle_seed": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null,
+        "batch": null,
+        "extra_headers": null,
+        "extra_body": null
+      },
+      "model": "openai-api/ollama/minimax-m3:cloud",
+      "model_args": {},
+      "model_roles": {
+        "grader": "ollama/minimax-m3:cloud"
+      },
+      "sequence": 0
+    }
+  ]
+}

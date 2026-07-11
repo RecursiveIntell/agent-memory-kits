@@ -1,0 +1,108 @@
+{
+  "accuracy": {
+    "correct": 0,
+    "dim1": {
+      "accuracy": null,
+      "correct": 0,
+      "total": 0
+    },
+    "dim2": {
+      "accuracy": null,
+      "correct": 0,
+      "total": 0
+    },
+    "dim3": {
+      "accuracy": null,
+      "correct": 0,
+      "total": 0
+    },
+    "overall": null,
+    "total": 0
+  },
+  "artifacts": {
+    "dataset": {
+      "license": "CC-BY-4.0",
+      "path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/stale/T1_T2_400_FULL.json",
+      "repository_commit": "ea7d391103a151927cd29d2f01d87597a782bdcb",
+      "rows": 400,
+      "sha256": "sha256:5f3ec375179e20e2e94469e018189188f34e2e7e5f21cbecbd99fcfa648c1876"
+    },
+    "retrieval_receipts": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-official/per-case.jsonl",
+      "rows": 400,
+      "sha256": "sha256:5801705ae7a8184682dfa2a938ad60d1a4df7c0b68529093641526f4a1110a4e"
+    },
+    "smoke_cases": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-model-graded/smoke-model-cases.jsonl",
+      "rows": 5,
+      "sha256": "sha256:74095a6eee70e065931532d202e372ee863dad6e6026524d8eda1050e2b44bee"
+    },
+    "smoke_raw": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-model-graded/raw-smoke-provider-responses.jsonl",
+      "rows": 0,
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "budget": {
+    "gate_passed": false,
+    "predeclared_max_estimated_spend_usd": 10.0,
+    "projected_full_run_usd": null,
+    "projection_basis": "estimated_cost_usd",
+    "smoke_cases": 5,
+    "smoke_cost_usd": null
+  },
+  "cases": 5,
+  "cost": {
+    "currency": "USD",
+    "estimated_usd": null,
+    "pricing_per_token": null,
+    "returned_cost_calls": 0,
+    "returned_usd": null
+  },
+  "evaluator": {
+    "files": {
+      "STALE/Evaluation/full_eval_performance.py": "sha256:976ab2ca3b975c58ce5765ab2c0f11a3cc6135f56f72f3807353fe57c72aee82",
+      "STALE/Evaluation/judge_prompts.py": "sha256:123696c2ee24f4159485e700ef29afbb4dc7da956fe0beedd1327b7ad016dcf9",
+      "STALE/Evaluation/run_target_model.py": "sha256:95e5e67d0bbb68300a95e00bee04cd08ab1ea1c2b1bce67b14909c1760a197e1"
+    },
+    "repository_commit": "ea7d391103a151927cd29d2f01d87597a782bdcb"
+  },
+  "execution": {
+    "attempts": 60,
+    "calls": {
+      "judge": 5,
+      "target": 15,
+      "total": 20
+    },
+    "failures": 20,
+    "retries": 40
+  },
+  "failure_reason": "OpenRouter rejected every five-case target+judge smoke request with HTTP 403; a credential diagnostic returned \"Key limit exceeded (total limit)\". The full 400-case run was aborted before scheduling, and no judge score, token count, or cost was synthesized.",
+  "kind": "official_stale_model_grading_smoke",
+  "models": {
+    "judge": "openai/gpt-4o-mini",
+    "target": "openai/gpt-4o-mini"
+  },
+  "parser_validated": false,
+  "provider": "OpenRouter",
+  "receipt_validated": false,
+  "schema": "DiagnosticMemoryBenchmarkV1",
+  "status": "failed",
+  "tokens": {
+    "judge": {
+      "completion_tokens": 0,
+      "prompt_tokens": 0,
+      "total_tokens": 0
+    },
+    "overall": {
+      "completion_tokens": 0,
+      "prompt_tokens": 0,
+      "total_tokens": 0
+    },
+    "target": {
+      "completion_tokens": 0,
+      "prompt_tokens": 0,
+      "total_tokens": 0
+    }
+  }
+}

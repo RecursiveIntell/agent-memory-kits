@@ -49,7 +49,61 @@
             "claim_boundary": {"type": "string"}
           }
         },
-        "model_grading": {"type": "object"},
+        "model_grading": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["status", "reason"],
+              "properties": {
+                "status": {"const": "not_tested"},
+                "reason": {"type": "string", "minLength": 1}
+              }
+            },
+            {
+              "type": "object",
+              "required": ["status", "evaluator", "provider", "models", "budget", "execution", "tokens", "cost", "accuracy", "artifacts", "claim_boundary"],
+              "properties": {
+                "status": {"const": "measured"},
+                "evaluator": {
+                  "type": "object",
+                  "required": ["repository_root", "repository_commit", "files"],
+                  "properties": {
+                    "repository_root": {"type": "string"},
+                    "repository_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+                    "files": {"type": "object", "minProperties": 3, "additionalProperties": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}
+                  }
+                },
+                "provider": {"const": "OpenRouter"},
+                "models": {
+                  "type": "object",
+                  "required": ["target_requested", "judge_requested", "target_returned", "judge_returned"],
+                  "properties": {
+                    "target_requested": {"type": "string"},
+                    "judge_requested": {"type": "string"},
+                    "target_returned": {"type": "array", "items": {"type": "string"}},
+                    "judge_returned": {"type": "array", "items": {"type": "string"}}
+                  }
+                },
+                "budget": {
+                  "type": "object",
+                  "required": ["predeclared_max_estimated_spend_usd", "smoke_cases", "projected_full_run_usd", "gate_passed"],
+                  "properties": {
+                    "predeclared_max_estimated_spend_usd": {"type": "number", "maximum": 10.0},
+                    "smoke_cases": {"const": 5},
+                    "projected_full_run_usd": {"type": "number"},
+                    "gate_passed": {"const": true}
+                  }
+                },
+                "execution": {"type": "object"},
+                "tokens": {"type": "object"},
+                "cost": {"type": "object"},
+                "accuracy": {"type": "object"},
+                "artifacts": {"type": "object"},
+                "claim_boundary": {"type": "string", "minLength": 1}
+              }
+            }
+          ]
+        },
         "execution": {"type": "object"},
         "costs": {"type": "object"},
         "failures": {"type": "array"},

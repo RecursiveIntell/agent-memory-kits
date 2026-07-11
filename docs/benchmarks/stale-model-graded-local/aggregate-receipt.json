@@ -1,0 +1,84 @@
+{
+  "accuracy": {
+    "correct": 1043,
+    "dim1": {
+      "accuracy": 0.87,
+      "correct": 348,
+      "total": 400
+    },
+    "dim2": {
+      "accuracy": 0.8275,
+      "correct": 331,
+      "total": 400
+    },
+    "dim3": {
+      "accuracy": 0.91,
+      "correct": 364,
+      "total": 400
+    },
+    "overall": 0.86916667,
+    "total": 1200
+  },
+  "artifacts": {
+    "cases": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-model-graded-local/model-graded-per-case.jsonl",
+      "sha256": "sha256:667752abb195c9e56a0eacfb75b78b773328aa3f4f762013c902c914685cf524"
+    },
+    "raw": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-model-graded-local/raw-provider-responses.jsonl",
+      "sha256": "sha256:c95f1e04e4f31118ca03cf71854a743bb16f62f40db6a097f251535464a9fb54"
+    }
+  },
+  "cases": 400,
+  "claim_boundary": "Official STALE prompts and parser with semantic-memory retrieval-receipt context; Ollama Cloud minimax-m3 is not a paper model and paper full-haystack context is not reproduced.",
+  "cost_usd": 0.0,
+  "elapsed_seconds": 2020.281,
+  "evaluator": {
+    "commit": "ea7d391103a151927cd29d2f01d87597a782bdcb",
+    "files": {
+      "STALE/Evaluation/full_eval_performance.py": "sha256:976ab2ca3b975c58ce5765ab2c0f11a3cc6135f56f72f3807353fe57c72aee82",
+      "STALE/Evaluation/judge_prompts.py": "sha256:123696c2ee24f4159485e700ef29afbb4dc7da956fe0beedd1327b7ad016dcf9",
+      "STALE/Evaluation/run_target_model.py": "sha256:95e5e67d0bbb68300a95e00bee04cd08ab1ea1c2b1bce67b14909c1760a197e1"
+    }
+  },
+  "execution": {
+    "attempts": 1600,
+    "calls": {
+      "judge": 400,
+      "target": 1200,
+      "total": 1600
+    },
+    "failures": 0,
+    "retries": 0
+  },
+  "kind": "official_stale_model_grading",
+  "models": {
+    "judge": "minimax-m3:cloud",
+    "target": "minimax-m3:cloud"
+  },
+  "provider": "OpenAI-compatible:http://127.0.0.1:11434/v1",
+  "schema": "DiagnosticMemoryBenchmarkV1",
+  "single_case_retry": {
+    "additional_calls": 4,
+    "case_index": 313,
+    "status": "succeeded"
+  },
+  "status": "measured",
+  "tokens": {
+    "judge": {
+      "completion_tokens": 300621,
+      "prompt_tokens": 722243,
+      "total_tokens": 1022864
+    },
+    "overall": {
+      "completion_tokens": 1020847,
+      "prompt_tokens": 1076345,
+      "total_tokens": 2097192
+    },
+    "target": {
+      "completion_tokens": 720226,
+      "prompt_tokens": 354102,
+      "total_tokens": 1074328
+    }
+  }
+}

@@ -10,6 +10,7 @@ it; a missing path is emitted as ``not_tested`` in the receipt.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import importlib.util
 import json
@@ -131,6 +132,18 @@ OFFICIAL_STALE_SHA256 = "5f3ec375179e20e2e94469e018189188f34e2e7e5f21cbecbd99fcf
 OFFICIAL_STALE_REPOSITORY_COMMIT = "ea7d391103a151927cd29d2f01d87597a782bdcb"
 OFFICIAL_STALE_LICENSE = "CC-BY-4.0"
 OFFICIAL_STALE_MODEL_GRADING_BLOCKER = "official STALE model grading requires generated responses and the upstream model judge; this no-LLM adapter produced no model responses and made no judge calls"
+OFFICIAL_STALE_MODEL_PROVIDER = "OpenRouter"
+OFFICIAL_STALE_TARGET_MODEL = "openai/gpt-4o-mini"
+OFFICIAL_STALE_JUDGE_MODEL = "openai/gpt-4o-mini"
+OFFICIAL_STALE_MODEL_SMOKE_CASES = 5
+OFFICIAL_STALE_MODEL_MAX_SPEND_USD = 10.0
+OFFICIAL_STALE_MODEL_CALL_TIMEOUT_SECONDS = 180
+OFFICIAL_STALE_MODEL_MAX_RETRIES = 3
+OFFICIAL_STALE_EVALUATOR_FILES = (
+    "STALE/Evaluation/run_target_model.py",
+    "STALE/Evaluation/full_eval_performance.py",
+    "STALE/Evaluation/judge_prompts.py",
+)
 OFFICIAL_STALE_METRICS = (
     "current_state_selection",
     "stale_suppression",
@@ -251,6 +264,523 @@ def load_official_stale_dataset(path: Path) -> tuple[list[dict[str, Any]], dict[
         "license": OFFICIAL_STALE_LICENSE,
         "rows": len(value),
     }
+
+
+def validate_official_stale_retrieval_receipt(
+    dataset_row: dict[str, Any], receipt: dict[str, Any], index: int
+) -> None:
+    """Require an actual current-state witnessed receipt before model use."""
+    if receipt.get("case_index") != index or receipt.get("case_id") != dataset_row.get("uid"):
+        raise ValueError(f"official STALE retrieval receipt {index} is not linked to the dataset row")
+    semantic = (receipt.get("cells") or {}).get("semantic_memory")
+    if not isinstance(semantic, dict) or semantic.get("status") != "measured":
+        raise ValueError(f"official STALE retrieval receipt {index} semantic_memory status is not measured")
+    transition = semantic.get("transition_receipt")
+    current_id = transition.get("new_result_id") if isinstance(transition, dict) else None
+    if not isinstance(current_id, str) or not current_id.startswith("fact:"):
+        raise ValueError(f"official STALE retrieval receipt {index} has no current fact transition receipt")
+    evidence = semantic.get("evidence_packet")
+    witnesses = semantic.get("witness_receipts")
+    retrieved_all = True
+    for probe in ("dim1_query", "dim2_query", "dim3_query"):
+        probe_evidence = evidence.get(probe) if isinstance(evidence, dict) else None
+        if probe_evidence not in ([], [current_id]):
+            raise ValueError(f"official STALE retrieval receipt {index} {probe} does not link the current fact or an explicit empty retrieval")
+        retrieved_all = retrieved_all and probe_evidence == [current_id]
+        if not isinstance(witnesses, dict) or not isinstance(witnesses.get(probe), str) or not witnesses[probe]:
+            raise ValueError(f"official STALE retrieval receipt {index} {probe} has no witness receipt")
+    failures = (semantic.get("metrics") or {}).get("failures")
+    if failures != []:
+        raise ValueError(f"official STALE retrieval receipt {index} contains retrieval failures")
+    expected_state = "M_new" if retrieved_all else None
+    expected_disposition = "respond" if retrieved_all else "request_evidence"
+    if semantic.get("selected_state") != expected_state or semantic.get("disposition") != expected_disposition:
+        raise ValueError(f"official STALE retrieval receipt {index} state disposition disagrees with its evidence")
+    if receipt.get("M_new") != dataset_row.get("M_new") or receipt.get("probes") != dataset_row.get("probing_queries"):
+        raise ValueError(f"official STALE retrieval receipt {index} content does not match the pinned dataset")
+
+
+def load_official_stale_retrieval_receipts(
+    path: Path, dataset_rows: list[dict[str, Any]]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Load the existing 400-case JSONL sidecar; never synthesize absent retrievals."""
+    receipts = _load_jsonl(path)
+    if len(dataset_rows) != 400 or len(receipts) != 400:
+        raise ValueError("official STALE model grading requires exactly 400 dataset and retrieval receipt rows")
+    for index, (dataset_row, receipt) in enumerate(zip(dataset_rows, receipts)):
+        validate_official_stale_retrieval_receipt(dataset_row, receipt, index)
+    return receipts, {"path": str(path), "sha256": sha256_path(path), "rows": len(receipts)}
+
+
+def build_official_stale_model_input(
+    dataset_row: dict[str, Any], retrieval_receipt: dict[str, Any]
+) -> dict[str, Any]:
+    """Adapt witnessed current memory to the pinned target script's history contract."""
+    new_index = dataset_row["relevant_session_index"][1]
+    current_id = retrieval_receipt["cells"]["semantic_memory"]["transition_receipt"]["new_result_id"]
+    evidence = retrieval_receipt["cells"]["semantic_memory"]["evidence_packet"]
+    histories = {
+        probe: ([[{"role": "user", "content": retrieval_receipt["M_new"]}]] if evidence[probe] == [current_id] else [])
+        for probe in ("dim1_query", "dim2_query", "dim3_query")
+    }
+    return {
+        **dataset_row,
+        "case_index": retrieval_receipt["case_index"],
+        "haystack_session": [[{"role": "user", "content": retrieval_receipt["M_new"]}]],
+        "timestamps": [dataset_row["timestamps"][new_index]],
+        "relevant_session_index": [0, 0],
+        "retrieved_haystack_by_probe": histories,
+        "retrieval_witness_receipts": dict(retrieval_receipt["cells"]["semantic_memory"]["witness_receipts"]),
+    }
+
+
+def evaluate_official_stale_smoke_gate(
+    *, smoke_cases: int, total_cases: int, returned_cost_usd: float | None,
+    estimated_cost_usd: float | None, max_spend_usd: float,
+) -> dict[str, Any]:
+    """Project the observed five-case spend before authorizing the full run."""
+    basis_name = "returned_cost_usd" if returned_cost_usd is not None else "estimated_cost_usd"
+    basis = returned_cost_usd if returned_cost_usd is not None else estimated_cost_usd
+    projected = round(basis * total_cases / smoke_cases, 8) if basis is not None and smoke_cases else None
+    return {
+        "predeclared_max_estimated_spend_usd": max_spend_usd,
+        "smoke_cases": smoke_cases,
+        "projection_basis": basis_name,
+        "smoke_cost_usd": basis,
+        "projected_full_run_usd": projected,
+        "gate_passed": projected is not None and projected <= max_spend_usd,
+    }
+
+
+def _usage_totals(calls: list[dict[str, Any]]) -> dict[str, int]:
+    return {
+        key: sum(int((call.get("usage") or {}).get(key, 0) or 0) for call in calls)
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens")
+    }
+
+
+def aggregate_official_stale_model_cases(cases: list[dict[str, Any]]) -> dict[str, Any]:
+    """Aggregate provider facts conservatively; absent judge results remain absent."""
+    target_calls = [call for case in cases for call in (case.get("target") or {}).get("calls", [])]
+    judge_calls = [case.get("judge") or {} for case in cases]
+    all_calls = target_calls + judge_calls
+    returned_costs = [
+        float((call.get("usage") or {})["cost"])
+        for call in all_calls
+        if isinstance((call.get("usage") or {}).get("cost"), (int, float))
+    ]
+    dimensions: dict[str, Any] = {}
+    total_correct = total_judged = 0
+    for dim in ("dim1", "dim2", "dim3"):
+        values = [
+            case["judge"]["evaluation"][f"{dim}_eval"]["pass"]
+            for case in cases
+            if isinstance((case.get("judge") or {}).get("evaluation"), dict)
+            and isinstance(case["judge"]["evaluation"].get(f"{dim}_eval"), dict)
+            and isinstance(case["judge"]["evaluation"][f"{dim}_eval"].get("pass"), bool)
+        ]
+        correct = sum(values)
+        total_correct += correct
+        total_judged += len(values)
+        dimensions[dim] = {"correct": correct, "total": len(values), "accuracy": round(correct / len(values), 8) if values else None}
+    retries = sum(max(0, int(call.get("attempts", 0) or 0) - 1) for call in all_calls)
+    failures = sum(call.get("status") != "succeeded" for call in all_calls)
+    return {
+        "execution": {
+            "calls": {"target": len(target_calls), "judge": len(judge_calls), "total": len(all_calls)},
+            "attempts": sum(int(call.get("attempts", 0) or 0) for call in all_calls),
+            "retries": retries,
+            "failures": failures,
+        },
+        "tokens": {
+            "target": _usage_totals(target_calls),
+            "judge": _usage_totals(judge_calls),
+            "overall": _usage_totals(all_calls),
+        },
+        "cost": {
+            "returned_usd": round(sum(returned_costs), 8) if returned_costs else None,
+            "returned_cost_calls": len(returned_costs),
+            "currency": "USD",
+        },
+        "accuracy": {
+            **dimensions,
+            "overall": round(total_correct / total_judged, 8) if total_judged else None,
+            "correct": total_correct,
+            "total": total_judged,
+        },
+    }
+
+
+def _load_official_stale_evaluator(root: Path) -> tuple[Any, str, dict[str, str]]:
+    """Load prompt helpers from the exact pinned upstream evaluator checkout."""
+    result = subprocess.run(("git", "-C", str(root), "rev-parse", "HEAD"), text=True, capture_output=True, timeout=5)
+    commit = result.stdout.strip() if result.returncode == 0 else ""
+    if commit != OFFICIAL_STALE_REPOSITORY_COMMIT:
+        raise ValueError(f"official STALE evaluator commit mismatch: expected {OFFICIAL_STALE_REPOSITORY_COMMIT}, got {commit or 'unknown'}")
+    hashes: dict[str, str] = {}
+    for relative in OFFICIAL_STALE_EVALUATOR_FILES:
+        path = root / relative
+        if not path.is_file():
+            raise ValueError(f"official STALE evaluator file is absent: {path}")
+        hashes[relative] = sha256_path(path)
+    target_path = root / OFFICIAL_STALE_EVALUATOR_FILES[0]
+    spec = importlib.util.spec_from_file_location("stale_official_run_target_model", target_path)
+    if spec is None or spec.loader is None:
+        raise ValueError("official STALE target evaluator could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    judge_scope: dict[str, Any] = {}
+    exec((root / "STALE/Evaluation/judge_prompts.py").read_text(encoding="utf-8"), judge_scope)
+    return module, str(judge_scope["SYSTEM_PROMPT_ALL_IN_ONE_JUDGE"]), hashes
+
+
+def _official_stale_provider_label() -> str:
+    base_url = os.environ.get("OFFICIAL_STALE_MODEL_BASE_URL")
+    return f"OpenAI-compatible:{base_url}" if base_url else OFFICIAL_STALE_MODEL_PROVIDER
+
+
+def _openrouter_request(api_key: str, payload: dict[str, Any]) -> dict[str, Any]:
+    base_url = os.environ.get("OFFICIAL_STALE_MODEL_BASE_URL")
+    endpoint = (
+        f"{base_url.rstrip('/')}/chat/completions"
+        if base_url
+        else "https://openrouter.ai/api/v1/chat/completions"
+    )
+    request = urllib.request.Request(
+        endpoint,
+        data=json.dumps(payload, separators=(",", ":")).encode("utf-8"),
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=OFFICIAL_STALE_MODEL_CALL_TIMEOUT_SECONDS) as response:
+        value = json.loads(response.read().decode("utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError("provider response was not a JSON object")
+    return value
+
+
+def _provider_call(api_key: str, payload: dict[str, Any], *, call_kind: str, case_index: int, dimension: str | None = None) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    errors: list[str] = []
+    started = time.perf_counter()
+    for attempt in range(1, OFFICIAL_STALE_MODEL_MAX_RETRIES + 1):
+        try:
+            raw = _openrouter_request(api_key, payload)
+            choices = raw.get("choices")
+            content = choices[0]["message"]["content"] if isinstance(choices, list) and choices else None
+            if not isinstance(content, str):
+                raise ValueError("provider response has no string assistant content")
+            raw_usage = raw.get("usage") if isinstance(raw.get("usage"), dict) else {}
+            usage = {
+                "prompt_tokens": int(raw_usage.get("prompt_tokens", 0) or 0),
+                "completion_tokens": int(raw_usage.get("completion_tokens", 0) or 0),
+                "total_tokens": int(raw_usage.get("total_tokens", 0) or 0),
+            }
+            if isinstance(raw_usage.get("cost"), (int, float)):
+                usage["cost"] = float(raw_usage["cost"])
+            return ({
+                "kind": call_kind,
+                "dimension": dimension,
+                "status": "succeeded",
+                "attempts": attempt,
+                "elapsed_seconds": round(time.perf_counter() - started, 6),
+                "usage": usage,
+                "returned_model": raw.get("model") if isinstance(raw.get("model"), str) else None,
+                "provider": raw.get("provider") if isinstance(raw.get("provider"), str) else None,
+                "response_id": raw.get("id") if isinstance(raw.get("id"), str) else None,
+                "content": content,
+                "errors": errors,
+            }, {"case_index": case_index, "kind": call_kind, "dimension": dimension, "response": raw})
+        except Exception as exc:
+            errors.append(f"{type(exc).__name__}: {exc}")
+            if attempt < OFFICIAL_STALE_MODEL_MAX_RETRIES:
+                time.sleep(2 ** (attempt - 1))
+    return ({
+        "kind": call_kind,
+        "dimension": dimension,
+        "status": "failed",
+        "attempts": OFFICIAL_STALE_MODEL_MAX_RETRIES,
+        "elapsed_seconds": round(time.perf_counter() - started, 6),
+        "usage": {},
+        "returned_model": None,
+        "provider": None,
+        "response_id": None,
+        "content": "ERROR: Failed after multiple retries.",
+        "errors": errors,
+    }, None)
+
+
+def _parse_official_stale_judge(content: str) -> dict[str, Any]:
+    match = re.search(r"```(?:json)?\s*(.*?)\s*```", content, re.S)
+    value = json.loads(match.group(1) if match else content)
+    if not isinstance(value, dict) or set(value) != {"dim1_eval", "dim2_eval", "dim3_eval"}:
+        raise ValueError("official STALE judge output has an unexpected object contract")
+    for dim in ("dim1", "dim2", "dim3"):
+        item = value[f"{dim}_eval"]
+        if not isinstance(item, dict) or not isinstance(item.get("pass"), bool) or not isinstance(item.get("reasoning"), str):
+            raise ValueError(f"official STALE judge output has an invalid {dim} result")
+    return value
+
+
+def _official_stale_judge_user_prompt(row: dict[str, Any], responses: dict[str, str]) -> str:
+    probes = row["probing_queries"]
+    return f"""
+[Ground Truth Context]
+- M_old: \"{row['M_old']}\"
+- M_new: \"{row['M_new']}\"
+- Hidden Logic: {row['explanation']}
+
+--------------------------------------------------
+[Dimension 1: Explicit Probing]
+Question 1: {probes['dim1_query']}
+Target Model Response 1: {responses['dim1_response']}
+
+--------------------------------------------------
+[Dimension 2: Adversarial Robustness]
+Question 2: {probes['dim2_query']}
+Target Model Response 2: {responses['dim2_response']}
+
+--------------------------------------------------
+[Dimension 3: Implicit Task]
+Question 3: {probes['dim3_query']}
+Target Model Response 3: {responses['dim3_response']}
+"""
+
+
+def _run_official_stale_model_batch(
+    inputs: list[dict[str, Any]], *, target_helper: Any, judge_prompt: str,
+    api_key: str, target_model: str, judge_model: str, concurrency: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    raw_responses: list[dict[str, Any]] = []
+    target_jobs: list[tuple[int, str, dict[str, Any]]] = []
+    for item in inputs:
+        for dim_key in ("dim1_query", "dim2_query", "dim3_query"):
+            sessions = item["retrieved_haystack_by_probe"][dim_key]
+            timestamps = item["timestamps"] if sessions else []
+            history = target_helper.format_haystack(sessions, timestamps)
+            system_prompt, user_prompt = target_helper.build_prompts(history, item["probing_queries"][dim_key], dim_key)
+            payload = {"model": target_model, "messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}]}
+            target_jobs.append((item["case_index"], dim_key, payload))
+    target_by_case: dict[int, dict[str, dict[str, Any]]] = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as pool:
+        futures = {
+            pool.submit(_provider_call, api_key, payload, call_kind="target", case_index=index, dimension=dim): (index, dim)
+            for index, dim, payload in target_jobs
+        }
+        for future in concurrent.futures.as_completed(futures):
+            index, dim = futures[future]
+            call, raw = future.result()
+            target_by_case.setdefault(index, {})[dim] = call
+            if raw is not None:
+                raw_responses.append(raw)
+    cases: list[dict[str, Any]] = []
+    judge_jobs: list[tuple[dict[str, Any], dict[str, str], dict[str, Any]]] = []
+    for item in inputs:
+        calls = [target_by_case[item["case_index"]][dim] for dim in ("dim1_query", "dim2_query", "dim3_query")]
+        responses = {f"dim{number}_response": calls[number - 1]["content"] for number in (1, 2, 3)}
+        payload = {
+            "model": judge_model,
+            "messages": [{"role": "system", "content": judge_prompt}, {"role": "user", "content": _official_stale_judge_user_prompt(item, responses)}],
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+        }
+        case = {
+            "case_index": item["case_index"], "case_id": item["uid"], "case_type": item["type"],
+            "split": "calibration" if item["case_index"] < 100 else "heldout",
+            "retrieval_witness_receipts": item["retrieval_witness_receipts"],
+            "target": {"responses": responses, "calls": calls},
+        }
+        cases.append(case)
+        judge_jobs.append((case, responses, payload))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as pool:
+        futures = {
+            pool.submit(_provider_call, api_key, payload, call_kind="judge", case_index=case["case_index"]): case
+            for case, _, payload in judge_jobs
+        }
+        for future in concurrent.futures.as_completed(futures):
+            case = futures[future]
+            call, raw = future.result()
+            evaluation = None
+            if call["status"] == "succeeded":
+                try:
+                    evaluation = _parse_official_stale_judge(call["content"])
+                except (ValueError, json.JSONDecodeError) as exc:
+                    call["status"] = "failed"
+                    call["errors"].append(f"parser: {type(exc).__name__}: {exc}")
+            case["judge"] = {**call, "evaluation": evaluation}
+            if raw is not None:
+                raw_responses.append(raw)
+    cases.sort(key=lambda item: item["case_index"])
+    raw_responses.sort(key=lambda item: (item["case_index"], item["kind"], item.get("dimension") or ""))
+    return cases, raw_responses
+
+
+def _openrouter_model_pricing(api_key: str, model: str) -> dict[str, float] | None:
+    request = urllib.request.Request("https://openrouter.ai/api/v1/models", headers={"Authorization": f"Bearer {api_key}"})
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            value = json.loads(response.read().decode("utf-8"))
+        match = next(item for item in value.get("data", []) if item.get("id") == model)
+        pricing = match.get("pricing") or {}
+        return {"prompt": float(pricing["prompt"]), "completion": float(pricing["completion"])}
+    except (OSError, ValueError, KeyError, StopIteration, json.JSONDecodeError):
+        return None
+
+
+def _estimated_model_cost(aggregate: dict[str, Any], pricing: dict[str, float] | None) -> float | None:
+    if pricing is None:
+        return None
+    tokens = aggregate["tokens"]["overall"]
+    return round(tokens["prompt_tokens"] * pricing["prompt"] + tokens["completion_tokens"] * pricing["completion"], 8)
+
+
+def build_official_stale_model_smoke_blocker(
+    *, cases: list[dict[str, Any]], evaluator_root: Path, evaluator_hashes: dict[str, str],
+    target_model: str, judge_model: str, gate: dict[str, Any], pricing: dict[str, float] | None,
+    smoke_raw_path: Path, smoke_cases_path: Path, dataset_source: dict[str, Any], retrieval_source: dict[str, Any],
+    reason: str,
+) -> dict[str, Any]:
+    aggregate = aggregate_official_stale_model_cases(cases)
+    return {
+        "status": "not_tested",
+        "reason": reason,
+        "evaluator": {"repository_root": str(evaluator_root), "repository_commit": OFFICIAL_STALE_REPOSITORY_COMMIT, "files": evaluator_hashes},
+        "provider": _official_stale_provider_label(),
+        "models": {"target_requested": target_model, "judge_requested": judge_model, "target_returned": [], "judge_returned": []},
+        "budget": gate,
+        "execution": {**aggregate["execution"], "cases": len(cases), "full_run_aborted": True, "active_services_modified": False, "network_dataset_downloads": 0},
+        "tokens": aggregate["tokens"],
+        "cost": {**aggregate["cost"], "estimated_usd": _estimated_model_cost(aggregate, pricing), "pricing_per_token": pricing},
+        "accuracy": aggregate["accuracy"],
+        "artifacts": {
+            "dataset": dataset_source, "retrieval_receipts": retrieval_source,
+            "smoke_raw": {"path": str(smoke_raw_path), "rows": sum(call.get("status") == "succeeded" for case in cases for call in case["target"]["calls"] + [case["judge"]]), "sha256": sha256_path(smoke_raw_path)},
+            "smoke_cases": {"path": str(smoke_cases_path), "rows": len(cases), "sha256": sha256_path(smoke_cases_path)},
+        },
+        "claim_boundary": "No official model-graded score is reported because the five-case target+judge calibration smoke did not complete. The full 400-case run was not started. The requested openai/gpt-4o-mini target and judge via OpenRouter are not paper models, and semantic-memory retrieval-receipt context is not the paper full-haystack target context.",
+    }
+
+
+def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> str:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n")
+    return sha256_path(path)
+
+
+def run_official_stale_model_grading(
+    dataset_path: Path, retrieval_receipts_path: Path, evaluator_root: Path, output_dir: Path,
+    *, concurrency: int = 10, max_spend_usd: float = OFFICIAL_STALE_MODEL_MAX_SPEND_USD,
+    target_model: str = OFFICIAL_STALE_TARGET_MODEL, judge_model: str = OFFICIAL_STALE_JUDGE_MODEL,
+    api_key: str | None = None,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Run the pinned STALE target and judge prompts over witnessed retrieval contexts."""
+    if max_spend_usd > OFFICIAL_STALE_MODEL_MAX_SPEND_USD or max_spend_usd <= 0:
+        raise ValueError("official STALE model grading max spend must be positive and no greater than $10")
+    if concurrency < 1 or concurrency > 20:
+        raise ValueError("official STALE model grading concurrency must be between 1 and 20")
+    key = api_key or os.environ.get("OPENROUTER_API_KEY")
+    if not key:
+        raise ValueError("OPENROUTER_API_KEY is required for official STALE model grading")
+    rows, dataset_source = load_official_stale_dataset(dataset_path)
+    receipts, retrieval_source = load_official_stale_retrieval_receipts(retrieval_receipts_path, rows)
+    target_helper, judge_prompt, evaluator_hashes = _load_official_stale_evaluator(evaluator_root)
+    inputs = [build_official_stale_model_input(row, receipt) for row, receipt in zip(rows, receipts)]
+    pricing = (
+        _openrouter_model_pricing(key, target_model)
+        if target_model == judge_model and not os.environ.get("OFFICIAL_STALE_MODEL_BASE_URL")
+        else None
+    )
+    smoke_cases, smoke_raw = _run_official_stale_model_batch(
+        inputs[:OFFICIAL_STALE_MODEL_SMOKE_CASES], target_helper=target_helper, judge_prompt=judge_prompt,
+        api_key=key, target_model=target_model, judge_model=judge_model, concurrency=concurrency,
+    )
+    smoke_aggregate = aggregate_official_stale_model_cases(smoke_cases)
+    smoke_complete = (
+        smoke_aggregate["execution"]["calls"] == {"target": 15, "judge": 5, "total": 20}
+        and smoke_aggregate["execution"]["failures"] == 0
+        and smoke_aggregate["accuracy"]["total"] == 15
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    smoke_raw_path = output_dir / "raw-smoke-provider-responses.jsonl"
+    smoke_cases_path = output_dir / "smoke-model-cases.jsonl"
+    _write_jsonl(smoke_raw_path, smoke_raw)
+    _write_jsonl(smoke_cases_path, smoke_cases)
+    smoke_returned = smoke_aggregate["cost"]["returned_usd"] if smoke_aggregate["cost"]["returned_cost_calls"] == 20 else None
+    smoke_estimated = _estimated_model_cost(smoke_aggregate, pricing)
+    gate = evaluate_official_stale_smoke_gate(
+        smoke_cases=OFFICIAL_STALE_MODEL_SMOKE_CASES, total_cases=400,
+        returned_cost_usd=smoke_returned, estimated_cost_usd=smoke_estimated, max_spend_usd=max_spend_usd,
+    )
+    smoke_receipt_path = output_dir / "smoke-receipt.json"
+    smoke_receipt = {
+        "schema": SCHEMA,
+        "kind": "official_stale_model_grading_smoke",
+        "status": "passed" if smoke_complete and gate["gate_passed"] else "failed",
+        "cases": OFFICIAL_STALE_MODEL_SMOKE_CASES,
+        "parser_validated": smoke_complete,
+        "receipt_validated": smoke_complete,
+        "provider": _official_stale_provider_label(),
+        "models": {"target": target_model, "judge": judge_model},
+        "budget": gate,
+        "execution": smoke_aggregate["execution"],
+        "tokens": smoke_aggregate["tokens"],
+        "cost": {**smoke_aggregate["cost"], "estimated_usd": smoke_estimated, "pricing_per_token": pricing},
+        "accuracy": smoke_aggregate["accuracy"],
+        "evaluator": {"repository_commit": OFFICIAL_STALE_REPOSITORY_COMMIT, "files": evaluator_hashes},
+        "artifacts": {
+            "raw": {"path": str(smoke_raw_path), "sha256": sha256_path(smoke_raw_path)},
+            "cases": {"path": str(smoke_cases_path), "sha256": sha256_path(smoke_cases_path)},
+        },
+    }
+    smoke_receipt_path.write_text(json.dumps(smoke_receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if not smoke_complete:
+        reason = "official STALE five-case target+judge smoke failed provider/parser/receipt validation; full run aborted and no missing judge score was synthesized"
+        return build_official_stale_model_smoke_blocker(
+            cases=smoke_cases, evaluator_root=evaluator_root, evaluator_hashes=evaluator_hashes,
+            target_model=target_model, judge_model=judge_model, gate=gate, pricing=pricing,
+            smoke_raw_path=smoke_raw_path, smoke_cases_path=smoke_cases_path,
+            dataset_source=dataset_source, retrieval_source=retrieval_source, reason=reason,
+        ), smoke_cases
+    if not gate["gate_passed"]:
+        raise RuntimeError(f"official STALE full run aborted by $10 gate; projected ${gate['projected_full_run_usd']}")
+    remaining_cases, remaining_raw = _run_official_stale_model_batch(
+        inputs[OFFICIAL_STALE_MODEL_SMOKE_CASES:], target_helper=target_helper, judge_prompt=judge_prompt,
+        api_key=key, target_model=target_model, judge_model=judge_model, concurrency=concurrency,
+    )
+    cases = smoke_cases + remaining_cases
+    raw = smoke_raw + remaining_raw
+    aggregate = aggregate_official_stale_model_cases(cases)
+    estimated_cost = _estimated_model_cost(aggregate, pricing)
+    if estimated_cost is not None and estimated_cost > max_spend_usd:
+        raise RuntimeError(f"official STALE estimated spend exceeded the predeclared maximum: ${estimated_cost}")
+    raw_path = output_dir / "raw-provider-responses.jsonl"
+    cases_path = output_dir / "model-graded-per-case.jsonl"
+    raw_hash = _write_jsonl(raw_path, raw)
+    cases_hash = _write_jsonl(cases_path, cases)
+    target_returned = sorted({call["returned_model"] for case in cases for call in case["target"]["calls"] if call["returned_model"]})
+    judge_returned = sorted({case["judge"]["returned_model"] for case in cases if case["judge"]["returned_model"]})
+    receipt = {
+        "status": "measured",
+        "evaluator": {"repository_root": str(evaluator_root), "repository_commit": OFFICIAL_STALE_REPOSITORY_COMMIT, "files": evaluator_hashes},
+        "provider": _official_stale_provider_label(),
+        "models": {"target_requested": target_model, "judge_requested": judge_model, "target_returned": target_returned, "judge_returned": judge_returned},
+        "budget": gate,
+        "execution": {**aggregate["execution"], "cases": len(cases), "concurrency": concurrency, "active_services_modified": False, "network_dataset_downloads": 0},
+        "tokens": aggregate["tokens"],
+        "cost": {**aggregate["cost"], "estimated_usd": estimated_cost, "pricing_per_token": pricing, "estimate_method": "OpenRouter model metadata times returned tokens" if pricing else None},
+        "accuracy": aggregate["accuracy"],
+        "artifacts": {
+            "dataset": dataset_source, "retrieval_receipts": retrieval_source,
+            "raw_provider_responses": {"path": str(raw_path), "rows": len(raw), "sha256": raw_hash},
+            "per_case": {"path": str(cases_path), "rows": len(cases), "sha256": cases_hash},
+            "smoke_raw": {"path": str(smoke_raw_path), "rows": len(smoke_raw), "sha256": sha256_path(smoke_raw_path)},
+            "smoke_cases": {"path": str(smoke_cases_path), "rows": len(smoke_cases), "sha256": sha256_path(smoke_cases_path)},
+            "smoke_receipt": {"path": str(smoke_receipt_path), "sha256": sha256_path(smoke_receipt_path)},
+        },
+        "claim_boundary": "Uses the pinned official STALE target prompt construction and all-in-one judge rubric/parser with the official dataset, but openai/gpt-4o-mini via OpenRouter is not a paper model and per-probe semantic-memory retrieval-receipt context replaces the paper full-haystack target context; this is an official-evaluator system-configuration result, not a paper-model reproduction.",
+    }
+    return receipt, cases
 
 
 def load_official_sleeper_datasets(root: Path) -> tuple[dict[str, Any], dict[str, list[dict[str, Any]]]]:
@@ -1957,6 +2487,12 @@ def write_official_stale_cases(path: Path, cases: list[dict[str, Any]]) -> str:
 
 def render_official_stale_markdown(report: dict[str, Any], command: str, cases_path: Path) -> str:
     stale = report["official_stale"]
+    grading = stale["model_grading"]
+    calls_line = (
+        f"- Target calls: `{grading['execution']['calls']['target']}`; judge calls: `{grading['execution']['calls']['judge']}`; retries: `{grading['execution']['retries']}`; failures: `{grading['execution']['failures']}`"
+        if isinstance(grading.get("execution"), dict) and isinstance(grading["execution"].get("calls"), dict)
+        else "- LLM calls: `0`; judge calls: `0`"
+    )
     lines = [
         "# Official STALE Deterministic Adapter",
         "",
@@ -1966,7 +2502,7 @@ def render_official_stale_markdown(report: dict[str, Any], command: str, cases_p
         f"- License: `{stale['source']['license']}`",
         f"- Rows: `{stale['rows_evaluated']}`; calibration `{stale['split_counts']['calibration']}`, held-out `{stale['split_counts']['heldout']}`",
         f"- Per-case sidecar: `{cases_path}` (`{report['raw_predictions']['official_stale']['sha256']}`)",
-        "- LLM calls: `0`; judge calls: `0`",
+        calls_line,
         "",
         "## Predeclared metrics",
         "",
@@ -2000,7 +2536,12 @@ def render_official_stale_markdown(report: dict[str, Any], command: str, cases_p
         "",
         "## Model grading",
         "",
-        f"`not_tested`: {stale['model_grading']['reason']}.",
+        (
+            f"Measured with target `{grading['models']['target_requested']}` and judge `{grading['models']['judge_requested']}` via `{grading['provider']}`. "
+            f"Overall official-judge accuracy: `{grading['accuracy']['overall']}` ({grading['accuracy']['correct']}/{grading['accuracy']['total']}); "
+            f"returned cost: `{grading['cost']['returned_usd']}` USD across `{grading['cost']['returned_cost_calls']}` calls; estimated cost: `{grading['cost']['estimated_usd']}` USD."
+            if grading.get("status") == "measured" else f"`not_tested`: {grading['reason'].rstrip('.')}."
+        ),
         "",
         "## Split and event-stream policy",
         "",
@@ -2014,7 +2555,7 @@ def render_official_stale_markdown(report: dict[str, Any], command: str, cases_p
         "",
         "## Claim boundary",
         "",
-        "These are deterministic state/evidence measurements and proxies. They are not official response-accuracy scores and make no model-quality or competitor-superiority claim.",
+        (grading["claim_boundary"] if grading.get("claim_boundary") else "These are deterministic state/evidence measurements and proxies. They are not official response-accuracy scores and make no model-quality or competitor-superiority claim."),
         "",
     ])
     return "\n".join(lines)
@@ -2141,6 +2682,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--official-stale-ranking", action="store_true", help="Add the deterministic six-candidate ranking lane while retaining separate state-integrity cells.")
     parser.add_argument("--official-stale-cases-out", type=Path, help="Per-case JSONL sidecar for the official STALE adapter.")
     parser.add_argument("--official-stale-launch-local", action="store_true", help="Exercise an isolated temporary semantic-memory MCP/core server; never modifies an active service.")
+    parser.add_argument("--official-stale-model-grade", action="store_true", help="Run pinned official STALE target and judge prompts over existing semantic-memory retrieval receipts.")
+    parser.add_argument("--official-stale-retrieval-receipts", type=Path, help="Existing official 400-case semantic-memory per-case JSONL receipt.")
+    parser.add_argument("--official-stale-evaluator-root", type=Path, default=Path("/tmp/stale-official"), help="Pinned official STALE evaluator checkout.")
+    parser.add_argument("--official-stale-model-output-dir", type=Path, help="Local raw provider responses and model-graded per-case artifacts.")
+    parser.add_argument("--official-stale-target-model", default=OFFICIAL_STALE_TARGET_MODEL)
+    parser.add_argument("--official-stale-judge-model", default=OFFICIAL_STALE_JUDGE_MODEL)
+    parser.add_argument("--official-stale-model-concurrency", type=int, default=10)
+    parser.add_argument("--official-stale-max-spend-usd", type=float, default=OFFICIAL_STALE_MODEL_MAX_SPEND_USD)
     parser.add_argument("--official-sleeper-root", type=Path, help="Pinned local Sleeper checkout; released datasets are read in place and never copied.")
     parser.add_argument("--official-sleeper-limit-per-slice", type=int, help="Bound each Sleeper slice for smoke testing; full runs omit this flag.")
     parser.add_argument("--official-sleeper-cases-out", type=Path, help="Per-case JSONL sidecar for the official Sleeper adapter.")
@@ -2195,12 +2744,51 @@ def main(argv: list[str] | None = None) -> int:
             )
         except (OSError, ValueError, json.JSONDecodeError) as exc:
             parser.error(str(exc))
+        if args.official_stale_model_grade:
+            if not args.official_stale_retrieval_receipts or not args.official_stale_model_output_dir:
+                parser.error("--official-stale-model-grade requires --official-stale-retrieval-receipts and --official-stale-model-output-dir")
+            try:
+                model_grade, _ = run_official_stale_model_grading(
+                    args.official_stale_dataset,
+                    args.official_stale_retrieval_receipts,
+                    args.official_stale_evaluator_root,
+                    args.official_stale_model_output_dir,
+                    concurrency=args.official_stale_model_concurrency,
+                    max_spend_usd=args.official_stale_max_spend_usd,
+                    target_model=args.official_stale_target_model,
+                    judge_model=args.official_stale_judge_model,
+                )
+            except (OSError, RuntimeError, ValueError, json.JSONDecodeError) as exc:
+                parser.error(str(exc))
+            stale_receipt["model_grading"] = model_grade
+            stale_receipt["execution"].update({
+                "llm_calls": model_grade["execution"]["calls"]["target"],
+                "judge_calls": model_grade["execution"]["calls"]["judge"],
+                "provider_attempts": model_grade["execution"]["attempts"],
+                "provider_retries": model_grade["execution"]["retries"],
+                "provider_failures": model_grade["execution"]["failures"],
+            })
+            stale_receipt["costs"] = model_grade["cost"]
+            if model_grade["status"] == "measured":
+                stale_receipt["not_tested"] = [item for item in stale_receipt["not_tested"] if item.get("metric") != "official_model_grading"]
+            else:
+                for item in stale_receipt["not_tested"]:
+                    if item.get("metric") == "official_model_grading":
+                        item["reason"] = model_grade["reason"]
         report["official_stale"] = stale_receipt
         report["input_hashes"]["official_stale_dataset"] = stale_receipt["source"]["sha256"]
         if args.official_stale_cases_out:
             cases_hash = write_official_stale_cases(args.official_stale_cases_out, stale_cases)
             report["raw_predictions"]["official_stale"] = {"path": str(args.official_stale_cases_out), "rows": len(stale_cases), "sha256": cases_hash}
         report["costs"]["official_stale"] = stale_receipt["costs"]
+        if args.official_stale_model_grade:
+            report["input_hashes"]["official_stale_retrieval_receipts"] = model_grade["artifacts"]["retrieval_receipts"]["sha256"] if "retrieval_receipts" in model_grade["artifacts"] else sha256_path(args.official_stale_retrieval_receipts)
+            for name, digest in model_grade["evaluator"]["files"].items():
+                report["input_hashes"]["official_stale_evaluator_" + Path(name).name] = digest
+            if "raw_provider_responses" in model_grade["artifacts"]:
+                report["raw_predictions"]["official_stale_model_raw"] = model_grade["artifacts"]["raw_provider_responses"]
+            if "per_case" in model_grade["artifacts"]:
+                report["raw_predictions"]["official_stale_model_graded"] = model_grade["artifacts"]["per_case"]
         report["failures"].extend({"adapter": "stale_official", **failure} for failure in stale_receipt["failures"])
         report["not_tested"].extend({"adapter": "stale_official", **item} for item in stale_receipt["not_tested"])
         if competitor_paths or competitor_blockers:

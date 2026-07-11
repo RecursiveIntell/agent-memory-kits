@@ -1,0 +1,53 @@
+{
+  "artifacts": {
+    "aggregate": "/home/sikmindz/.cache/semantic-memory-bench/letta-final/output/final-aggregate.json",
+    "raw_jsonl": "/home/sikmindz/.cache/semantic-memory-bench/letta-final/output/final-stale-letta-per-case.jsonl",
+    "raw_jsonl_sha256": "sha256:cc077404e0f4a3451c66093aedbcb291497045285e236f15e3992679f1996f07"
+  },
+  "competitor": {
+    "commit": "b76da9092518cbaa2d09042e52fdcbde69243e18",
+    "license": "Apache-2.0",
+    "license_sha256": "sha256:984c6db99fc6609803108dfc196762118662cd94b82a456dd9217583f18f3612",
+    "name": "Letta",
+    "package": "letta",
+    "package_manifest_sha256": "sha256:ba86147a334a4900962b260d1912e263e011e8698377327b9f1a8fd943540c3e",
+    "repository": "https://github.com/letta-ai/letta",
+    "version": "0.16.8"
+  },
+  "failures": [],
+  "receipt_kind": "DiagnosticMemoryBenchmarkV1.letta_final_blockers",
+  "resolved_setup": [
+    {
+      "detail": "Installed checkout-declared pgvector and pg8000 into the supplied isolated Letta venv.",
+      "stage": "runtime_dependencies",
+      "status": "resolved"
+    },
+    {
+      "detail": "Used only disposable Podman container letta-final-pg-20260711 with pgvector extension and documented alembic upgrade head.",
+      "stage": "postgresql",
+      "status": "resolved"
+    },
+    {
+      "detail": "Used local letta/letta-free only as the structurally required agent model handle; no message or inference endpoint was invoked.",
+      "stage": "agent_handle",
+      "status": "resolved"
+    },
+    {
+      "detail": "Removed inherited OPENROUTER_API_KEY from the isolated server environment; no hosted inference was used.",
+      "stage": "hosted_provider_boundary",
+      "status": "resolved"
+    },
+    {
+      "detail": "A single 400-row worker timed out after partial execution without emitting its buffered sidecar; four verified 100-row public-API batches completed all indices 0-399.",
+      "stage": "single_worker_timeout",
+      "status": "resolved"
+    }
+  ],
+  "rows_measured": 400,
+  "status": "measured",
+  "unsupported_not_emulated": [
+    "The public passage API has no update/history path; history is false and was not emulated.",
+    "Independent passage inserts have no native conflict relationship; conflict is false and was not emulated.",
+    "Sleeper write-admission/governance is not_supported and was not scored as ordinary insertion."
+  ]
+}

@@ -1,0 +1,72 @@
+name: recursiveintell-local-model-mediated-smoke
+config_path: /tmp/sleeper-official/scripts/configs/paper/smoke/recursiveintell_local_model.smoke.yaml
+output_dir: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud
+memory_backend: tool
+mem0_runtime: local
+mem0_provider: deepseek
+mem0_model: deepseek-v4-pro
+mem0_prompt_variant: mem0_default
+mem0_include_document_content: true
+mem0_thinking: enabled
+mem0_reasoning_effort: high
+mem0_qdrant_mode: local
+mem0_qdrant_url: ''
+mem0_qdrant_api_key_env: QDRANT_API_KEY
+mem0_qdrant_collection_name: recursiveintell-local-model-mediated-smoke-sleeper-model-mediated-cloud-b5b72824
+mem0_qdrant_managed_image: qdrant/qdrant:latest
+mem0_qdrant_managed_storage_dir: ''
+mention_memory_system: true
+grader_model: openai-api/ollama/minimax-m3:cloud
+retry:
+  retry_attempts: 1
+  retry_immediate: false
+  retry_wait: 0
+  retry_connections: 1.0
+  retry_on_error: 0
+eval:
+  limit: 2
+  sample_shuffle: false
+  sample_shuffle_seed: null
+  max_tasks: 1
+  max_samples: null
+  max_connections: 1
+  fail_on_error: false
+  bundle: true
+  bundle_overwrite: true
+  max_retries: 1
+  attempt_timeout: 600
+scoring:
+  during_eval: none
+  post_eval_scorers:
+  - tool_call_scorer
+  - goal_match_scorer
+  post_eval_action: overwrite
+datasets:
+- label: behavior-true-optimized-with-memories
+  dataset_file: datasets/released/generated/behaviour_true_optimized_with_memories.json
+  resolved_path: /tmp/sleeper-official/datasets/released/generated/behaviour_true_optimized_with_memories.json
+  sample_count: 250
+  evaluation_mode: attack
+  attack: ''
+  subcategory: ''
+  category: ''
+  doc_domain: ''
+  domain_seed: ''
+attacks:
+- label: actor-critic-no-markers
+  attack: universal_v2_optimized_without_markers
+  defense_labels:
+  - no-defense
+models:
+- label: minimax-m3-cloud
+  model: openai-api/ollama/minimax-m3:cloud
+  prompt_model: minimax-m3:cloud
+  provider: generic
+  reasoning_effort: null
+  reasoning_tokens: null
+  batch: null
+defenses:
+- label: no-defense
+  defense: ''
+  suffix_length: 0
+  suffix_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855

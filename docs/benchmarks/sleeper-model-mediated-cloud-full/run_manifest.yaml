@@ -1,0 +1,35 @@
+success: true
+task_count: 1
+log_count: 1
+scored_log_count: 1
+log_dir: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/logs
+bundle_dir: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/bundle
+analysis_dir: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis
+config_hash: 796e912bd38825ea9c2d5e632ca75275a20077a82342817886eadd87f419e533
+output_mode: fresh
+datasets:
+- label: behavior-true-optimized-with-memories
+  dataset_file: datasets/released/generated/behaviour_true_optimized_with_memories.json
+  resolved_path: /tmp/sleeper-official/datasets/released/generated/behaviour_true_optimized_with_memories.json
+  sample_count: 250
+  evaluation_mode: attack
+  attack: ''
+  subcategory: ''
+  category: ''
+  doc_domain: ''
+  domain_seed: ''
+scoring:
+  during_eval: none
+  post_eval_scorers:
+  - tool_call_scorer
+  - goal_match_scorer
+  post_eval_action: overwrite
+analysis_outputs:
+  summary_json: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis/summary.json
+  summary_csv: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis/summary.csv
+  summary_md: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis/summary.md
+  attack_result_tables_md: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis/attack_result_tables.md
+  model_x_defense_memory_write_rate: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis/slices/model_x_defense_memory_write_rate.csv
+  dataset_x_defense_memory_write_rate: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis/slices/dataset_x_defense_memory_write_rate.csv
+  model_x_defense_semantic_match_rate: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis/slices/model_x_defense_semantic_match_rate.csv
+  dataset_x_defense_semantic_match_rate: /home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/sleeper-model-mediated-cloud-full/analysis/slices/dataset_x_defense_semantic_match_rate.csv

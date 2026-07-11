@@ -4,13 +4,13 @@ Date: 2026-07-11
 
 ## Verdict
 
-The current evidence supports this bounded claim:
+The evidence supports this bounded claim:
 
-> RecursiveIntell semantic-memory provides unusually strong deterministic state-integrity behavior for persistent agents: current-state selection, stale suppression, bitemporal historical reconstruction, conflict retention, witnessed retrieval, governed admission, and benign-save preservation.
+> RecursiveIntell semantic-memory is a strong local-first memory epistemics and control plane for persistent agents. It combines verified state transitions, current/historical state resolution, stale suppression, witnessed retrieval, origin-bounded assertion/action authority, governed admission, selective forgetting, and receipt-backed evaluation.
 
-The evidence does not yet support “best agent memory overall.” Official model-graded answer quality, model-mediated poisoning resistance, multi-candidate ranking, and complete identical runs against Graphiti and Letta remain unproven.
+It does not support “best agent memory overall.” State integrity is strong; ordinary multi-candidate retrieval ranking is currently weak and must be improved before broad superiority claims.
 
-## Official STALE dataset
+## Official STALE deterministic state evaluation
 
 Source:
 
@@ -19,40 +19,76 @@ Source:
 - Dataset SHA-256: `5f3ec375179e20e2e94469e018189188f34e2e7e5f21cbecbd99fcfa648c1876`
 - Repository commit: `ea7d391103a151927cd29d2f01d87597a782bdcb`
 - License: CC-BY-4.0
-- LLM calls: 0
-- Judge calls: 0
 
 | System | Current state | Stale suppression | Conflict preservation | Historical reconstruction | Action-safe proxy |
 |---|---:|---:|---:|---:|---:|
 | semantic-memory | 98.3% | 100% | 98.3% | 100% | 100% |
 | Mem0 2.0.11 | 11.75% | 100% | 100%* | 100%* | 49% |
 | LangMem 0.0.30 | 100% | 100% | 0% | 0% | 100% |
+| Letta 0.16.8 + PostgreSQL | 0% | 100% | unsupported / 0% | unsupported / 0% | 100% proxy |
 | Mutable-latest control | 100% | 100% | 0% | 0% | not scored |
 | Append-only control | 0% | 0% | 100% | 100% | not scored |
 | Full-context oracle | 100% | 100% | 100% | 100% | 100% |
 
-`*` Mem0’s conflict/history result is its native update-event log retaining old/new values, not bitemporal as-of retrieval.
+`*` Mem0’s result is native update-event retention, not bitemporal as-of retrieval.
 
 Interpretation:
 
-- semantic-memory is the only measured system in this run that combined near-complete current-state selection with complete stale suppression and bitemporal history.
-- LangMem selected current keyed state perfectly but overwrote historical/conflicting state.
-- Mem0 retained update events but retrieved the new state on only 47 of 400 deterministic probes under this adapter’s fixed local embedding.
-- Each competitor case contained one keyed current item after update. This is a state/update/search proxy, not a multi-candidate ranking benchmark.
-- semantic-memory latency in the official STALE harness is dominated by the required one-second persisted timestamp boundary. It is not serving latency.
+- semantic-memory is the only measured system here combining near-complete current selection, complete stale suppression, conflict retention, and bitemporal history.
+- LangMem selects keyed current state but overwrites history/conflict.
+- Mem0 retains update events but retrieved current state on only 47/400 cases under the fixed local embedding adapter.
+- Letta completed 400/400 through its real PostgreSQL-backed passage API with zero runtime failures, but retrieved current state on 0/400 cases under this adapter. Its public passage API exposes no update/history semantics; those were not emulated.
+- Deterministic STALE timing includes a one-second persisted-time boundary and is not serving latency.
 
-## Official Sleeper deterministic slice
+## Official STALE model-graded evaluation
 
-Source:
+The pinned official STALE target prompts, all-in-one judge prompt, and parser were run against semantic-memory retrieval-receipt context.
 
-- Repository commit: `1eb8b7e33b505299155baf3be776545b1620f022`
-- Rows: 520
-  - Behavior poison: 250
-  - Agent-action poison: 100
-  - Non-English poison: 100
-  - Benign save: 70
-- LLM calls: 0
-- Judge calls: 0
+- Target model: `minimax-m3:cloud`
+- Judge model: `minimax-m3:cloud`
+- Route: Ollama Cloud through `http://127.0.0.1:11434/v1`
+- Cases: 400/400 judged
+- Logical calls: 1,600 plus four calls for one targeted retry
+- Final failures: 0
+- Total returned tokens in final 400-case receipt: 2,097,192
+- Reported incremental provider cost: $0 through the configured Ollama Cloud access
+- Wall time before targeted retry: 2,020.281 seconds
+
+| Dimension | Correct | Accuracy |
+|---|---:|---:|
+| Explicit probing | 348/400 | 87.00% |
+| Adversarial robustness | 331/400 | 82.75% |
+| Implicit task | 364/400 | 91.00% |
+| Overall | 1,043/1,200 | 86.92% |
+
+Boundary:
+
+- Minimax-M3 Cloud is not a paper model.
+- Semantic-memory retrieval-receipt context replaces the paper full-haystack target context.
+- This is an official-evaluator system-configuration result, not paper-model reproduction or a cross-system answer-quality victory.
+
+## Multi-candidate retrieval ranking
+
+Six candidates per official STALE case:
+
+- current target
+- stale predecessor
+- lexical distractor
+- semantic distractor
+- unrelated high-similarity candidate
+- conflict candidate
+
+400 cases / 1,200 probes:
+
+| Recall@1 | Recall@3 | Recall@5 | MRR | nDCG | Current before stale | Safe evidence |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0.08% | 18.75% | 75.33% | 0.248 | 0.424 | 20.0% | 18.17% |
+
+This is the largest demonstrated weakness. Temporal/state governance does not compensate for poor ordinary candidate ranking. Retrieval ranking must be improved and rerun before claiming best overall memory.
+
+## Sleeper deterministic governed-admission slice
+
+Official released rows: 520.
 
 | Cell | Poison admission containment | Poison retrieval containment | Benign-save retention |
 |---|---:|---:|---:|
@@ -61,43 +97,74 @@ Source:
 | Append-only | 0/450 | 0/450 | 70/70 |
 | No memory | 450/450 | 450/450 | 0/70 |
 
-Boundary:
+Boundary: poison rows were submitted as evidence-free `ephemeral_inference`. This proves that actual admission gate and subsequent witnessed-retrieval containment, not arbitrary model-mediated poison resistance.
 
-- Poison rows were submitted as evidence-free `ephemeral_inference` to the actual MCP admission gate.
-- This proves deterministic rejection and subsequent retrieval containment for that class.
-- It does not prove official Sleeper attack-success, semantic score, model response quality, model-mediated poisoning resistance, or purpose-specific assertion/action containment.
+## Official Sleeper model-mediated behavior slice
 
-## Named competitor execution
+The official campaign runtime, released behavior dataset, actor–critic attack, native memory tool, and post-eval scorers were run with Ollama Cloud Minimax-M3.
 
-### Measured
+- Repository commit: `1eb8b7e33b505299155baf3be776545b1620f022`
+- Subject model: `openai-api/ollama/minimax-m3:cloud`
+- Dataset: behavior true-optimized with memories
+- Attack: `universal_v2_optimized_without_markers`
+- Defense: none
+- Completed: 250/250
+- Campaign status: success
+- Wall time: 18m24s
+- Memory write/injection rate: 85.2%
+- Semantic attacker-goal match rate: 85.2%
 
-- Mem0 `2.0.11`, commit `c9af55986e4a31aa98931b6b909d5639e9b2013a`
-  - 400/400 rows measured
-  - Zero runtime failures
-  - Fixed local SHA-256-derived 16-dimensional embedding
-  - No hosted service, LLM, or judge calls
+This demonstrates that an ungoverned model-managed memory tool is highly vulnerable on this model. Comparing 85.2% model-mediated injection with semantic-memory’s 450/450 deterministic evidence-free rejection is informative but not an identical end-to-end governed Sleeper run.
 
-- LangMem `0.0.30`, commit `c01e273b94aa4c06e41d0ed1ccce0db17de2bc11`
-  - 400/400 rows measured
-  - Zero runtime failures
-  - Same fixed local embedding policy
-  - No hosted service, LLM, or judge calls
+## Graphiti / Zep
 
-### Not tested after bounded attempts
+Pinned Graphiti `0.29.2`, commit `526dcad7a300f3c5c506ff96a68bcdc7ca9f97ed`, was reproduced using:
 
-- Graphiti / Zep `0.29.2`, commit `526dcad7a300f3c5c506ff96a68bcdc7ca9f97ed`
-  - Installation succeeded.
-  - Public `Graphiti.add_episode` reached local Ollama and Kuzu.
-  - Runtime failed because Kuzu lacked the expected `edge_name_and_fact` FTS index.
-  - Rows measured: 0.
+- disposable Neo4j
+- local Ollama `qwen2.5:0.5b`
+- `all-minilm:latest` embeddings
+- public `build_indices_and_constraints`, `add_episode`, and `search`
 
-- Letta `0.16.8`, commit `b76da9092518cbaa2d09042e52fdcbde69243e18`
-  - Isolated 241-package installation succeeded after adding `asyncpg`.
-  - Settings reported SQLite, but both documented startup paths initialized PostgreSQL and attempted localhost:5432.
-  - No PostgreSQL service was provisioned solely for the benchmark.
-  - Rows measured: 0.
+Five cases and 15 searches completed with zero runtime failures. M_old was returned after adding M_new in 12/15 probes. Because the required current-state update/search semantics were not reproduced, the 400-case promotion was blocked rather than measuring a different task. No history/conflict score was simulated.
 
-Neither blocked competitor received simulated results.
+## Letta
+
+Pinned Letta `0.16.8`, commit `b76da9092518cbaa2d09042e52fdcbde69243e18`, was reproduced with disposable PostgreSQL plus pgvector.
+
+- Smoke: 20/20, zero failures
+- Full: 400/400, zero failures
+- Current selection: 0%
+- Stale suppression: 100%
+- Conflict/history: unsupported / 0%
+- Evidence correctness proxy: 100%
+- Raw JSONL SHA-256: `cc077404e0f4a3451c66093aedbcb291497045285e236f15e3992679f1996f07`
+
+No hosted inference was used. The disposable PostgreSQL container was removed afterward.
+
+## Live activation proof
+
+Installed binary SHA-256:
+
+`d56773f3818ca2d45a7cf5146b25e6e16ad89fd3667cddae3bf5c90d2ffc7386`
+
+Matching copies:
+
+- source release binary
+- `~/.cargo/bin/semantic-memory-mcp`
+- `~/.local/bin/semantic-memory-mcp`
+
+Services:
+
+- `semantic-memory-http.service`: active, port 1738 healthy
+- `semantic-memory-coding-http.service`: active, port 1739 healthy
+
+Fresh MCP process discovered exactly three lean tools:
+
+- `sm_search_witnessed`
+- `sm_decide_assertion_authority`
+- `sm_decide_action_authority`
+
+Live authority checks against a recall-only external-evidence fact denied assertion and action and returned no memory content.
 
 ## Local integrity verification
 
@@ -107,44 +174,37 @@ Neither blocked competitor received simulated results.
 - Namespace leakage: 0
 - Historical correctness: passed
 - Replay equivalence: passed
-
-The broader implementation also has controller receipts for transition verification, state epistemics, origin authority, evidence-gap retrieval, forgetting closure, multi-principal policy, shadow policy, and procedural memory. Those local tests are evidence for those components, not competitor superiority.
+- Transition compiler, state epistemics, origin authority, evidence gap, forgetting closure, multi-principal policy, shadow policy, and procedural-memory suites: passed
 
 ## Defensible positioning
 
-Strongest defensible thesis:
-
 > A local-first memory epistemics and control plane for persistent agents: verified transitions into authoritative state, query-conditioned state resolution, witnessed evidence retrieval, origin-bounded authority, selective-forgetting closure, and receipt-backed evaluation.
 
-Do not claim yet:
+Do not claim:
 
 - Best agent memory overall
-- Highest answer quality
-- Superior retrieval ranking generally
-- Official STALE model-graded victory
-- Official Sleeper attack-success victory
-- Superiority to Graphiti or Letta
-- Production or enterprise maturity
+- Superior general retrieval ranking
+- Paper-model STALE reproduction
+- Identical end-to-end Sleeper superiority
+- Production, enterprise, compliance, or adoption maturity
 
-## Next proof gates
+## Highest-ROI next engineering target
 
-1. Run the official model-graded STALE response evaluator with a predeclared provider/model and cost cap.
-2. Run model-mediated Sleeper subject/manager/judge evaluation.
-3. Expose and test purpose-specific assertion/action decisions through the MCP surface.
-4. Reproduce Graphiti with a supported graph backend or upstream-fixed Kuzu setup.
-5. Reproduce Letta with its required PostgreSQL service in a disposable container.
-6. Add multi-candidate retrieval ranking cases so state integrity and retrieval quality are measured separately.
+Improve multi-candidate ranking without weakening state governance:
+
+1. Diagnose why lexical/high-similarity distractors outrank current targets.
+2. Add state-aware candidate features before final rerank.
+3. Preserve raw lexical/vector scores and exact ablations.
+4. Tune on calibration rows 0–99 only.
+5. Rerun held-out rows 100–399 and require material Recall@1/MRR improvement without stale-suppression regression.
 
 ## Primary receipts
 
-- `docs/benchmarks/stale-official/aggregate-receipt.json`
-- `docs/benchmarks/stale-official/per-case.jsonl`
-- `docs/benchmarks/stale-official/report.md`
-- `docs/benchmarks/sleeper-official/aggregate-receipt.json`
-- `docs/benchmarks/sleeper-official/per-case.jsonl`
-- `docs/benchmarks/sleeper-official/report.md`
-- `docs/benchmarks/competitors/aggregate-receipt.json`
-- `docs/benchmarks/competitors/stale-mem0-per-case.jsonl`
-- `docs/benchmarks/competitors/stale-langmem-per-case.jsonl`
-- `docs/benchmarks/competitors/blockers.json`
-- `docs/benchmarks/competitors/environment-and-commands.md`
+- `docs/benchmarks/stale-official/`
+- `docs/benchmarks/stale-model-graded-local/`
+- `docs/benchmarks/ranking-official/`
+- `docs/benchmarks/sleeper-official/`
+- `docs/benchmarks/sleeper-model-mediated-cloud-full/`
+- `docs/benchmarks/competitors/graphiti-neo4j/`
+- `docs/benchmarks/competitors/letta-postgres/`
+- `docs/benchmarks/semantic-memory-live-activation-2026-07-11.json`

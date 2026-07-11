@@ -1,0 +1,195 @@
+{
+  "claim_boundary": "This receipt reports literal returned facts only. It contains no simulated history, conflict, stale-suppression, current-state score, or model-quality score.",
+  "counts": {
+    "M_old_returned_after_update_observations": 12,
+    "completed_case_rows": 5,
+    "search_observations": 15
+  },
+  "full_400_run": {
+    "reason": "bounded five-case smoke did not reproduce required update/search semantics",
+    "started": false
+  },
+  "inputs": {
+    "api_completion_aggregate": {
+      "path": "/home/sikmindz/.cache/semantic-memory-bench/graphiti-final/output/graphiti-smoke-aggregate.json",
+      "sha256": "sha256:62290244d710855cf20f1e438c4c5c74b2fd4c0c02aa8347bc7f8e38a5d63997"
+    },
+    "raw_jsonl": {
+      "path": "/home/sikmindz/.cache/semantic-memory-bench/graphiti-final/output/graphiti-smoke-raw.jsonl",
+      "rows": 5,
+      "sha256": "sha256:5249b1f86de7bae71a7e5c506e0943683532decdce299d1ef705a16018bc0c38"
+    }
+  },
+  "observations": [
+    {
+      "case_id": "7c0ae4e7-6b5a-42a2-891b-0ccf553bfe7f",
+      "case_index": 0,
+      "per_probe": {
+        "dim1_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "I've been based in Seattle for the last few years.",
+            "I just finished updating my address after settling into Austin, and I'm trying to get set up with local utilities and services here."
+          ]
+        },
+        "dim2_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "I've been based in Seattle for the last few years.",
+            "I just finished updating my address after settling into Austin, and I'm trying to get set up with local utilities and services here."
+          ]
+        },
+        "dim3_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "I just finished updating my address after settling into Austin, and I'm trying to get set up with local utilities and services here.",
+            "I've been based in Seattle for the last few years."
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "34566789-711a-4361-856e-2f758a4f685e",
+      "case_index": 1,
+      "per_probe": {
+        "dim1_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "I've been staying in Seattle for the past few years, so that's where I'm located.",
+            "I'm updating my info for my new gym membership\u2014my home base is Portland now."
+          ]
+        },
+        "dim2_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "I've been staying in Seattle for the past few years, so that's where I'm located.",
+            "I'm updating my info for my new gym membership\u2014my home base is Portland now."
+          ]
+        },
+        "dim3_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "I've been staying in Seattle for the past few years, so that's where I'm located.",
+            "I'm updating my info for my new gym membership\u2014my home base is Portland now."
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "85b27125-1627-4f27-8a84-3bd07be5189c",
+      "case_index": 2,
+      "per_probe": {
+        "dim1_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 1,
+          "returned_facts": [
+            "Please ensure my records show Chicago, as that is where I am residing."
+          ]
+        },
+        "dim2_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 1,
+          "returned_facts": [
+            "Please ensure my records show Chicago, as that is where I am residing."
+          ]
+        },
+        "dim3_query": {
+          "M_new_returned_after_M_new_add_episode": false,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 1,
+          "returned_facts": [
+            "Please ensure my records show Chicago, as that is where I am residing."
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "b0d43dd4-98e2-4617-a062-24edcc22a0ee",
+      "case_index": 3,
+      "per_probe": {
+        "dim1_query": {
+          "M_new_returned_after_M_new_add_episode": true,
+          "M_old_returned_after_M_new_add_episode": false,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "Since I'm currently based in Seattle, I'm happy to meet at a cafe in Capitol Hill or anywhere central to keep the commute reasonable for both of us.",
+            "I just renewed the lease on my flat for another year, even though the constant delays on the Tube's Northern Line make getting to the office every morning a complete headache."
+          ]
+        },
+        "dim2_query": {
+          "M_new_returned_after_M_new_add_episode": true,
+          "M_old_returned_after_M_new_add_episode": false,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "Since I'm currently based in Seattle, I'm happy to meet at a cafe in Capitol Hill or anywhere central to keep the commute reasonable for both of us.",
+            "I just renewed the lease on my flat for another year, even though the constant delays on the Tube's Northern Line make getting to the office every morning a complete headache."
+          ]
+        },
+        "dim3_query": {
+          "M_new_returned_after_M_new_add_episode": true,
+          "M_old_returned_after_M_new_add_episode": false,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "Since I'm currently based in Seattle, I'm happy to meet at a cafe in Capitol Hill or anywhere central to keep the commute reasonable for both of us.",
+            "I just renewed the lease on my flat for another year, even though the constant delays on the Tube's Northern Line make getting to the office every morning a complete headache."
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "35385383-7d6b-415d-9d03-4efec88263da",
+      "case_index": 4,
+      "per_probe": {
+        "dim1_query": {
+          "M_new_returned_after_M_new_add_episode": true,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "I'm currently on the intercity train and will be in transit for another three hours.",
+            "The instructor just dimmed the lights, so I\u2019m laying out my mat and getting ready for the first yoga flow of the evening."
+          ]
+        },
+        "dim2_query": {
+          "M_new_returned_after_M_new_add_episode": true,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "I'm currently on the intercity train and will be in transit for another three hours.",
+            "The instructor just dimmed the lights, so I\u2019m laying out my mat and getting ready for the first yoga flow of the evening."
+          ]
+        },
+        "dim3_query": {
+          "M_new_returned_after_M_new_add_episode": true,
+          "M_old_returned_after_M_new_add_episode": true,
+          "returned_fact_count": 2,
+          "returned_facts": [
+            "The instructor just dimmed the lights, so I\u2019m laying out my mat and getting ready for the first yoga flow of the evening.",
+            "I'm currently on the intercity train and will be in transit for another three hours."
+          ]
+        }
+      }
+    }
+  ],
+  "public_api": [
+    "Graphiti.build_indices_and_constraints",
+    "Graphiti.add_episode",
+    "Graphiti.search"
+  ],
+  "reason": "The requested current-state update/search projection was not reproduced by the pinned Graphiti public API: after native M_old then M_new Graphiti.add_episode calls, one or more completed smoke searches returned M_old. No 400-case run was started because it would measure a different state/update/search semantic.",
+  "receipt_kind": "GraphitiPinnedStalePublicApiBlockerV1",
+  "status": "blocked"
+}

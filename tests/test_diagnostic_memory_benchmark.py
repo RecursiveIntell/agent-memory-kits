@@ -53,6 +53,116 @@ class DiagnosticMemoryBenchmarkTests(unittest.TestCase):
         self.assertEqual(receipt_schema["title"], "Diagnostic Memory Benchmark Receipt")
         self.assertIn("competitors", receipt_schema["required"])
         self.assertIn("competitors", receipt_schema["properties"])
+        model_grading = receipt_schema["properties"]["official_stale"]["properties"]["model_grading"]
+        self.assertIn("oneOf", model_grading)
+        measured = next(item for item in model_grading["oneOf"] if item["properties"]["status"].get("const") == "measured")
+        self.assertEqual(
+            set(measured["required"]),
+            {"status", "evaluator", "provider", "models", "budget", "execution", "tokens", "cost", "accuracy", "artifacts", "claim_boundary"},
+        )
+
+    def test_official_stale_model_grading_constants_are_predeclared(self) -> None:
+        self.assertEqual(benchmark.OFFICIAL_STALE_MODEL_PROVIDER, "OpenRouter")
+        self.assertEqual(benchmark.OFFICIAL_STALE_TARGET_MODEL, "openai/gpt-4o-mini")
+        self.assertEqual(benchmark.OFFICIAL_STALE_JUDGE_MODEL, "openai/gpt-4o-mini")
+        self.assertEqual(benchmark.OFFICIAL_STALE_MODEL_SMOKE_CASES, 5)
+        self.assertEqual(benchmark.OFFICIAL_STALE_MODEL_MAX_SPEND_USD, 10.0)
+
+    def test_current_official_stale_retrieval_receipts_validate_all_400_cases(self) -> None:
+        rows, _ = benchmark.load_official_stale_dataset(OFFICIAL_STALE)
+        receipts, source = benchmark.load_official_stale_retrieval_receipts(
+            ROOT / "docs/benchmarks/stale-official/per-case.jsonl", rows
+        )
+        self.assertEqual(len(receipts), 400)
+        self.assertEqual(source["rows"], 400)
+        self.assertEqual(source["sha256"], "sha256:5801705ae7a8184682dfa2a938ad60d1a4df7c0b68529093641526f4a1110a4e")
+        first = benchmark.build_official_stale_model_input(rows[0], receipts[0])
+        self.assertEqual(first["case_index"], 0)
+        self.assertEqual(first["uid"], rows[0]["uid"])
+        self.assertEqual(first["haystack_session"], [[{"role": "user", "content": rows[0]["M_new"]}]])
+        self.assertEqual(first["timestamps"], [rows[0]["timestamps"][rows[0]["relevant_session_index"][1]]])
+
+    def test_retrieval_receipt_rejects_unmeasured_or_unlinked_evidence(self) -> None:
+        rows, _ = benchmark.load_official_stale_dataset(OFFICIAL_STALE)
+        receipts, _ = benchmark.load_official_stale_retrieval_receipts(
+            ROOT / "docs/benchmarks/stale-official/per-case.jsonl", rows
+        )
+        broken = json.loads(json.dumps(receipts[0]))
+        broken["cells"]["semantic_memory"]["status"] = "not_tested"
+        with self.assertRaisesRegex(ValueError, "semantic_memory status"):
+            benchmark.validate_official_stale_retrieval_receipt(rows[0], broken, 0)
+        broken = json.loads(json.dumps(receipts[0]))
+        broken["cells"]["semantic_memory"]["evidence_packet"]["dim2_query"] = ["fact:wrong"]
+        with self.assertRaisesRegex(ValueError, "current fact"):
+            benchmark.validate_official_stale_retrieval_receipt(rows[0], broken, 0)
+
+    def test_smoke_cost_gate_projects_all_400_and_aborts_over_ten_dollars(self) -> None:
+        passed = benchmark.evaluate_official_stale_smoke_gate(
+            smoke_cases=5, total_cases=400, returned_cost_usd=0.10, estimated_cost_usd=0.10, max_spend_usd=10.0
+        )
+        self.assertTrue(passed["gate_passed"])
+        self.assertEqual(passed["projected_full_run_usd"], 8.0)
+        failed = benchmark.evaluate_official_stale_smoke_gate(
+            smoke_cases=5, total_cases=400, returned_cost_usd=None, estimated_cost_usd=0.20, max_spend_usd=10.0
+        )
+        self.assertFalse(failed["gate_passed"])
+        self.assertEqual(failed["projection_basis"], "estimated_cost_usd")
+
+    def test_model_grade_aggregation_never_invents_missing_scores_or_cost(self) -> None:
+        cases = [
+            {
+                "case_index": 0,
+                "case_id": "a",
+                "target": {
+                    "calls": [
+                        {"status": "succeeded", "attempts": 1, "usage": {"prompt_tokens": 10, "completion_tokens": 2, "total_tokens": 12, "cost": 0.001}, "returned_model": "openai/gpt-4o-mini"},
+                        {"status": "succeeded", "attempts": 2, "usage": {"prompt_tokens": 11, "completion_tokens": 3, "total_tokens": 14}, "returned_model": "openai/gpt-4o-mini"},
+                        {"status": "failed", "attempts": 3, "usage": {}, "returned_model": None},
+                    ]
+                },
+                "judge": {"status": "failed", "attempts": 3, "usage": {}, "returned_model": None, "evaluation": None},
+            }
+        ]
+        aggregate = benchmark.aggregate_official_stale_model_cases(cases)
+        self.assertEqual(aggregate["execution"]["calls"], {"target": 3, "judge": 1, "total": 4})
+        self.assertEqual(aggregate["execution"]["retries"], 5)
+        self.assertEqual(aggregate["execution"]["failures"], 2)
+        self.assertEqual(aggregate["tokens"]["overall"]["total_tokens"], 26)
+        self.assertEqual(aggregate["cost"]["returned_usd"], 0.001)
+        self.assertEqual(aggregate["cost"]["returned_cost_calls"], 1)
+        self.assertIsNone(aggregate["accuracy"]["overall"])
+
+    def test_cli_integrates_measured_model_grade_into_existing_receipt_family(self) -> None:
+        fake_grade = {
+            "status": "measured",
+            "evaluator": {"repository_root": "/tmp/stale-official", "repository_commit": benchmark.OFFICIAL_STALE_REPOSITORY_COMMIT, "files": {name: "sha256:" + "a" * 64 for name in benchmark.OFFICIAL_STALE_EVALUATOR_FILES}},
+            "provider": "OpenRouter",
+            "models": {"target_requested": benchmark.OFFICIAL_STALE_TARGET_MODEL, "judge_requested": benchmark.OFFICIAL_STALE_JUDGE_MODEL, "target_returned": [benchmark.OFFICIAL_STALE_TARGET_MODEL], "judge_returned": [benchmark.OFFICIAL_STALE_JUDGE_MODEL]},
+            "budget": {"predeclared_max_estimated_spend_usd": 10.0, "smoke_cases": 5, "projected_full_run_usd": 1.0, "gate_passed": True},
+            "execution": {"calls": {"target": 1200, "judge": 400, "total": 1600}, "attempts": 1600, "retries": 0, "failures": 0, "cases": 400, "concurrency": 10},
+            "tokens": {"overall": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2}},
+            "cost": {"returned_usd": 0.5, "returned_cost_calls": 1600, "estimated_usd": 0.5, "currency": "USD"},
+            "accuracy": {"overall": 1.0, "correct": 1200, "total": 1200},
+            "artifacts": {"raw_provider_responses": {"path": "raw.jsonl", "rows": 1600, "sha256": "sha256:" + "b" * 64}, "per_case": {"path": "cases.jsonl", "rows": 400, "sha256": "sha256:" + "c" * 64}},
+            "claim_boundary": "non-paper-model boundary",
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "aggregate.json"
+            cases = Path(tmp) / "deterministic.jsonl"
+            markdown = Path(tmp) / "report.md"
+            with mock.patch.object(benchmark, "run_official_stale_model_grading", return_value=(fake_grade, [])):
+                rc = benchmark.main([
+                    "--fixtures", str(FIXTURES), "--official-stale-dataset", str(OFFICIAL_STALE),
+                    "--official-stale-cases-out", str(cases), "--markdown-out", str(markdown),
+                    "--official-stale-model-grade", "--official-stale-retrieval-receipts", str(ROOT / "docs/benchmarks/stale-official/per-case.jsonl"),
+                    "--official-stale-model-output-dir", tmp, "--out", str(out),
+                ])
+            self.assertEqual(rc, 0)
+            receipt = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual(receipt["schema"], "DiagnosticMemoryBenchmarkV1")
+            self.assertEqual(receipt["official_stale"]["model_grading"]["status"], "measured")
+            self.assertEqual(receipt["official_stale"]["execution"]["llm_calls"], 1200)
+            self.assertFalse(any(item.get("metric") == "official_model_grading" for item in receipt["official_stale"]["not_tested"]))
 
     def test_competitor_inventory_and_bounded_stale_split_are_predeclared(self) -> None:
         self.assertEqual(

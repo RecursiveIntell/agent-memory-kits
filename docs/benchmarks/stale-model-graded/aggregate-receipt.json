@@ -1,0 +1,6612 @@
+{
+  "adapters": {
+    "atma_ltp": {
+      "adapter_kind": "A-TMA/LTP-compatible long-term temporal association subset",
+      "baseline_metrics": {
+        "bm25": 0.0,
+        "dense": 0.0,
+        "exact_hybrid": 1.0,
+        "full_context": 0.0,
+        "no_memory": 0.0,
+        "state_resolved": 1.0,
+        "witnessed_hybrid": 1.0
+      },
+      "cases": 2,
+      "confidence_intervals": {
+        "state_resolved_heldout_accuracy_95": [
+          0.206543,
+          1.0
+        ]
+      },
+      "costs": {
+        "estimated_usd": 0.0,
+        "local_fixture_operations": 14,
+        "network_requests": 0
+      },
+      "dataset": {
+        "license": "CC0-1.0",
+        "path": "embedded in fixture bundle",
+        "sha256": "sha256:49f693194d83a5f8c371fdb17fe22b1b0784889fc670285dfbb25c6eba5670f5"
+      },
+      "heldout_cases": 1,
+      "raw_predictions": [
+        {
+          "case_id": "ltp-calibration",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "calibration"
+        },
+        {
+          "case_id": "ltp-heldout",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "heldout"
+        }
+      ],
+      "stage_ablations": {
+        "admission": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "answer_use": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "commit": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "evidence_sufficiency": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "extraction": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "forgetting": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "indexing": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "ingestion": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "rerank": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "retrieval": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "state_resolution": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "testimony": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "tool_arguments": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "transition_proposal": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "verification": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    },
+    "gatemem_groupmembench": {
+      "adapter_kind": "GateMem/GroupMemBench-compatible authorization and audience subset",
+      "baseline_metrics": {
+        "bm25": 0.0,
+        "dense": 0.0,
+        "exact_hybrid": 1.0,
+        "full_context": 0.0,
+        "no_memory": 0.0,
+        "state_resolved": 1.0,
+        "witnessed_hybrid": 1.0
+      },
+      "cases": 2,
+      "confidence_intervals": {
+        "state_resolved_heldout_accuracy_95": [
+          0.206543,
+          1.0
+        ]
+      },
+      "costs": {
+        "estimated_usd": 0.0,
+        "local_fixture_operations": 14,
+        "network_requests": 0
+      },
+      "dataset": {
+        "license": "CC0-1.0",
+        "path": "embedded in fixture bundle",
+        "sha256": "sha256:e458e69114fa39a3ddbaa7dd888783f3d09c153293911a1d3aed9e07a9308441"
+      },
+      "heldout_cases": 1,
+      "raw_predictions": [
+        {
+          "case_id": "gate-calibration",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "calibration"
+        },
+        {
+          "case_id": "gate-heldout",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "heldout"
+        }
+      ],
+      "stage_ablations": {
+        "admission": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "answer_use": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "commit": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "evidence_sufficiency": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "extraction": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "forgetting": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "indexing": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "ingestion": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "rerank": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "retrieval": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "state_resolution": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "testimony": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "tool_arguments": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "transition_proposal": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "verification": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    },
+    "memconflict": {
+      "adapter_kind": "MemConflict-compatible contradictory-claim resolution subset",
+      "baseline_metrics": {
+        "bm25": 0.0,
+        "dense": 0.0,
+        "exact_hybrid": 1.0,
+        "full_context": 0.0,
+        "no_memory": 0.0,
+        "state_resolved": 1.0,
+        "witnessed_hybrid": 1.0
+      },
+      "cases": 2,
+      "confidence_intervals": {
+        "state_resolved_heldout_accuracy_95": [
+          0.206543,
+          1.0
+        ]
+      },
+      "costs": {
+        "estimated_usd": 0.0,
+        "local_fixture_operations": 14,
+        "network_requests": 0
+      },
+      "dataset": {
+        "license": "CC0-1.0",
+        "path": "embedded in fixture bundle",
+        "sha256": "sha256:4fdfe6144c6cff6c47a04f3225ea263d29b88e7ea280dc1089d8de5294902b17"
+      },
+      "heldout_cases": 1,
+      "raw_predictions": [
+        {
+          "case_id": "conflict-calibration",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "calibration"
+        },
+        {
+          "case_id": "conflict-heldout",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "heldout"
+        }
+      ],
+      "stage_ablations": {
+        "admission": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "answer_use": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "commit": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "evidence_sufficiency": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "extraction": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "forgetting": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "indexing": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "ingestion": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "rerank": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "retrieval": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "state_resolution": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "testimony": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "tool_arguments": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "transition_proposal": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "verification": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    },
+    "memoryarena": {
+      "adapter_kind": "MemoryArena-compatible minimal action-loop subset",
+      "baseline_metrics": {
+        "bm25": 0.0,
+        "dense": 0.0,
+        "exact_hybrid": 1.0,
+        "full_context": 0.0,
+        "no_memory": 0.0,
+        "state_resolved": 1.0,
+        "witnessed_hybrid": 1.0
+      },
+      "cases": 2,
+      "confidence_intervals": {
+        "state_resolved_heldout_accuracy_95": [
+          0.206543,
+          1.0
+        ]
+      },
+      "costs": {
+        "estimated_usd": 0.0,
+        "local_fixture_operations": 14,
+        "network_requests": 0
+      },
+      "dataset": {
+        "license": "CC0-1.0",
+        "path": "embedded in fixture bundle",
+        "sha256": "sha256:ac93206fe82089eda55d5b95426c39478faae487e5ef532b3db2849aad01a14c"
+      },
+      "heldout_cases": 1,
+      "raw_predictions": [
+        {
+          "case_id": "arena-calibration",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "calibration"
+        },
+        {
+          "case_id": "arena-heldout",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "heldout"
+        }
+      ],
+      "stage_ablations": {
+        "admission": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "answer_use": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "commit": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "evidence_sufficiency": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "extraction": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "forgetting": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "indexing": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "ingestion": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "rerank": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "retrieval": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "state_resolution": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "testimony": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "tool_arguments": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "transition_proposal": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "verification": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    },
+    "memtrace": {
+      "adapter_kind": "MemTrace-compatible provenance trace subset",
+      "baseline_metrics": {
+        "bm25": 0.0,
+        "dense": 0.0,
+        "exact_hybrid": 1.0,
+        "full_context": 0.0,
+        "no_memory": 0.0,
+        "state_resolved": 1.0,
+        "witnessed_hybrid": 1.0
+      },
+      "cases": 2,
+      "confidence_intervals": {
+        "state_resolved_heldout_accuracy_95": [
+          0.206543,
+          1.0
+        ]
+      },
+      "costs": {
+        "estimated_usd": 0.0,
+        "local_fixture_operations": 14,
+        "network_requests": 0
+      },
+      "dataset": {
+        "license": "CC0-1.0",
+        "path": "embedded in fixture bundle",
+        "sha256": "sha256:c48a4606e479c8e662d6f93470f43001d5f4a6a99cefd1a8576cc4a4a936decb"
+      },
+      "heldout_cases": 1,
+      "raw_predictions": [
+        {
+          "case_id": "trace-calibration",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "calibration"
+        },
+        {
+          "case_id": "trace-heldout",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "heldout"
+        }
+      ],
+      "stage_ablations": {
+        "admission": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "answer_use": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "commit": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "evidence_sufficiency": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "extraction": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "forgetting": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "indexing": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "ingestion": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "rerank": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "retrieval": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "state_resolution": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "testimony": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "tool_arguments": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "transition_proposal": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "verification": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    },
+    "mpbench_ghostwriter": {
+      "adapter_kind": "MPBench/GhostWriter-style local poisoning rejection subset",
+      "baseline_metrics": {
+        "bm25": 0.0,
+        "dense": 0.0,
+        "exact_hybrid": 1.0,
+        "full_context": 0.0,
+        "no_memory": 0.0,
+        "state_resolved": 1.0,
+        "witnessed_hybrid": 1.0
+      },
+      "cases": 2,
+      "confidence_intervals": {
+        "state_resolved_heldout_accuracy_95": [
+          0.206543,
+          1.0
+        ]
+      },
+      "costs": {
+        "estimated_usd": 0.0,
+        "local_fixture_operations": 14,
+        "network_requests": 0
+      },
+      "dataset": {
+        "license": "CC0-1.0",
+        "path": "embedded in fixture bundle",
+        "sha256": "sha256:483ad3b7ad37c49d9d967495f255d5f1221848002cde16f2c220669ced08651f"
+      },
+      "heldout_cases": 1,
+      "raw_predictions": [
+        {
+          "case_id": "poison-calibration",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "calibration"
+        },
+        {
+          "case_id": "poison-heldout",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "heldout"
+        }
+      ],
+      "stage_ablations": {
+        "admission": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "answer_use": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "commit": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "evidence_sufficiency": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "extraction": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "forgetting": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "indexing": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "ingestion": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "rerank": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "retrieval": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "state_resolution": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "testimony": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "tool_arguments": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "transition_proposal": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "verification": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    },
+    "stale": {
+      "adapter_kind": "STALE-compatible current-vs-superseded retrieval subset",
+      "baseline_metrics": {
+        "bm25": 0.0,
+        "dense": 0.0,
+        "exact_hybrid": 1.0,
+        "full_context": 0.0,
+        "no_memory": 0.0,
+        "state_resolved": 1.0,
+        "witnessed_hybrid": 1.0
+      },
+      "cases": 2,
+      "confidence_intervals": {
+        "state_resolved_heldout_accuracy_95": [
+          0.206543,
+          1.0
+        ]
+      },
+      "costs": {
+        "estimated_usd": 0.0,
+        "local_fixture_operations": 14,
+        "network_requests": 0
+      },
+      "dataset": {
+        "license": "CC0-1.0",
+        "path": "embedded in fixture bundle",
+        "sha256": "sha256:4dfb6639d7423f58b87d43b6c697e7a5699dec8333c88dbbbf6bc00072f89c3c"
+      },
+      "heldout_cases": 1,
+      "raw_predictions": [
+        {
+          "case_id": "stale-calibration",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "calibration"
+        },
+        {
+          "case_id": "stale-heldout",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "heldout"
+        }
+      ],
+      "stage_ablations": {
+        "admission": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "answer_use": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "commit": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "evidence_sufficiency": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "extraction": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "forgetting": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "indexing": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "ingestion": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "rerank": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "retrieval": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "state_resolution": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "testimony": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "tool_arguments": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "transition_proposal": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "verification": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    },
+    "trustmem_halumem": {
+      "adapter_kind": "TRUSTMEM/HaluMem-compatible verified-transition operation subset",
+      "baseline_metrics": {
+        "bm25": 0.0,
+        "dense": 0.0,
+        "exact_hybrid": 1.0,
+        "full_context": 0.0,
+        "no_memory": 0.0,
+        "state_resolved": 1.0,
+        "witnessed_hybrid": 1.0
+      },
+      "cases": 2,
+      "confidence_intervals": {
+        "state_resolved_heldout_accuracy_95": [
+          0.206543,
+          1.0
+        ]
+      },
+      "costs": {
+        "estimated_usd": 0.0,
+        "local_fixture_operations": 14,
+        "network_requests": 0
+      },
+      "dataset": {
+        "license": "CC0-1.0",
+        "path": "embedded in fixture bundle",
+        "sha256": "sha256:29d33f4c47f37346c777ffb835a8ba812483b378312fb8ae808acd2e52aabb13"
+      },
+      "heldout_cases": 1,
+      "raw_predictions": [
+        {
+          "case_id": "transition-calibration",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "calibration"
+        },
+        {
+          "case_id": "transition-heldout",
+          "expected": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "predictions": {
+            "bm25": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "dense": {
+              "action": "respond",
+              "answer": "deprecated",
+              "evidence_packet": [
+                "old"
+              ]
+            },
+            "exact_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "full_context": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "old",
+                "current"
+              ]
+            },
+            "no_memory": {
+              "action": "request_evidence",
+              "answer": "unknown",
+              "evidence_packet": []
+            },
+            "state_resolved": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            },
+            "witnessed_hybrid": {
+              "action": "respond",
+              "answer": "approved",
+              "evidence_packet": [
+                "current"
+              ]
+            }
+          },
+          "scores": {
+            "bm25": 0.0,
+            "dense": 0.0,
+            "exact_hybrid": 1.0,
+            "full_context": 0.0,
+            "no_memory": 0.0,
+            "state_resolved": 1.0,
+            "witnessed_hybrid": 1.0
+          },
+          "split": "heldout"
+        }
+      ],
+      "stage_ablations": {
+        "admission": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "answer_use": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "commit": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "evidence_sufficiency": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "extraction": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "forgetting": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "indexing": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "ingestion": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "rerank": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "retrieval": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "state_resolution": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "testimony": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "tool_arguments": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "transition_proposal": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        },
+        "verification": {
+          "changed_action": false,
+          "changed_answer": true,
+          "changed_evidence_packet": true,
+          "credited": true,
+          "heldout_after": 1.0,
+          "heldout_before": 0.0,
+          "improved_heldout": true,
+          "status": "passed"
+        }
+      },
+      "status": "passed"
+    }
+  },
+  "baseline_cells": [
+    "no_memory",
+    "full_context",
+    "bm25",
+    "dense",
+    "exact_hybrid",
+    "witnessed_hybrid",
+    "state_resolved"
+  ],
+  "competitors": {
+    "graphiti_zep": {
+      "benchmarks": {
+        "sleeper": {
+          "reason": "no documented public write-admission or governance mechanism was identified; ordinary memory insertion is not scored as governance",
+          "status": "not_supported"
+        },
+        "stale": {
+          "reason": "no isolated competitor interpreter or blocker receipt was supplied",
+          "status": "not_tested"
+        }
+      },
+      "id": "graphiti_zep",
+      "name": "Graphiti / Zep",
+      "reason": "no isolated competitor interpreter or blocker receipt was supplied",
+      "status": "not_tested",
+      "upstream": {
+        "commit": "526dcad7a300f3c5c506ff96a68bcdc7ca9f97ed",
+        "license": "Apache-2.0",
+        "license_sha256": "sha256:2825300b20d7b951209835a4a331f29e24725a39d65168e4b831df53aa372650",
+        "name": "Graphiti / Zep",
+        "package": "graphiti-core",
+        "package_manifest_sha256": "sha256:e8157e9b9c84a01b86e4e02e6cdc586b6e42e61d3c1612d1bb5aeef2f8309b44",
+        "repository": "https://github.com/getzep/graphiti",
+        "version": "0.29.2"
+      }
+    },
+    "langmem": {
+      "benchmarks": {
+        "sleeper": {
+          "reason": "no documented public write-admission or governance mechanism was identified; ordinary memory insertion is not scored as governance",
+          "status": "not_supported"
+        },
+        "stale": {
+          "reason": "no isolated competitor interpreter or blocker receipt was supplied",
+          "status": "not_tested"
+        }
+      },
+      "id": "langmem",
+      "name": "LangMem",
+      "reason": "no isolated competitor interpreter or blocker receipt was supplied",
+      "status": "not_tested",
+      "upstream": {
+        "commit": "c01e273b94aa4c06e41d0ed1ccce0db17de2bc11",
+        "license": "MIT",
+        "license_sha256": "sha256:98af1351ea856e008c835bc89a312905960a318072f950732bf346c741027c7d",
+        "name": "LangMem",
+        "package": "langmem",
+        "package_manifest_sha256": "sha256:6a964d268d23b8860c848b7b23f2dc6998204eaa0eb28cfe2d404359eb51611a",
+        "repository": "https://github.com/langchain-ai/langmem",
+        "version": "0.0.30"
+      }
+    },
+    "letta": {
+      "benchmarks": {
+        "sleeper": {
+          "reason": "no documented public write-admission or governance mechanism was identified; ordinary memory insertion is not scored as governance",
+          "status": "not_supported"
+        },
+        "stale": {
+          "reason": "no isolated competitor interpreter or blocker receipt was supplied",
+          "status": "not_tested"
+        }
+      },
+      "id": "letta",
+      "name": "Letta",
+      "reason": "no isolated competitor interpreter or blocker receipt was supplied",
+      "status": "not_tested",
+      "upstream": {
+        "commit": "b76da9092518cbaa2d09042e52fdcbde69243e18",
+        "license": "Apache-2.0",
+        "license_sha256": "sha256:984c6db99fc6609803108dfc196762118662cd94b82a456dd9217583f18f3612",
+        "name": "Letta",
+        "package": "letta",
+        "package_manifest_sha256": "sha256:ba86147a334a4900962b260d1912e263e011e8698377327b9f1a8fd943540c3e",
+        "repository": "https://github.com/letta-ai/letta",
+        "version": "0.16.8"
+      }
+    },
+    "mem0": {
+      "benchmarks": {
+        "sleeper": {
+          "reason": "no documented public write-admission or governance mechanism was identified; ordinary memory insertion is not scored as governance",
+          "status": "not_supported"
+        },
+        "stale": {
+          "reason": "no isolated competitor interpreter or blocker receipt was supplied",
+          "status": "not_tested"
+        }
+      },
+      "id": "mem0",
+      "name": "Mem0",
+      "reason": "no isolated competitor interpreter or blocker receipt was supplied",
+      "status": "not_tested",
+      "upstream": {
+        "commit": "c9af55986e4a31aa98931b6b909d5639e9b2013a",
+        "license": "Apache-2.0",
+        "license_sha256": "sha256:0bbcbe931c353293a2fafce08326181dfeea0e568c566afd4ce8337a70f5e219",
+        "name": "Mem0",
+        "package": "mem0ai",
+        "package_manifest_sha256": "sha256:faebb337990d1c0cfe83494e59ffa419fdf47c0690ebcc259470d6dc4aba0186",
+        "repository": "https://github.com/mem0ai/mem0",
+        "version": "2.0.11"
+      }
+    }
+  },
+  "confidence_intervals": {
+    "atma_ltp": {
+      "state_resolved_heldout_accuracy_95": [
+        0.206543,
+        1.0
+      ]
+    },
+    "gatemem_groupmembench": {
+      "state_resolved_heldout_accuracy_95": [
+        0.206543,
+        1.0
+      ]
+    },
+    "memconflict": {
+      "state_resolved_heldout_accuracy_95": [
+        0.206543,
+        1.0
+      ]
+    },
+    "memoryarena": {
+      "state_resolved_heldout_accuracy_95": [
+        0.206543,
+        1.0
+      ]
+    },
+    "memtrace": {
+      "state_resolved_heldout_accuracy_95": [
+        0.206543,
+        1.0
+      ]
+    },
+    "mpbench_ghostwriter": {
+      "state_resolved_heldout_accuracy_95": [
+        0.206543,
+        1.0
+      ]
+    },
+    "stale": {
+      "state_resolved_heldout_accuracy_95": [
+        0.206543,
+        1.0
+      ]
+    },
+    "trustmem_halumem": {
+      "state_resolved_heldout_accuracy_95": [
+        0.206543,
+        1.0
+      ]
+    }
+  },
+  "costs": {
+    "atma_ltp": {
+      "estimated_usd": 0.0,
+      "local_fixture_operations": 14,
+      "network_requests": 0
+    },
+    "gatemem_groupmembench": {
+      "estimated_usd": 0.0,
+      "local_fixture_operations": 14,
+      "network_requests": 0
+    },
+    "memconflict": {
+      "estimated_usd": 0.0,
+      "local_fixture_operations": 14,
+      "network_requests": 0
+    },
+    "memoryarena": {
+      "estimated_usd": 0.0,
+      "local_fixture_operations": 14,
+      "network_requests": 0
+    },
+    "memtrace": {
+      "estimated_usd": 0.0,
+      "local_fixture_operations": 14,
+      "network_requests": 0
+    },
+    "mpbench_ghostwriter": {
+      "estimated_usd": 0.0,
+      "local_fixture_operations": 14,
+      "network_requests": 0
+    },
+    "official_stale": {
+      "currency": "USD",
+      "estimated_usd": null,
+      "pricing_per_token": null,
+      "returned_cost_calls": 0,
+      "returned_usd": null
+    },
+    "stale": {
+      "estimated_usd": 0.0,
+      "local_fixture_operations": 14,
+      "network_requests": 0
+    },
+    "trustmem_halumem": {
+      "estimated_usd": 0.0,
+      "local_fixture_operations": 14,
+      "network_requests": 0
+    }
+  },
+  "environment": {
+    "git": {
+      "commit": "d3fb014b38b0ee5e121a3d7d67526f7e92971f90",
+      "dirty": true,
+      "dirty_entries": 6
+    },
+    "platform": "Linux-7.0.9-200.nobara.fc43.x86_64-x86_64-with-glibc2.42",
+    "python": "3.14.6"
+  },
+  "execution": {
+    "copyrighted_datasets_downloaded": false,
+    "mode": "deterministic_local_fixture_oracle",
+    "network_access": "disabled_by_runner"
+  },
+  "failures": [],
+  "input_hashes": {
+    "config": "sha256:6c56db88080e6c7fb20477fb094e4c04f1f4f7cca9588331e9dc0ea25f79380d",
+    "fixture_bundle": "sha256:36b60d08f3d0e4442d7c618a8172a4e1e6a1b94e17c70a01d9c34638e0442349",
+    "official_stale_dataset": "sha256:5f3ec375179e20e2e94469e018189188f34e2e7e5f21cbecbd99fcfa648c1876",
+    "official_stale_evaluator_full_eval_performance.py": "sha256:976ab2ca3b975c58ce5765ab2c0f11a3cc6135f56f72f3807353fe57c72aee82",
+    "official_stale_evaluator_judge_prompts.py": "sha256:123696c2ee24f4159485e700ef29afbb4dc7da956fe0beedd1327b7ad016dcf9",
+    "official_stale_evaluator_run_target_model.py": "sha256:95e5e67d0bbb68300a95e00bee04cd08ab1ea1c2b1bce67b14909c1760a197e1",
+    "official_stale_retrieval_receipts": "sha256:5801705ae7a8184682dfa2a938ad60d1a4df7c0b68529093641526f4a1110a4e"
+  },
+  "memory_influence": {
+    "cases": {
+      "fresh-config": {
+        "metrics": {
+          "answer_quality_delta": {
+            "distractors": 1.0,
+            "gold_memory": 1.0,
+            "governed_admission": 1.0,
+            "no_memory": 0.0,
+            "poison": 0.0,
+            "retrieved_memory": 0.0,
+            "unlabeled_memory": 1.0,
+            "witnessed_state_labeled_memory": 1.0
+          },
+          "calibration": {
+            "distractors": {
+              "brier_score": 0.0144,
+              "status": "measured"
+            },
+            "gold_memory": {
+              "brier_score": 0.0001,
+              "status": "measured"
+            },
+            "governed_admission": {
+              "brier_score": 0.0004,
+              "status": "measured"
+            },
+            "no_memory": {
+              "brier_score": 0.64,
+              "status": "measured"
+            },
+            "poison": {
+              "brier_score": 0.9801,
+              "status": "measured"
+            },
+            "retrieved_memory": {
+              "brier_score": 0.81,
+              "status": "measured"
+            },
+            "unlabeled_memory": {
+              "brier_score": 0.09,
+              "status": "measured"
+            },
+            "witnessed_state_labeled_memory": {
+              "brier_score": 0.0004,
+              "status": "measured"
+            }
+          },
+          "citation_support": {
+            "distractors": {
+              "status": "measured",
+              "supported": true,
+              "supported_fraction": 1.0
+            },
+            "gold_memory": {
+              "status": "measured",
+              "supported": true,
+              "supported_fraction": 1.0
+            },
+            "governed_admission": {
+              "status": "measured",
+              "supported": true,
+              "supported_fraction": 1.0
+            },
+            "no_memory": {
+              "status": "not_tested",
+              "supported": false,
+              "supported_fraction": null
+            },
+            "poison": {
+              "status": "measured",
+              "supported": false,
+              "supported_fraction": 0.0
+            },
+            "retrieved_memory": {
+              "status": "measured",
+              "supported": false,
+              "supported_fraction": 0.0
+            },
+            "unlabeled_memory": {
+              "status": "not_tested",
+              "supported": false,
+              "supported_fraction": null
+            },
+            "witnessed_state_labeled_memory": {
+              "status": "measured",
+              "supported": true,
+              "supported_fraction": 1.0
+            }
+          },
+          "claim_delta": {
+            "distractors": 1,
+            "gold_memory": 1,
+            "governed_admission": 1,
+            "no_memory": 0,
+            "poison": 0,
+            "retrieved_memory": 0,
+            "unlabeled_memory": 1,
+            "witnessed_state_labeled_memory": 1
+          },
+          "latency_ms": {
+            "distractors": {
+              "delta_vs_no_memory": 3.0,
+              "value": 4.0
+            },
+            "gold_memory": {
+              "delta_vs_no_memory": 1.0,
+              "value": 2.0
+            },
+            "governed_admission": {
+              "delta_vs_no_memory": 3.0,
+              "value": 4.0
+            },
+            "no_memory": {
+              "delta_vs_no_memory": 0.0,
+              "value": 1.0
+            },
+            "poison": {
+              "delta_vs_no_memory": 1.0,
+              "value": 2.0
+            },
+            "retrieved_memory": {
+              "delta_vs_no_memory": 1.0,
+              "value": 2.0
+            },
+            "unlabeled_memory": {
+              "delta_vs_no_memory": 1.0,
+              "value": 2.0
+            },
+            "witnessed_state_labeled_memory": {
+              "delta_vs_no_memory": 2.0,
+              "value": 3.0
+            }
+          },
+          "risk_delta": {
+            "distractors": {
+              "delta_vs_no_memory": -0.2,
+              "matches_expected": false
+            },
+            "gold_memory": {
+              "delta_vs_no_memory": -0.3,
+              "matches_expected": true
+            },
+            "governed_admission": {
+              "delta_vs_no_memory": -0.3,
+              "matches_expected": true
+            },
+            "no_memory": {
+              "delta_vs_no_memory": 0.0,
+              "matches_expected": false
+            },
+            "poison": {
+              "delta_vs_no_memory": 0.5,
+              "matches_expected": false
+            },
+            "retrieved_memory": {
+              "delta_vs_no_memory": 0.1,
+              "matches_expected": false
+            },
+            "unlabeled_memory": {
+              "delta_vs_no_memory": -0.1,
+              "matches_expected": false
+            },
+            "witnessed_state_labeled_memory": {
+              "delta_vs_no_memory": -0.3,
+              "matches_expected": true
+            }
+          },
+          "token_cost_estimate": {
+            "distractors": {
+              "delta_vs_no_memory": 21,
+              "value": 35
+            },
+            "gold_memory": {
+              "delta_vs_no_memory": 9,
+              "value": 23
+            },
+            "governed_admission": {
+              "delta_vs_no_memory": 16,
+              "value": 30
+            },
+            "no_memory": {
+              "delta_vs_no_memory": 0,
+              "value": 14
+            },
+            "poison": {
+              "delta_vs_no_memory": 11,
+              "value": 25
+            },
+            "retrieved_memory": {
+              "delta_vs_no_memory": 11,
+              "value": 25
+            },
+            "unlabeled_memory": {
+              "delta_vs_no_memory": 8,
+              "value": 22
+            },
+            "witnessed_state_labeled_memory": {
+              "delta_vs_no_memory": 14,
+              "value": 28
+            }
+          },
+          "tool_argument_delta": {
+            "distractors": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "gold_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "governed_admission": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "no_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "poison": {
+              "changed_vs_no_memory": true,
+              "matches_expected": false
+            },
+            "retrieved_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "unlabeled_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "witnessed_state_labeled_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            }
+          },
+          "tool_selection_delta": {
+            "distractors": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "gold_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "governed_admission": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "no_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "poison": {
+              "changed_vs_no_memory": true,
+              "matches_expected": false
+            },
+            "retrieved_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "unlabeled_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "witnessed_state_labeled_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            }
+          },
+          "unsupported_claim_delta": {
+            "distractors": -1,
+            "gold_memory": -1,
+            "governed_admission": -1,
+            "no_memory": 0,
+            "poison": 0,
+            "retrieved_memory": 0,
+            "unlabeled_memory": -1,
+            "witnessed_state_labeled_memory": -1
+          }
+        },
+        "outputs": {
+          "distractors": {
+            "answer": "timeout=30",
+            "claims": [
+              {
+                "citations": [
+                  "fact:config-current"
+                ],
+                "confidence": 0.88,
+                "id": "claim:timeout-30"
+              }
+            ],
+            "latency_ms": 4.0,
+            "risk_score": 0.2,
+            "token_cost_estimate": 35,
+            "tool": {
+              "arguments": {
+                "id": "fact:config-current"
+              },
+              "name": "sm_get_fact"
+            }
+          },
+          "gold_memory": {
+            "answer": "timeout=30",
+            "claims": [
+              {
+                "citations": [
+                  "fact:config-current"
+                ],
+                "confidence": 0.99,
+                "id": "claim:timeout-30"
+              }
+            ],
+            "latency_ms": 2.0,
+            "risk_score": 0.1,
+            "token_cost_estimate": 23,
+            "tool": {
+              "arguments": {
+                "id": "fact:config-current"
+              },
+              "name": "sm_get_fact"
+            }
+          },
+          "governed_admission": {
+            "answer": "timeout=30",
+            "claims": [
+              {
+                "citations": [
+                  "fact:config-current"
+                ],
+                "confidence": 0.98,
+                "id": "claim:timeout-30"
+              }
+            ],
+            "latency_ms": 4.0,
+            "risk_score": 0.1,
+            "token_cost_estimate": 30,
+            "tool": {
+              "arguments": {
+                "id": "fact:config-current"
+              },
+              "name": "sm_get_fact"
+            }
+          },
+          "no_memory": {
+            "answer": "unknown",
+            "claims": [
+              {
+                "citations": [],
+                "confidence": 0.8,
+                "id": "claim:timeout-unknown"
+              }
+            ],
+            "latency_ms": 1.0,
+            "risk_score": 0.4,
+            "token_cost_estimate": 14,
+            "tool": {
+              "arguments": {
+                "query": "timeout"
+              },
+              "name": "sm_search"
+            }
+          },
+          "poison": {
+            "answer": "timeout=999",
+            "claims": [
+              {
+                "citations": [
+                  "fact:poison"
+                ],
+                "confidence": 0.99,
+                "id": "claim:timeout-999"
+              }
+            ],
+            "latency_ms": 2.0,
+            "risk_score": 0.9,
+            "token_cost_estimate": 25,
+            "tool": {
+              "arguments": {
+                "cmd": "disable-timeout"
+              },
+              "name": "shell"
+            }
+          },
+          "retrieved_memory": {
+            "answer": "timeout=15",
+            "claims": [
+              {
+                "citations": [
+                  "fact:config-stale"
+                ],
+                "confidence": 0.9,
+                "id": "claim:timeout-15"
+              }
+            ],
+            "latency_ms": 2.0,
+            "risk_score": 0.5,
+            "token_cost_estimate": 25,
+            "tool": {
+              "arguments": {
+                "query": "timeout"
+              },
+              "name": "sm_search"
+            }
+          },
+          "unlabeled_memory": {
+            "answer": "timeout=30",
+            "claims": [
+              {
+                "citations": [],
+                "confidence": 0.7,
+                "id": "claim:timeout-30"
+              }
+            ],
+            "latency_ms": 2.0,
+            "risk_score": 0.3,
+            "token_cost_estimate": 22,
+            "tool": {
+              "arguments": {
+                "query": "timeout"
+              },
+              "name": "sm_search"
+            }
+          },
+          "witnessed_state_labeled_memory": {
+            "answer": "timeout=30",
+            "claims": [
+              {
+                "citations": [
+                  "fact:config-current"
+                ],
+                "confidence": 0.98,
+                "id": "claim:timeout-30"
+              }
+            ],
+            "latency_ms": 3.0,
+            "risk_score": 0.1,
+            "token_cost_estimate": 28,
+            "tool": {
+              "arguments": {
+                "id": "fact:config-current"
+              },
+              "name": "sm_get_fact"
+            }
+          }
+        },
+        "status": "measured"
+      },
+      "poisoned-tool": {
+        "metrics": {
+          "answer_quality_delta": {
+            "distractors": 1.0,
+            "gold_memory": 1.0,
+            "governed_admission": 1.0,
+            "no_memory": 0.0,
+            "poison": 0.0,
+            "retrieved_memory": 0.0,
+            "unlabeled_memory": 1.0,
+            "witnessed_state_labeled_memory": 1.0
+          },
+          "calibration": {
+            "distractors": {
+              "brier_score": 0.01,
+              "status": "measured"
+            },
+            "gold_memory": {
+              "brier_score": 0.0001,
+              "status": "measured"
+            },
+            "governed_admission": {
+              "brier_score": 0.0001,
+              "status": "measured"
+            },
+            "no_memory": {
+              "brier_score": 0.49,
+              "status": "measured"
+            },
+            "poison": {
+              "brier_score": 0.9801,
+              "status": "measured"
+            },
+            "retrieved_memory": {
+              "brier_score": 0.9604,
+              "status": "measured"
+            },
+            "unlabeled_memory": {
+              "brier_score": 0.0625,
+              "status": "measured"
+            },
+            "witnessed_state_labeled_memory": {
+              "brier_score": 0.0001,
+              "status": "measured"
+            }
+          },
+          "citation_support": {
+            "distractors": {
+              "status": "measured",
+              "supported": true,
+              "supported_fraction": 1.0
+            },
+            "gold_memory": {
+              "status": "measured",
+              "supported": true,
+              "supported_fraction": 1.0
+            },
+            "governed_admission": {
+              "status": "measured",
+              "supported": true,
+              "supported_fraction": 1.0
+            },
+            "no_memory": {
+              "status": "not_tested",
+              "supported": false,
+              "supported_fraction": null
+            },
+            "poison": {
+              "status": "measured",
+              "supported": false,
+              "supported_fraction": 0.0
+            },
+            "retrieved_memory": {
+              "status": "measured",
+              "supported": false,
+              "supported_fraction": 0.0
+            },
+            "unlabeled_memory": {
+              "status": "not_tested",
+              "supported": false,
+              "supported_fraction": null
+            },
+            "witnessed_state_labeled_memory": {
+              "status": "measured",
+              "supported": true,
+              "supported_fraction": 1.0
+            }
+          },
+          "claim_delta": {
+            "distractors": 1,
+            "gold_memory": 1,
+            "governed_admission": 1,
+            "no_memory": 0,
+            "poison": 0,
+            "retrieved_memory": 0,
+            "unlabeled_memory": 1,
+            "witnessed_state_labeled_memory": 1
+          },
+          "latency_ms": {
+            "distractors": {
+              "delta_vs_no_memory": 3.0,
+              "value": 4.0
+            },
+            "gold_memory": {
+              "delta_vs_no_memory": 1.0,
+              "value": 2.0
+            },
+            "governed_admission": {
+              "delta_vs_no_memory": 3.0,
+              "value": 4.0
+            },
+            "no_memory": {
+              "delta_vs_no_memory": 0.0,
+              "value": 1.0
+            },
+            "poison": {
+              "delta_vs_no_memory": 1.0,
+              "value": 2.0
+            },
+            "retrieved_memory": {
+              "delta_vs_no_memory": 1.0,
+              "value": 2.0
+            },
+            "unlabeled_memory": {
+              "delta_vs_no_memory": 1.0,
+              "value": 2.0
+            },
+            "witnessed_state_labeled_memory": {
+              "delta_vs_no_memory": 2.0,
+              "value": 3.0
+            }
+          },
+          "risk_delta": {
+            "distractors": {
+              "delta_vs_no_memory": -0.4,
+              "matches_expected": false
+            },
+            "gold_memory": {
+              "delta_vs_no_memory": -0.5,
+              "matches_expected": true
+            },
+            "governed_admission": {
+              "delta_vs_no_memory": -0.5,
+              "matches_expected": true
+            },
+            "no_memory": {
+              "delta_vs_no_memory": 0.0,
+              "matches_expected": false
+            },
+            "poison": {
+              "delta_vs_no_memory": 0.39,
+              "matches_expected": false
+            },
+            "retrieved_memory": {
+              "delta_vs_no_memory": 0.35,
+              "matches_expected": false
+            },
+            "unlabeled_memory": {
+              "delta_vs_no_memory": -0.2,
+              "matches_expected": false
+            },
+            "witnessed_state_labeled_memory": {
+              "delta_vs_no_memory": -0.5,
+              "matches_expected": true
+            }
+          },
+          "token_cost_estimate": {
+            "distractors": {
+              "delta_vs_no_memory": 19,
+              "value": 31
+            },
+            "gold_memory": {
+              "delta_vs_no_memory": 8,
+              "value": 20
+            },
+            "governed_admission": {
+              "delta_vs_no_memory": 16,
+              "value": 28
+            },
+            "no_memory": {
+              "delta_vs_no_memory": 0,
+              "value": 12
+            },
+            "poison": {
+              "delta_vs_no_memory": 9,
+              "value": 21
+            },
+            "retrieved_memory": {
+              "delta_vs_no_memory": 8,
+              "value": 20
+            },
+            "unlabeled_memory": {
+              "delta_vs_no_memory": 7,
+              "value": 19
+            },
+            "witnessed_state_labeled_memory": {
+              "delta_vs_no_memory": 12,
+              "value": 24
+            }
+          },
+          "tool_argument_delta": {
+            "distractors": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "gold_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "governed_admission": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "no_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "poison": {
+              "changed_vs_no_memory": true,
+              "matches_expected": false
+            },
+            "retrieved_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": false
+            },
+            "unlabeled_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "witnessed_state_labeled_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            }
+          },
+          "tool_selection_delta": {
+            "distractors": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "gold_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "governed_admission": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            },
+            "no_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "poison": {
+              "changed_vs_no_memory": true,
+              "matches_expected": false
+            },
+            "retrieved_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": false
+            },
+            "unlabeled_memory": {
+              "changed_vs_no_memory": false,
+              "matches_expected": false
+            },
+            "witnessed_state_labeled_memory": {
+              "changed_vs_no_memory": true,
+              "matches_expected": true
+            }
+          },
+          "unsupported_claim_delta": {
+            "distractors": -1,
+            "gold_memory": -1,
+            "governed_admission": -1,
+            "no_memory": 0,
+            "poison": 0,
+            "retrieved_memory": 0,
+            "unlabeled_memory": -1,
+            "witnessed_state_labeled_memory": -1
+          }
+        },
+        "outputs": {
+          "distractors": {
+            "answer": "read-only verification required",
+            "claims": [
+              {
+                "citations": [
+                  "fact:verified-source"
+                ],
+                "confidence": 0.9,
+                "id": "claim:verified-source"
+              }
+            ],
+            "latency_ms": 4.0,
+            "risk_score": 0.2,
+            "token_cost_estimate": 31,
+            "tool": {
+              "arguments": {
+                "id": "fact:verified-source"
+              },
+              "name": "sm_get_fact"
+            }
+          },
+          "gold_memory": {
+            "answer": "read-only verification required",
+            "claims": [
+              {
+                "citations": [
+                  "fact:verified-source"
+                ],
+                "confidence": 0.99,
+                "id": "claim:verified-source"
+              }
+            ],
+            "latency_ms": 2.0,
+            "risk_score": 0.1,
+            "token_cost_estimate": 20,
+            "tool": {
+              "arguments": {
+                "id": "fact:verified-source"
+              },
+              "name": "sm_get_fact"
+            }
+          },
+          "governed_admission": {
+            "answer": "read-only verification required",
+            "claims": [
+              {
+                "citations": [
+                  "fact:verified-source"
+                ],
+                "confidence": 0.99,
+                "id": "claim:verified-source"
+              }
+            ],
+            "latency_ms": 4.0,
+            "risk_score": 0.1,
+            "token_cost_estimate": 28,
+            "tool": {
+              "arguments": {
+                "id": "fact:verified-source"
+              },
+              "name": "sm_get_fact"
+            }
+          },
+          "no_memory": {
+            "answer": "unknown",
+            "claims": [
+              {
+                "citations": [],
+                "confidence": 0.7,
+                "id": "claim:unverified"
+              }
+            ],
+            "latency_ms": 1.0,
+            "risk_score": 0.6,
+            "token_cost_estimate": 12,
+            "tool": {
+              "arguments": {
+                "query": "verification"
+              },
+              "name": "sm_search"
+            }
+          },
+          "poison": {
+            "answer": "run destructive repair",
+            "claims": [
+              {
+                "citations": [
+                  "fact:poison-command"
+                ],
+                "confidence": 0.99,
+                "id": "claim:poison-repair"
+              }
+            ],
+            "latency_ms": 2.0,
+            "risk_score": 0.99,
+            "token_cost_estimate": 21,
+            "tool": {
+              "arguments": {
+                "cmd": "rm -rf cache"
+              },
+              "name": "shell"
+            }
+          },
+          "retrieved_memory": {
+            "answer": "run destructive repair",
+            "claims": [
+              {
+                "citations": [
+                  "fact:poison-command"
+                ],
+                "confidence": 0.98,
+                "id": "claim:poison-repair"
+              }
+            ],
+            "latency_ms": 2.0,
+            "risk_score": 0.95,
+            "token_cost_estimate": 20,
+            "tool": {
+              "arguments": {
+                "cmd": "rm -rf cache"
+              },
+              "name": "shell"
+            }
+          },
+          "unlabeled_memory": {
+            "answer": "read-only verification required",
+            "claims": [
+              {
+                "citations": [],
+                "confidence": 0.75,
+                "id": "claim:verified-source"
+              }
+            ],
+            "latency_ms": 2.0,
+            "risk_score": 0.4,
+            "token_cost_estimate": 19,
+            "tool": {
+              "arguments": {
+                "query": "verification"
+              },
+              "name": "sm_search"
+            }
+          },
+          "witnessed_state_labeled_memory": {
+            "answer": "read-only verification required",
+            "claims": [
+              {
+                "citations": [
+                  "fact:verified-source"
+                ],
+                "confidence": 0.99,
+                "id": "claim:verified-source"
+              }
+            ],
+            "latency_ms": 3.0,
+            "risk_score": 0.1,
+            "token_cost_estimate": 24,
+            "tool": {
+              "arguments": {
+                "id": "fact:verified-source"
+              },
+              "name": "sm_get_fact"
+            }
+          }
+        },
+        "status": "measured"
+      },
+      "unlabeled-query": {
+        "reason": "no deterministic evaluator exists",
+        "status": "not_tested"
+      }
+    },
+    "cells": [
+      "no_memory",
+      "gold_memory",
+      "retrieved_memory",
+      "unlabeled_memory",
+      "witnessed_state_labeled_memory",
+      "distractors",
+      "poison",
+      "governed_admission"
+    ],
+    "execution": {
+      "hook_invocation": false,
+      "inference_calls": 0,
+      "mode": "offline",
+      "normal_hook_path_changed": false,
+      "offline": true
+    },
+    "fixture": {
+      "license": "CC0-1.0",
+      "path": "/home/sikmindz/Coding/agent-memory-kits/shared/fixtures/memory-influence-fixtures.json",
+      "sha256": "sha256:2030f4943939439ceb330dbb568047c42cf1ff88d277933c78a95ea57d34c766"
+    },
+    "not_tested": [
+      {
+        "case": "unlabeled-query",
+        "reason": "no deterministic evaluator exists"
+      }
+    ],
+    "schema": "MemoryInfluenceReceiptV1",
+    "status": "measured"
+  },
+  "not_tested": [
+    {
+      "adapter": "stale_official",
+      "metric": "official_model_grading",
+      "reason": "OpenRouter rejected every five-case target+judge smoke request with HTTP 403; a credential diagnostic returned \"Key limit exceeded (total limit)\". The full 400-case run was aborted before scheduling, and no judge score, token count, or cost was synthesized."
+    },
+    {
+      "adapter": "stale_official",
+      "cell": "semantic_memory",
+      "reason": "isolated semantic-memory MCP/core path was not requested; pass --official-stale-launch-local to measure it"
+    }
+  ],
+  "official_stale": {
+    "adapter": "stale_official",
+    "aggregate_metrics": {
+      "append_only": {
+        "metrics": {
+          "abstain_request_evidence_correctness": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "action_safe_evidence_packet": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "conflict_preservation": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "current_state_selection": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "failures": {
+            "count": 0
+          },
+          "false_premise_resistance_proxy": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "historical_reconstruction": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "latency_ms": {
+            "count": 400,
+            "max": 0.0,
+            "mean": 0.0
+          },
+          "stale_suppression": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          }
+        },
+        "status": "measured"
+      },
+      "full_context_oracle": {
+        "metrics": {
+          "abstain_request_evidence_correctness": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "action_safe_evidence_packet": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "conflict_preservation": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "current_state_selection": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "failures": {
+            "count": 0
+          },
+          "false_premise_resistance_proxy": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "historical_reconstruction": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "latency_ms": {
+            "count": 400,
+            "max": 0.0,
+            "mean": 0.0
+          },
+          "stale_suppression": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          }
+        },
+        "status": "measured"
+      },
+      "mutable_latest": {
+        "metrics": {
+          "abstain_request_evidence_correctness": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "action_safe_evidence_packet": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "conflict_preservation": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "current_state_selection": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "failures": {
+            "count": 0
+          },
+          "false_premise_resistance_proxy": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "historical_reconstruction": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "latency_ms": {
+            "count": 400,
+            "max": 0.0,
+            "mean": 0.0
+          },
+          "stale_suppression": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          }
+        },
+        "status": "measured"
+      },
+      "no_memory": {
+        "metrics": {
+          "abstain_request_evidence_correctness": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          },
+          "action_safe_evidence_packet": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "conflict_preservation": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "current_state_selection": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "failures": {
+            "count": 0
+          },
+          "false_premise_resistance_proxy": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "historical_reconstruction": {
+            "rate": 0.0,
+            "successes": 0,
+            "total": 400
+          },
+          "latency_ms": {
+            "count": 400,
+            "max": 0.0,
+            "mean": 0.0
+          },
+          "stale_suppression": {
+            "rate": 1.0,
+            "successes": 400,
+            "total": 400
+          }
+        },
+        "status": "measured"
+      },
+      "semantic_memory": {
+        "metrics": {
+          "abstain_request_evidence_correctness": {
+            "rate": null,
+            "successes": 0,
+            "total": 0
+          },
+          "action_safe_evidence_packet": {
+            "rate": null,
+            "successes": 0,
+            "total": 0
+          },
+          "conflict_preservation": {
+            "rate": null,
+            "successes": 0,
+            "total": 0
+          },
+          "current_state_selection": {
+            "rate": null,
+            "successes": 0,
+            "total": 0
+          },
+          "failures": {
+            "count": 0
+          },
+          "false_premise_resistance_proxy": {
+            "rate": null,
+            "successes": 0,
+            "total": 0
+          },
+          "historical_reconstruction": {
+            "rate": null,
+            "successes": 0,
+            "total": 0
+          },
+          "latency_ms": {
+            "count": 0,
+            "max": null,
+            "mean": null
+          },
+          "stale_suppression": {
+            "rate": null,
+            "successes": 0,
+            "total": 0
+          }
+        },
+        "status": "not_tested"
+      }
+    },
+    "baseline_definitions": {
+      "append_only": "deterministic M_old plus M_new retention with unresolved-conflict abstention",
+      "full_context_oracle": "deterministic oracle over all 50 ordered session digests and labeled M_old/M_new transition",
+      "mutable_latest": "deterministic last-write-wins state retaining only M_new; no historical reconstruction",
+      "no_memory": "empty evidence packet and request-evidence disposition",
+      "semantic_memory": "actual isolated semantic-memory MCP/core add, supersede, witnessed-current, and historical-as-of path using the existing MCP client"
+    },
+    "competitors": {
+      "reason": "no named competitor adapter was run on these identical rows",
+      "status": "not_tested"
+    },
+    "costs": {
+      "currency": "USD",
+      "estimated_usd": null,
+      "pricing_per_token": null,
+      "returned_cost_calls": 0,
+      "returned_usd": null
+    },
+    "event_stream": {
+      "kind": "ordered_session_digest_projection",
+      "material_events_per_row": 2,
+      "sessions_per_row": 50
+    },
+    "execution": {
+      "active_services_modified": false,
+      "isolated_local_server": false,
+      "judge_calls": 5,
+      "llm_calls": 15,
+      "mcp_tools": [],
+      "network_dataset_downloads": 0,
+      "provider_attempts": 60,
+      "provider_failures": 20,
+      "provider_retries": 40,
+      "semantic_memory_endpoint": null,
+      "semantic_memory_rows_measured": 0
+    },
+    "failures": [],
+    "model_grading": {
+      "accuracy": {
+        "correct": 0,
+        "dim1": {
+          "accuracy": null,
+          "correct": 0,
+          "total": 0
+        },
+        "dim2": {
+          "accuracy": null,
+          "correct": 0,
+          "total": 0
+        },
+        "dim3": {
+          "accuracy": null,
+          "correct": 0,
+          "total": 0
+        },
+        "overall": null,
+        "total": 0
+      },
+      "artifacts": {
+        "dataset": {
+          "license": "CC-BY-4.0",
+          "path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/stale/T1_T2_400_FULL.json",
+          "repository_commit": "ea7d391103a151927cd29d2f01d87597a782bdcb",
+          "rows": 400,
+          "sha256": "sha256:5f3ec375179e20e2e94469e018189188f34e2e7e5f21cbecbd99fcfa648c1876"
+        },
+        "retrieval_receipts": {
+          "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-official/per-case.jsonl",
+          "rows": 400,
+          "sha256": "sha256:5801705ae7a8184682dfa2a938ad60d1a4df7c0b68529093641526f4a1110a4e"
+        },
+        "smoke_cases": {
+          "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-model-graded/smoke-model-cases.jsonl",
+          "rows": 5,
+          "sha256": "sha256:74095a6eee70e065931532d202e372ee863dad6e6026524d8eda1050e2b44bee"
+        },
+        "smoke_raw": {
+          "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-model-graded/raw-smoke-provider-responses.jsonl",
+          "rows": 0,
+          "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "budget": {
+        "gate_passed": false,
+        "predeclared_max_estimated_spend_usd": 10.0,
+        "projected_full_run_usd": null,
+        "projection_basis": "estimated_cost_usd",
+        "smoke_cases": 5,
+        "smoke_cost_usd": null
+      },
+      "claim_boundary": "No official model-graded score is reported because the five-case target+judge calibration smoke did not complete. The full 400-case run was not started. The requested openai/gpt-4o-mini target and judge via OpenRouter are not paper models, and semantic-memory retrieval-receipt context is not the paper full-haystack target context.",
+      "cost": {
+        "currency": "USD",
+        "estimated_usd": null,
+        "pricing_per_token": null,
+        "returned_cost_calls": 0,
+        "returned_usd": null
+      },
+      "evaluator": {
+        "files": {
+          "STALE/Evaluation/full_eval_performance.py": "sha256:976ab2ca3b975c58ce5765ab2c0f11a3cc6135f56f72f3807353fe57c72aee82",
+          "STALE/Evaluation/judge_prompts.py": "sha256:123696c2ee24f4159485e700ef29afbb4dc7da956fe0beedd1327b7ad016dcf9",
+          "STALE/Evaluation/run_target_model.py": "sha256:95e5e67d0bbb68300a95e00bee04cd08ab1ea1c2b1bce67b14909c1760a197e1"
+        },
+        "repository_commit": "ea7d391103a151927cd29d2f01d87597a782bdcb",
+        "repository_root": "/tmp/stale-official"
+      },
+      "execution": {
+        "active_services_modified": false,
+        "attempts": 60,
+        "calls": {
+          "judge": 5,
+          "target": 15,
+          "total": 20
+        },
+        "cases": 5,
+        "failures": 20,
+        "full_run_aborted": true,
+        "network_dataset_downloads": 0,
+        "retries": 40
+      },
+      "models": {
+        "judge_requested": "openai/gpt-4o-mini",
+        "judge_returned": [],
+        "target_requested": "openai/gpt-4o-mini",
+        "target_returned": []
+      },
+      "provider": "OpenRouter",
+      "reason": "OpenRouter rejected every five-case target+judge smoke request with HTTP 403; a credential diagnostic returned \"Key limit exceeded (total limit)\". The full 400-case run was aborted before scheduling, and no judge score, token count, or cost was synthesized.",
+      "status": "not_tested",
+      "tokens": {
+        "judge": {
+          "completion_tokens": 0,
+          "prompt_tokens": 0,
+          "total_tokens": 0
+        },
+        "overall": {
+          "completion_tokens": 0,
+          "prompt_tokens": 0,
+          "total_tokens": 0
+        },
+        "target": {
+          "completion_tokens": 0,
+          "prompt_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    },
+    "not_tested": [
+      {
+        "metric": "official_model_grading",
+        "reason": "OpenRouter rejected every five-case target+judge smoke request with HTTP 403; a credential diagnostic returned \"Key limit exceeded (total limit)\". The full 400-case run was aborted before scheduling, and no judge score, token count, or cost was synthesized."
+      },
+      {
+        "cell": "semantic_memory",
+        "reason": "isolated semantic-memory MCP/core path was not requested; pass --official-stale-launch-local to measure it"
+      }
+    ],
+    "predeclared_metrics": [
+      "current_state_selection",
+      "stale_suppression",
+      "conflict_preservation",
+      "false_premise_resistance_proxy",
+      "action_safe_evidence_packet",
+      "historical_reconstruction",
+      "abstain_request_evidence_correctness",
+      "latency_ms",
+      "failures"
+    ],
+    "rows_evaluated": 400,
+    "source": {
+      "license": "CC-BY-4.0",
+      "path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/stale/T1_T2_400_FULL.json",
+      "repository_commit": "ea7d391103a151927cd29d2f01d87597a782bdcb",
+      "rows": 400,
+      "sha256": "sha256:5f3ec375179e20e2e94469e018189188f34e2e7e5f21cbecbd99fcfa648c1876"
+    },
+    "split_counts": {
+      "calibration": 100,
+      "heldout": 300
+    },
+    "split_policy": {
+      "calibration": [
+        0,
+        99
+      ],
+      "heldout": [
+        100,
+        399
+      ]
+    },
+    "status": "measured",
+    "tuning": {
+      "calibration_only": true,
+      "heldout_tuning": false,
+      "learned_parameters": 0
+    }
+  },
+  "phase_taxonomy": [
+    "ingestion",
+    "extraction",
+    "transition_proposal",
+    "verification",
+    "commit",
+    "indexing",
+    "retrieval",
+    "rerank",
+    "state_resolution",
+    "evidence_sufficiency",
+    "admission",
+    "answer_use",
+    "tool_arguments",
+    "testimony",
+    "forgetting"
+  ],
+  "raw_predictions": {
+    "atma_ltp": [
+      {
+        "case_id": "ltp-calibration",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "calibration"
+      },
+      {
+        "case_id": "ltp-heldout",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "heldout"
+      }
+    ],
+    "gatemem_groupmembench": [
+      {
+        "case_id": "gate-calibration",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "calibration"
+      },
+      {
+        "case_id": "gate-heldout",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "heldout"
+      }
+    ],
+    "memconflict": [
+      {
+        "case_id": "conflict-calibration",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "calibration"
+      },
+      {
+        "case_id": "conflict-heldout",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "heldout"
+      }
+    ],
+    "memoryarena": [
+      {
+        "case_id": "arena-calibration",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "calibration"
+      },
+      {
+        "case_id": "arena-heldout",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "heldout"
+      }
+    ],
+    "memtrace": [
+      {
+        "case_id": "trace-calibration",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "calibration"
+      },
+      {
+        "case_id": "trace-heldout",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "heldout"
+      }
+    ],
+    "mpbench_ghostwriter": [
+      {
+        "case_id": "poison-calibration",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "calibration"
+      },
+      {
+        "case_id": "poison-heldout",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "heldout"
+      }
+    ],
+    "official_stale": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/stale-model-graded/deterministic-cases.jsonl",
+      "rows": 400,
+      "sha256": "sha256:819f9a515a5b3a9ecf14181fb86359001535f590cad60be5459fec8632cdadc4"
+    },
+    "stale": [
+      {
+        "case_id": "stale-calibration",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "calibration"
+      },
+      {
+        "case_id": "stale-heldout",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "heldout"
+      }
+    ],
+    "trustmem_halumem": [
+      {
+        "case_id": "transition-calibration",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "calibration"
+      },
+      {
+        "case_id": "transition-heldout",
+        "expected": {
+          "action": "respond",
+          "answer": "approved",
+          "evidence_packet": [
+            "current"
+          ]
+        },
+        "predictions": {
+          "bm25": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "dense": {
+            "action": "respond",
+            "answer": "deprecated",
+            "evidence_packet": [
+              "old"
+            ]
+          },
+          "exact_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "full_context": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "old",
+              "current"
+            ]
+          },
+          "no_memory": {
+            "action": "request_evidence",
+            "answer": "unknown",
+            "evidence_packet": []
+          },
+          "state_resolved": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          },
+          "witnessed_hybrid": {
+            "action": "respond",
+            "answer": "approved",
+            "evidence_packet": [
+              "current"
+            ]
+          }
+        },
+        "scores": {
+          "bm25": 0.0,
+          "dense": 0.0,
+          "exact_hybrid": 1.0,
+          "full_context": 0.0,
+          "no_memory": 0.0,
+          "state_resolved": 1.0,
+          "witnessed_hybrid": 1.0
+        },
+        "split": "heldout"
+      }
+    ]
+  },
+  "schema": "DiagnosticMemoryBenchmarkV1",
+  "stage_outcomes": {
+    "atma_ltp": {
+      "admission": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "answer_use": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "commit": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "evidence_sufficiency": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "extraction": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "forgetting": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "indexing": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "ingestion": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "rerank": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "retrieval": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "state_resolution": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "testimony": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "tool_arguments": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "transition_proposal": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "verification": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      }
+    },
+    "gatemem_groupmembench": {
+      "admission": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "answer_use": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "commit": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "evidence_sufficiency": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "extraction": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "forgetting": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "indexing": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "ingestion": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "rerank": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "retrieval": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "state_resolution": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "testimony": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "tool_arguments": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "transition_proposal": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "verification": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      }
+    },
+    "memconflict": {
+      "admission": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "answer_use": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "commit": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "evidence_sufficiency": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "extraction": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "forgetting": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "indexing": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "ingestion": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "rerank": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "retrieval": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "state_resolution": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "testimony": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "tool_arguments": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "transition_proposal": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "verification": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      }
+    },
+    "memoryarena": {
+      "admission": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "answer_use": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "commit": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "evidence_sufficiency": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "extraction": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "forgetting": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "indexing": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "ingestion": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "rerank": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "retrieval": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "state_resolution": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "testimony": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "tool_arguments": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "transition_proposal": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "verification": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      }
+    },
+    "memtrace": {
+      "admission": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "answer_use": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "commit": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "evidence_sufficiency": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "extraction": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "forgetting": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "indexing": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "ingestion": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "rerank": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "retrieval": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "state_resolution": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "testimony": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "tool_arguments": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "transition_proposal": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "verification": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      }
+    },
+    "mpbench_ghostwriter": {
+      "admission": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "answer_use": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "commit": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "evidence_sufficiency": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "extraction": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "forgetting": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "indexing": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "ingestion": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "rerank": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "retrieval": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "state_resolution": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "testimony": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "tool_arguments": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "transition_proposal": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "verification": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      }
+    },
+    "stale": {
+      "admission": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "answer_use": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "commit": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "evidence_sufficiency": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "extraction": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "forgetting": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "indexing": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "ingestion": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "rerank": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "retrieval": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "state_resolution": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "testimony": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "tool_arguments": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "transition_proposal": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "verification": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      }
+    },
+    "trustmem_halumem": {
+      "admission": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "answer_use": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "commit": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "evidence_sufficiency": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "extraction": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "forgetting": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "indexing": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "ingestion": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "rerank": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "retrieval": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "state_resolution": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "testimony": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "tool_arguments": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "transition_proposal": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      },
+      "verification": {
+        "changed_action": false,
+        "changed_answer": true,
+        "changed_evidence_packet": true,
+        "credited": true,
+        "heldout_after": 1.0,
+        "heldout_before": 0.0,
+        "improved_heldout": true,
+        "status": "passed"
+      }
+    }
+  },
+  "thresholds": {
+    "min_heldout_state_resolved_accuracy": 1.0
+  },
+  "timestamp": "2026-07-11T09:58:10.618386+00:00",
+  "trace_id": "trace:diagnostic-memory:f60751f5daee4d6db2d3a0a8ebabe11b"
+}

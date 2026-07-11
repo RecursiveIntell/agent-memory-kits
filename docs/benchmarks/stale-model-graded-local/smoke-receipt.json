@@ -1,0 +1,73 @@
+{
+  "accuracy": {
+    "correct": 14,
+    "dim1": {
+      "accuracy": 1.0,
+      "correct": 5,
+      "total": 5
+    },
+    "dim2": {
+      "accuracy": 1.0,
+      "correct": 5,
+      "total": 5
+    },
+    "dim3": {
+      "accuracy": 0.8,
+      "correct": 4,
+      "total": 5
+    },
+    "overall": 0.93333333,
+    "total": 15
+  },
+  "cases": 5,
+  "claim_boundary": "Official STALE prompts and parser with semantic-memory retrieval context; Ollama Cloud minimax-m3 is not a paper model.",
+  "cost_usd": 0.0,
+  "elapsed_seconds": 67.344,
+  "evaluator": {
+    "commit": "ea7d391103a151927cd29d2f01d87597a782bdcb",
+    "files": {
+      "STALE/Evaluation/full_eval_performance.py": "sha256:976ab2ca3b975c58ce5765ab2c0f11a3cc6135f56f72f3807353fe57c72aee82",
+      "STALE/Evaluation/judge_prompts.py": "sha256:123696c2ee24f4159485e700ef29afbb4dc7da956fe0beedd1327b7ad016dcf9",
+      "STALE/Evaluation/run_target_model.py": "sha256:95e5e67d0bbb68300a95e00bee04cd08ab1ea1c2b1bce67b14909c1760a197e1"
+    }
+  },
+  "execution": {
+    "attempts": 20,
+    "calls": {
+      "judge": 5,
+      "target": 15,
+      "total": 20
+    },
+    "failures": 0,
+    "retries": 0
+  },
+  "kind": "official_stale_model_grading_smoke",
+  "models": {
+    "judge": "minimax-m3:cloud",
+    "target": "minimax-m3:cloud"
+  },
+  "projected_full_minutes": 89.79,
+  "projected_full_seconds": 5387.545,
+  "provider": "OpenAI-compatible:http://127.0.0.1:11434/v1",
+  "schema": "DiagnosticMemoryBenchmarkV1",
+  "status": "passed",
+  "time_gate_minutes": 90,
+  "time_gate_passed": true,
+  "tokens": {
+    "judge": {
+      "completion_tokens": 2729,
+      "prompt_tokens": 7579,
+      "total_tokens": 10308
+    },
+    "overall": {
+      "completion_tokens": 8130,
+      "prompt_tokens": 11660,
+      "total_tokens": 19790
+    },
+    "target": {
+      "completion_tokens": 5401,
+      "prompt_tokens": 4081,
+      "total_tokens": 9482
+    }
+  }
+}

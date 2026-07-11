@@ -1,0 +1,62 @@
+{
+  "authority_decisions": [
+    {
+      "response": {
+        "id": 2,
+        "jsonrpc": "2.0",
+        "result": {
+          "content": [
+            {
+              "text": "{\"schema_version\":\"origin_authority_decision_v1\",\"fact_id\":\"69ea4a2e-27be-4957-871d-0dac1e3519f1\",\"principal\":\"principal:hermes\",\"audience_compat\":\"principal:hermes\",\"purpose\":\"assertion\",\"allowed\":false,\"reasons\":[\"origin_absent\"],\"origin_label_digest\":null,\"revocation_reference\":null,\"decision_digest\":\"blake3:0a4eb7ebb4867ffb4301dd55d872f71d72abbf58ebb067631209ad71d3cd756b\",\"caller\":\"principal:hermes\",\"subject\":\"principal:hermes\",\"audience\":[\"principal:hermes\"],\"scope\":{\"namespace\":\"research\",\"domain\":null,\"workspace_id\":null,\"repo_id\":null},\"policy_version\":\"governed_access_policy_v1\",\"policy_digest\":\"blake3:58176d10a3ef99e5be6ed02562bf1e810d6facd0dc57f533c24d7d29e32a2e5a\",\"outcome\":\"deny\",\"lease_id\":null}",
+              "type": "text"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "tool": "sm_decide_assertion_authority"
+    },
+    {
+      "response": {
+        "id": 3,
+        "jsonrpc": "2.0",
+        "result": {
+          "content": [
+            {
+              "text": "{\"schema_version\":\"origin_authority_decision_v1\",\"fact_id\":\"69ea4a2e-27be-4957-871d-0dac1e3519f1\",\"principal\":\"principal:hermes\",\"audience_compat\":\"principal:hermes\",\"purpose\":\"action\",\"allowed\":false,\"reasons\":[\"origin_absent\"],\"origin_label_digest\":null,\"revocation_reference\":null,\"decision_digest\":\"blake3:c6ade63bd51254401445ef32ec95ea47b3ce3b9e10e504922dd5b7f34df34265\",\"caller\":\"principal:hermes\",\"subject\":\"principal:hermes\",\"audience\":[\"principal:hermes\"],\"scope\":{\"namespace\":\"research\",\"domain\":null,\"workspace_id\":null,\"repo_id\":null},\"policy_version\":\"governed_access_policy_v1\",\"policy_digest\":\"blake3:f39fbc3d05c588c5b1820d5c850c7e458fedb0dd0040ee612bb7ff2276fc55c6\",\"outcome\":\"deny\",\"lease_id\":null}",
+              "type": "text"
+            }
+          ],
+          "isError": false
+        }
+      },
+      "tool": "sm_decide_action_authority"
+    }
+  ],
+  "binary_sha256": {
+    "/home/sikmindz/.cargo/bin/semantic-memory-mcp": "d56773f3818ca2d45a7cf5146b25e6e16ad89fd3667cddae3bf5c90d2ffc7386",
+    "/home/sikmindz/.local/bin/semantic-memory-mcp": "d56773f3818ca2d45a7cf5146b25e6e16ad89fd3667cddae3bf5c90d2ffc7386",
+    "/home/sikmindz/Coding/Libraries/semantic-memory-mcp/target/release/semantic-memory-mcp": "d56773f3818ca2d45a7cf5146b25e6e16ad89fd3667cddae3bf5c90d2ffc7386"
+  },
+  "claim_boundary": "Fresh-process installed-binary proof on this host; not external deployment or production-maturity evidence.",
+  "commit": "861228c92655b5bb2275caf46fa736190019114d",
+  "fresh_mcp_discovery": {
+    "raw": "Testing 'semantic_memory'...\n  Transport: stdio \u2192 /home/sikmindz/.cargo/bin/semantic-memory-mcp\n  Auth: none\n  \u2713 Connected (5006ms)\n  \u2713 Tools discovered: 3\n\n    sm_decide_action_authority           Return the canonical typed origin-authority decision re...\n    sm_decide_assertion_authority        Return the canonical typed origin-authority decision re...\n    sm_search_witnessed                  Mandatory witnessed hybrid retrieval. Bypasses cache, v...",
+    "tool_count": 3,
+    "tools": [
+      "sm_search_witnessed",
+      "sm_decide_assertion_authority",
+      "sm_decide_action_authority"
+    ]
+  },
+  "recorded_at": "2026-07-11T11:42:09.363624+00:00",
+  "schema": "SemanticMemoryLiveActivationV1",
+  "services": {
+    "health": {
+      "1738": "{\"ok\":true,\"service\":\"semantic-memory-mcp\"}",
+      "1739": "{\"ok\":true,\"service\":\"semantic-memory-mcp\"}"
+    },
+    "semantic-memory-coding-http": "active",
+    "semantic-memory-http": "active"
+  }
+}
