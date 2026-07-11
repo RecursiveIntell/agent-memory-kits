@@ -1,0 +1,21 @@
+2026-07-11T07:17:55-05:00
+
+agent-memory-kits
+?? .bench-data/
+?? .hermes/plans/2026-07-11_semantic-memory-ranking-repair.md
+?? docs/benchmarks/ranking-official/receipts/
+?? openapi_letta.json
+02877268ac416d5998d67bb9238707dba896422d
+
+artifact hashes
+f9b68b994fcf8e8be8a6c073c108a46e79c6ea4095b0c087c8cedf97b98151b7  docs/benchmarks/ranking-official/aggregate.json
+ddf5a0d0d20cf71ca344a8bd4c1ca6d5612c110ae74b3dd69b7c6e62a9dcff22  docs/benchmarks/ranking-official/per-case.jsonl
+
+semantic-memory
+ M tests/forgetting_closure.rs
+a757bbb078e6b89921e0d33d9da9a99d3b2453b1
+ tests/forgetting_closure.rs | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+semantic-memory-mcp
+fa529b86ef4ac169eca97f511cc626fd058dd509

@@ -4,8 +4,8 @@
 - SHA-256: `sha256:5f3ec375179e20e2e94469e018189188f34e2e7e5f21cbecbd99fcfa648c1876`
 - Official repository commit: `ea7d391103a151927cd29d2f01d87597a782bdcb`
 - License: `CC-BY-4.0`
-- Rows: `2`; calibration `2`, held-out `0`
-- Per-case sidecar: `docs/benchmarks/ranking-official/smoke-per-case.jsonl` (`sha256:e9db9affb21305dd08972a65028a4258fa1761d9d131e7c988e4cf6a1d361ff7`)
+- Rows: `5`; calibration `5`, held-out `0`
+- Per-case sidecar: `docs/benchmarks/ranking-official/contract-smoke-per-case.jsonl` (`sha256:f8f0c6b0f363f7fd4336801e2c3b652f9028d5850b7cc27fbb1771f78503be24`)
 - LLM calls: `0`; judge calls: `0`
 
 ## Predeclared metrics
@@ -32,24 +32,18 @@
 
 | Cell | Current | Stale suppression | Conflict | False-premise proxy | Action-safe packet | History | Abstain/evidence | Mean latency ms | Failures |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `semantic_memory` | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 642.518452 | 0 |
+| `semantic_memory` | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 803.888702 | 0 |
 | `mutable_latest` | 1.000 | 1.000 | 0.000 | 1.000 | 1.000 | 0.000 | 1.000 | 0.0 | 0 |
 | `append_only` | 0.000 | 0.000 | 1.000 | 0.000 | 0.000 | 1.000 | 1.000 | 0.0 | 0 |
 | `no_memory` | 0.000 | 1.000 | 0.000 | 0.000 | 0.000 | 0.000 | 1.000 | 0.0 | 0 |
 | `full_context_oracle` | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 0.0 | 0 |
 
-## Retracted multi-candidate ranking result
-
-This historical smoke table is invalid evidence for the same non-identifiable relevance contract documented in `RETRACTION_2026-07-11.json`. It is retained only for audit and must not support a ranking-quality claim.
-
-### Historical invalid table
+## Adversarial/query-copy diagnostic (not a ranking metric)
 
 - Candidate kinds: `current_target`, `stale_predecessor`, `lexical_distractor`, `semantic_distractor`, `unrelated_high_similarity`, `conflict_candidate`
-- State integrity remains in the `semantic_memory` cell above; this lane retrieves six ordinary candidates and never infers a state transition from their ordering.
-
-| Recall@1 | Recall@3 | Recall@5 | MRR | nDCG | Current before stale | Safe evidence | Mean latency ms | Failures |
-|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0.0 | 0.333333 | 0.5 | 0.227778 | 0.409246 | 0.333333 | 0.333333 | 10.704577 | 0 |
+- Contract: `non_identifiable`; violations: `duplicate_target_semantics`, `query_copy_leakage`.
+- Retraction: `Recall@1 0.08%, Recall@3 18.75%, Recall@5 75.33%, MRR 0.248, nDCG 0.424` is `invalid_evidence` because the sole relevant label is non-identifiable from supplied query/content/public state.
+- Claim boundary: no Recall@k, MRR, nDCG, current-before-stale, or safe-evidence metric is emitted; ordinary ranking quality remains unmeasured
 
 ## Model grading
 
@@ -62,7 +56,7 @@ Rows 0–99 are calibration and rows 100–399 are held out. No parameters are l
 ## Exact command
 
 ```bash
-python3 shared/scripts/benchmark-diagnostic-memory.py --official-stale-dataset .bench-data/stale/T1_T2_400_FULL.json --official-stale-limit 2 --official-stale-ranking --official-stale-launch-local --official-stale-cases-out docs/benchmarks/ranking-official/smoke-per-case.jsonl --markdown-out docs/benchmarks/ranking-official/smoke-report.md --out docs/benchmarks/ranking-official/smoke-aggregate.json
+python3 shared/scripts/benchmark-diagnostic-memory.py --fixtures shared/fixtures/diagnostic-memory-fixtures.json --official-stale-dataset .bench-data/stale/T1_T2_400_FULL.json --official-stale-limit 5 --official-stale-ranking --official-stale-launch-local --official-stale-cases-out docs/benchmarks/ranking-official/contract-smoke-per-case.jsonl --markdown-out docs/benchmarks/ranking-official/contract-smoke-report.md --out docs/benchmarks/ranking-official/contract-smoke-aggregate.json
 ```
 
 ## Claim boundary

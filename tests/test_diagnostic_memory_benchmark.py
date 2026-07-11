@@ -386,6 +386,28 @@ class DiagnosticMemoryBenchmarkTests(unittest.TestCase):
         self.assertEqual(benchmark.project_official_stale_ranking_row(rows[100], 100)["split"], "heldout")
         self.assertEqual(projected["ranking_policy"]["state_integrity"], "measured separately from candidate ordering")
 
+    def test_old_ranking_candidates_are_non_identifiable_from_public_state(self) -> None:
+        rows, _ = benchmark.load_official_stale_dataset(OFFICIAL_STALE)
+        projected = benchmark.project_official_stale_ranking_row(rows[0], 0)
+        contract = benchmark.assess_ranking_contract(projected)
+        self.assertFalse(contract["claim_producing"])
+        self.assertEqual(contract["status"], "non_identifiable")
+        self.assertIn("duplicate_target_semantics", contract["violations"])
+        self.assertIn("query_copy_leakage", contract["violations"])
+        self.assertGreaterEqual(len(contract["duplicate_target_candidate_ids"]), 2)
+        self.assertEqual(set(contract["query_copy_probes"]), {"dim1_query", "dim3_query"})
+
+    def test_claim_producing_ranking_refuses_non_identifiable_candidates(self) -> None:
+        rows, _ = benchmark.load_official_stale_dataset(OFFICIAL_STALE)
+        projected = benchmark.project_official_stale_ranking_row(rows[0], 0)
+        with self.assertRaisesRegex(ValueError, "non-identifiable relevance contract"):
+            benchmark.score_claim_producing_ranking(
+                projected,
+                ordered_candidate_ids={probe: [] for probe in projected["probes"]},
+                latency_ms=0.0,
+                failures=[],
+            )
+
     def test_ranking_metrics_and_aggregate_are_predeclared_and_state_separate(self) -> None:
         self.assertEqual(
             benchmark.OFFICIAL_STALE_RANKING_METRICS,
@@ -423,10 +445,31 @@ class DiagnosticMemoryBenchmarkTests(unittest.TestCase):
             self.assertEqual(proc.returncode, 0, proc.stderr)
             receipt = json.loads(out.read_text(encoding="utf-8"))
             ranking = receipt["official_stale"]["ranking"]
-            self.assertEqual(ranking["predeclared_metrics"], list(benchmark.OFFICIAL_STALE_RANKING_METRICS))
-            self.assertEqual(ranking["aggregate_metrics"]["ranking"]["metrics"]["state_integrity"], {"status": "separate"})
+            self.assertEqual(ranking["status"], "not_tested")
+            self.assertEqual(ranking["predeclared_metrics"], [])
+            self.assertEqual(ranking["contract"]["status"], "non_identifiable")
+            self.assertEqual(ranking["retraction"]["status"], "invalid_evidence")
             self.assertEqual(len(cases.read_text(encoding="utf-8").splitlines()), 2)
-            self.assertIn("Multi-candidate retrieval ranking", markdown.read_text(encoding="utf-8"))
+            rendered = markdown.read_text(encoding="utf-8")
+            self.assertIn("Adversarial/query-copy diagnostic", rendered)
+            self.assertNotIn("| Recall@1 |", rendered)
+
+    def test_official_stale_ranking_launch_does_not_force_mock_embeddings(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            env = benchmark.semantic_memory_launch_env(tmp, 17390, ranking=True, base_env={})
+            self.assertEqual(env["SEMANTIC_MEMORY_EMBEDDER"], "candle")
+            self.assertEqual(env["SEMANTIC_MEMORY_TOOL_PROFILE"], "full")
+
+            state_env = benchmark.semantic_memory_launch_env(tmp, 17391, ranking=False, base_env={})
+            self.assertEqual(state_env["SEMANTIC_MEMORY_EMBEDDER"], "mock")
+
+            override = benchmark.semantic_memory_launch_env(
+                tmp,
+                17392,
+                ranking=True,
+                base_env={"SEMANTIC_MEMORY_RANKING_EMBEDDER": "ollama"},
+            )
+            self.assertEqual(override["SEMANTIC_MEMORY_EMBEDDER"], "ollama")
 
     def test_official_stale_temporal_separator_crosses_persisted_second_boundary(self) -> None:
         # SQLite fact/edge timestamps are persisted at one-second granularity.

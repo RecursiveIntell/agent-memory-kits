@@ -1,0 +1,39 @@
+{
+  "schema": "RankingEvidenceRetractionV1",
+  "date": "2026-07-11",
+  "status": "invalid_evidence",
+  "historical_artifacts_retained": [
+    "aggregate.json",
+    "per-case.jsonl",
+    "report.md",
+    "smoke-aggregate.json",
+    "smoke-per-case.jsonl",
+    "smoke-report.md"
+  ],
+  "retracted_result": {
+    "recall_at_1": 0.0008,
+    "recall_at_3": 0.1875,
+    "recall_at_5": 0.7533,
+    "mrr": 0.248,
+    "ndcg": 0.424,
+    "current_before_stale": 0.2,
+    "safe_evidence": 0.1817
+  },
+  "reason": "The sole relevant label is non-identifiable from supplied public state: one distractor contains exact M_new text, two distractors copy probe text, and all six candidates are independent ordinary facts without current/stale lineage.",
+  "replacement_claim": null,
+  "current_claim_status": "Ordinary retrieval ranking quality is unmeasured pending a valid external relevance dataset.",
+  "contract_smoke": {
+    "aggregate": "contract-smoke-aggregate.json",
+    "aggregate_sha256": "eefcde5f35beba0affee70cd0817ae5a8294e83e0fa16ea637feff7d0a6b8ef8",
+    "per_case": "contract-smoke-per-case.jsonl",
+    "per_case_sha256": "f8f0c6b0f363f7fd4336801e2c3b652f9028d5850b7cc27fbb1771f78503be24",
+    "report": "contract-smoke-report.md",
+    "report_sha256": "5794f577f97f125dc1570eaea6e89b4a58ca661f1035c0a10d6af163d2db9ed3",
+    "rows": 5,
+    "embedder": "candle",
+    "failures": 0,
+    "metrics_emitted": []
+  },
+  "held_out_inspected": false,
+  "calibration_100_run": false
+}

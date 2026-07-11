@@ -38,7 +38,13 @@
 | `no_memory` | 0.000 | 1.000 | 0.000 | 0.000 | 0.000 | 0.000 | 1.000 | 0.0 | 0 |
 | `full_context_oracle` | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 0.0 | 0 |
 
-## Multi-candidate retrieval ranking (separate from state integrity)
+## Retracted multi-candidate ranking result
+
+This historical report's Recall@k/MRR/nDCG table is invalid evidence. The sole relevant `current_target` label is non-identifiable because another candidate contains the exact `M_new` text, two distractors copy probe text, and all six records were supplied as independent ordinary facts without current/stale lineage. The ordering remains useful only as an adversarial/query-copy diagnostic; it does not establish a general ranking weakness.
+
+No new ranking metric replaces it. Genuine supersession is already measured by the `semantic_memory` state-integrity cell, and ordinary retrieval quality remains unmeasured pending a valid external relevance dataset.
+
+### Historical invalid table (retained for audit)
 
 - Candidate kinds: `current_target`, `stale_predecessor`, `lexical_distractor`, `semantic_distractor`, `unrelated_high_similarity`, `conflict_candidate`
 - State integrity remains in the `semantic_memory` cell above; this lane retrieves six ordinary candidates and never infers a state transition from their ordering.

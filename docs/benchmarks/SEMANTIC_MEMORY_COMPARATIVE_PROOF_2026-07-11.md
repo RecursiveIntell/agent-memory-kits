@@ -8,7 +8,7 @@ The evidence supports this bounded claim:
 
 > RecursiveIntell semantic-memory is a strong local-first memory epistemics and control plane for persistent agents. It combines verified state transitions, current/historical state resolution, stale suppression, witnessed retrieval, origin-bounded assertion/action authority, governed admission, selective forgetting, and receipt-backed evaluation.
 
-It does not support “best agent memory overall.” State integrity is strong; ordinary multi-candidate retrieval ranking is currently weak and must be improved before broad superiority claims.
+It does not support “best agent memory overall.” State integrity is strong; ordinary multi-candidate retrieval ranking is unmeasured because the attempted lane had a non-identifiable sole relevance label.
 
 ## Official STALE deterministic state evaluation
 
@@ -67,7 +67,7 @@ Boundary:
 - Semantic-memory retrieval-receipt context replaces the paper full-haystack target context.
 - This is an official-evaluator system-configuration result, not paper-model reproduction or a cross-system answer-quality victory.
 
-## Multi-candidate retrieval ranking
+## Retracted multi-candidate ranking result
 
 Six candidates per official STALE case:
 
@@ -78,13 +78,15 @@ Six candidates per official STALE case:
 - unrelated high-similarity candidate
 - conflict candidate
 
-400 cases / 1,200 probes:
+The original report scored 400 cases / 1,200 probes as follows:
 
 | Recall@1 | Recall@3 | Recall@5 | MRR | nDCG | Current before stale | Safe evidence |
 |---:|---:|---:|---:|---:|---:|---:|
 | 0.08% | 18.75% | 75.33% | 0.248 | 0.424 | 20.0% | 18.17% |
 
-This is the largest demonstrated weakness. Temporal/state governance does not compensate for poor ordinary candidate ranking. Retrieval ranking must be improved and rerun before claiming best overall memory.
+These numbers are retracted as invalid evidence, not replaced by improved numbers. The “unrelated high-similarity” candidate contains the exact `M_new` target text, the lexical and semantic distractors copy probe text, and all six candidates are independent ordinary facts with no supplied current/stale lineage. Query and candidate content therefore cannot identify the bare `M_new` record as the sole relevant label.
+
+The lane is retained only as an adversarial/query-copy ordering diagnostic and emits no Recall@k, MRR, nDCG, current-before-stale, or safe-evidence metric. A genuine `M_old -> M_new` supersession lane would duplicate the existing state-integrity benchmark, so no second claim-producing lane was fabricated. No general Rust ranking defect remains proven; ordinary retrieval quality awaits a valid external retrieval dataset with publicly inferable relevance judgments.
 
 ## Sleeper deterministic governed-admission slice
 
@@ -188,15 +190,9 @@ Do not claim:
 - Identical end-to-end Sleeper superiority
 - Production, enterprise, compliance, or adoption maturity
 
-## Highest-ROI next engineering target
+## Highest-ROI next evaluation target
 
-Improve multi-candidate ranking without weakening state governance:
-
-1. Diagnose why lexical/high-similarity distractors outrank current targets.
-2. Add state-aware candidate features before final rerank.
-3. Preserve raw lexical/vector scores and exact ablations.
-4. Tune on calibration rows 0–99 only.
-5. Rerun held-out rows 100–399 and require material Recall@1/MRR improvement without stale-suppression regression.
+Acquire or construct a retrieval dataset where relevance is inferable from public query, candidate content, and supplied state metadata. Freeze that calibration contract before inspecting held-out rows; do not use candidate IDs, kinds, or labels as ranking features.
 
 ## Primary receipts
 

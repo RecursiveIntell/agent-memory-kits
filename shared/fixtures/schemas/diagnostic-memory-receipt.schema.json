@@ -38,14 +38,17 @@
         "aggregate_metrics": {"type": "object"},
         "ranking": {
           "type": "object",
-          "description": "Optional deterministic multi-candidate retrieval ranking lane. It is distinct from the existing state-integrity cells and reuses their official STALE projection and JSONL sidecar.",
-          "required": ["status", "predeclared_metrics", "candidate_taxonomy", "policy", "aggregate_metrics", "claim_boundary"],
+          "description": "Optional adversarial/query-copy diagnostic. A non-identifiable candidate set emits no relevance metrics.",
+          "required": ["status", "lane_kind", "predeclared_metrics", "candidate_taxonomy", "policy", "contract", "observations", "retraction", "claim_boundary"],
           "properties": {
-            "status": {"enum": ["measured", "failed", "not_tested"]},
-            "predeclared_metrics": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "string"}},
+            "status": {"enum": ["diagnostic_only", "not_tested"]},
+            "lane_kind": {"const": "adversarial_query_copy_diagnostic"},
+            "predeclared_metrics": {"type": "array", "maxItems": 0},
             "candidate_taxonomy": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"type": "string"}},
             "policy": {"type": "object"},
-            "aggregate_metrics": {"type": "object"},
+            "contract": {"type": "object"},
+            "observations": {"type": "object"},
+            "retraction": {"type": "object"},
             "claim_boundary": {"type": "string"}
           }
         },

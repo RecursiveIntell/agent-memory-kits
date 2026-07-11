@@ -907,11 +907,40 @@ def project_official_stale_ranking_row(row: dict[str, Any], index: int) -> dict[
     projected["ranking_policy"] = {
         "candidate_count": len(OFFICIAL_STALE_RANKING_CANDIDATE_KINDS),
         "candidate_kinds": list(OFFICIAL_STALE_RANKING_CANDIDATE_KINDS),
-        "retrieval_ranking": "all candidates are retrieved as ordinary records with stable marker identities",
+        "retrieval_ranking": "adversarial/query-copy ordering diagnostic only; no relevance metric is valid",
         "state_integrity": "measured separately from candidate ordering",
+        "claim_producing_lane": "absent: genuine supersession is already measured by the semantic_memory state-integrity cell",
         "tuning": "calibration rows 0-99 only; heldout rows 100-399 are never used for benchmark-specific tuning",
     }
     return projected
+
+
+def assess_ranking_contract(case: dict[str, Any]) -> dict[str, Any]:
+    """Audit whether a sole relevance label is inferable from supplied public state."""
+    target = str(case["M_new"])
+    duplicate_target_ids = [
+        str(candidate["id"])
+        for candidate in case["ranking_candidates"]
+        if target and target in str(candidate["content"])
+    ]
+    query_copy_probes = [
+        probe
+        for probe, query in case["probes"].items()
+        if any(str(query) in str(candidate["content"]) for candidate in case["ranking_candidates"])
+    ]
+    violations: list[str] = []
+    if len(duplicate_target_ids) > 1:
+        violations.append("duplicate_target_semantics")
+    if query_copy_probes:
+        violations.append("query_copy_leakage")
+    return {
+        "status": "identifiable" if not violations else "non_identifiable",
+        "claim_producing": not violations,
+        "violations": violations,
+        "duplicate_target_candidate_ids": duplicate_target_ids,
+        "query_copy_probes": query_copy_probes,
+        "public_state": "ordinary independent facts; no current/stale lineage is supplied",
+    }
 
 
 def _ranking_position(ordered: list[str], candidate_id: str) -> int | None:
@@ -961,6 +990,43 @@ def score_ranking_results(
         "safe_evidence_rate": safe_evidence,
         "latency_ms": round(latency_ms, 6),
         "failures": list(failures),
+    }
+
+
+def score_claim_producing_ranking(
+    case: dict[str, Any],
+    *,
+    ordered_candidate_ids: dict[str, list[str]],
+    latency_ms: float,
+    failures: list[str],
+) -> dict[str, Any]:
+    """Score only when relevance is inferable without private labels or IDs."""
+    contract = assess_ranking_contract(case)
+    if not contract["claim_producing"]:
+        raise ValueError("claim-producing ranking refused: non-identifiable relevance contract")
+    candidate_ids = {candidate["kind"]: candidate["id"] for candidate in case["ranking_candidates"]}
+    return score_ranking_results(
+        expected_current=candidate_ids["current_target"],
+        expected_stale=candidate_ids["stale_predecessor"],
+        conflict_candidate=candidate_ids["conflict_candidate"],
+        ordered_candidate_ids=ordered_candidate_ids,
+        latency_ms=latency_ms,
+        failures=failures,
+    )
+
+
+def adversarial_ranking_observation(
+    case: dict[str, Any], ordered_candidate_ids: dict[str, list[str]], latency_ms: float, failures: list[str]
+) -> dict[str, Any]:
+    """Retain query-copy ordering as a diagnostic without relevance metrics."""
+    return {
+        "status": "observed" if not failures else "failed",
+        "contract": assess_ranking_contract(case),
+        "ordered_candidate_ids": ordered_candidate_ids,
+        "latency_ms": round(latency_ms, 6),
+        "failures": list(failures),
+        "metrics_emitted": [],
+        "claim_boundary": "adversarial/query-copy diagnostic only; cannot support an ordinary ranking-quality claim",
     }
 
 
@@ -1055,6 +1121,25 @@ def _load_memory_trust_kernel_module() -> Any:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def semantic_memory_launch_env(
+    memory_dir: str,
+    port: int,
+    *,
+    ranking: bool = False,
+    base_env: dict[str, str] | None = None,
+) -> dict[str, str]:
+    """Build the isolated semantic-memory MCP launch environment."""
+    env = dict(os.environ if base_env is None else base_env)
+    embedder = env.get("SEMANTIC_MEMORY_RANKING_EMBEDDER", "candle") if ranking else "mock"
+    env.update({
+        "SEMANTIC_MEMORY_DIR": memory_dir,
+        "SEMANTIC_MEMORY_HTTP_PORT": str(port),
+        "SEMANTIC_MEMORY_EMBEDDER": embedder,
+        "SEMANTIC_MEMORY_TOOL_PROFILE": "full",
+    })
+    return env
 
 
 def _result_text(payload: dict[str, Any]) -> str:
@@ -1168,21 +1253,10 @@ def _semantic_memory_ranking_case(client: Any, case: dict[str, Any]) -> dict[str
         if not ok:
             failures.append(f"{probe} witnessed retrieval failed")
         ordered[probe] = _candidate_ids_from_payload(payload)
-    candidate_ids = {candidate["kind"]: candidate["id"] for candidate in case["ranking_candidates"]}
-    metrics = score_ranking_results(
-        expected_current=candidate_ids["current_target"],
-        expected_stale=candidate_ids["stale_predecessor"],
-        conflict_candidate=candidate_ids["conflict_candidate"],
-        ordered_candidate_ids=ordered,
-        latency_ms=(time.perf_counter() - started) * 1000,
-        failures=failures,
-    )
+    observation = adversarial_ranking_observation(case, ordered, (time.perf_counter() - started) * 1000, failures)
     return {
-        "status": "measured" if not failures else "failed",
-        "ordered_candidate_ids": ordered,
+        **observation,
         "candidate_taxonomy": list(OFFICIAL_STALE_RANKING_CANDIDATE_KINDS),
-        "metrics": metrics,
-        "claim_boundary": "candidate ordering only; current-state integrity is measured in the separate semantic_memory cell",
     }
 
 
@@ -1371,7 +1445,7 @@ def run_official_sleeper_adapter(
             temp_dir = tempfile.TemporaryDirectory(prefix="official-sleeper-")
             port = trust_kernel.free_port()
             endpoint = f"http://127.0.0.1:{port}"
-            env = {**os.environ, "SEMANTIC_MEMORY_DIR": temp_dir.name, "SEMANTIC_MEMORY_HTTP_PORT": str(port), "SEMANTIC_MEMORY_EMBEDDER": "mock", "SEMANTIC_MEMORY_TOOL_PROFILE": "full"}
+            env = semantic_memory_launch_env(temp_dir.name, port)
             client = trust_kernel.McpClient([str(launcher)], env)
             for _ in range(40):
                 if trust_kernel.endpoint_available(endpoint):
@@ -1872,26 +1946,15 @@ def _ranking_case_record(
     failures: list[str],
     public_api: list[str],
 ) -> dict[str, Any]:
-    candidate_ids = {candidate["kind"]: candidate["id"] for candidate in case["ranking_candidates"]}
-    metrics = score_ranking_results(
-        expected_current=candidate_ids["current_target"],
-        expected_stale=candidate_ids["stale_predecessor"],
-        conflict_candidate=candidate_ids["conflict_candidate"],
-        ordered_candidate_ids=ordered_candidate_ids,
-        latency_ms=latency_ms,
-        failures=failures,
-    )
+    observation = adversarial_ranking_observation(case, ordered_candidate_ids, latency_ms, failures)
     return {
         "case_id": case["case_id"],
         "case_index": case["case_index"],
         "split": case["split"],
         "competitor": competitor,
-        "status": "measured" if not failures else "failed",
-        "ordered_candidate_ids": ordered_candidate_ids,
+        **observation,
         "candidate_taxonomy": list(OFFICIAL_STALE_RANKING_CANDIDATE_KINDS),
-        "metrics": metrics,
         "public_api": public_api,
-        "claim_boundary": "candidate ordering only; the separate existing worker run measures update/state integrity",
     }
 
 
@@ -2279,8 +2342,12 @@ def run_competitor_stale_subprocess(
     if len(rows) != len(cases):
         return _unmeasured_competitor(competitor_id, f"worker row count mismatch: expected {len(cases)}, got {len(rows)}")
     write_official_stale_cases(cases_out, rows)
-    aggregate = (aggregate_ranking_metrics([{competitor_id: row} for row in rows], cell=competitor_id)[competitor_id] if ranking else _aggregate_stale_metrics([{"cells": {competitor_id: row}} for row in rows], cells=(competitor_id,))[competitor_id])
-    failures = [failure for row in rows for failure in row["metrics"]["failures"]]
+    aggregate = (
+        {"status": "diagnostic_only", "cases": len(rows), "metrics_emitted": []}
+        if ranking
+        else _aggregate_stale_metrics([{"cells": {competitor_id: row}} for row in rows], cells=(competitor_id,))[competitor_id]
+    )
+    failures = [failure for row in rows for failure in (row["failures"] if ranking else row["metrics"]["failures"])]
     record = {
         "id": competitor_id,
         "name": COMPETITOR_PINS[competitor_id]["name"],
@@ -2288,12 +2355,12 @@ def run_competitor_stale_subprocess(
         "upstream": dict(COMPETITOR_PINS[competitor_id]),
         "benchmarks": {
             "stale": {
-                "status": "measured" if not failures else "failed",
+                "status": "diagnostic_only" if ranking and not failures else "failed" if failures else "measured",
                 "rows_evaluated": len(rows),
                 "split_counts": {"calibration": sum(row["split"] == "calibration" for row in rows), "heldout": sum(row["split"] == "heldout" for row in rows)},
                 "selection_policy": "all 400 rows after bounded smoke" if all_rows else "predeclared rows 0-9 calibration and 100-109 held-out",
                 "tuning": {"calibration_only": True, "heldout_tuning": False, "learned_parameters": 0},
-                "predeclared_metrics": list(OFFICIAL_STALE_RANKING_METRICS if ranking else OFFICIAL_STALE_METRICS),
+                "predeclared_metrics": [] if ranking else list(OFFICIAL_STALE_METRICS),
                 "aggregate_metrics": aggregate,
                 "per_case": {"path": str(cases_out), "rows": len(rows), "sha256": sha256_path(cases_out)},
             },
@@ -2314,7 +2381,7 @@ def run_competitor_stale_subprocess(
             ),
         },
         "failures": failures,
-        "claim_boundary": "deterministic retrieval-ranking metrics only; state integrity is separately measured by the existing update worker" if ranking else "deterministic state/evidence proxy metrics only; not official model-graded response accuracy and not a best-system claim",
+        "claim_boundary": "adversarial/query-copy ordering diagnostic only; no ranking-quality metric or claim" if ranking else "deterministic state/evidence proxy metrics only; not official model-graded response accuracy and not a best-system claim",
     }
     return record
 
@@ -2348,13 +2415,7 @@ def run_official_stale_adapter(
             temp_dir = tempfile.TemporaryDirectory(prefix="official-stale-")
             port = trust_kernel.free_port()
             endpoint = f"http://127.0.0.1:{port}"
-            env = {
-                **os.environ,
-                "SEMANTIC_MEMORY_DIR": temp_dir.name,
-                "SEMANTIC_MEMORY_HTTP_PORT": str(port),
-                "SEMANTIC_MEMORY_EMBEDDER": "mock",
-                "SEMANTIC_MEMORY_TOOL_PROFILE": "full",
-            }
+            env = semantic_memory_launch_env(temp_dir.name, port, ranking=ranking)
             client = trust_kernel.McpClient([str(launcher)], env)
             for _ in range(40):
                 if trust_kernel.endpoint_available(endpoint):
@@ -2389,7 +2450,9 @@ def run_official_stale_adapter(
                         "reason": semantic_reason,
                         "ordered_candidate_ids": {},
                         "candidate_taxonomy": list(OFFICIAL_STALE_RANKING_CANDIDATE_KINDS),
-                        "metrics": {metric: ([] if metric == "failures" else 0.0 if metric == "latency_ms" else {} if metric in {"recall_at_k", "stale_at_rank"} else 0.0) for metric in OFFICIAL_STALE_RANKING_METRICS},
+                        "contract": assess_ranking_contract(case),
+                        "metrics_emitted": [],
+                        "failures": [],
                     }
             case["cells"] = cells
     except Exception as exc:
@@ -2411,7 +2474,9 @@ def run_official_stale_adapter(
                     "reason": semantic_reason,
                     "ordered_candidate_ids": {},
                     "candidate_taxonomy": list(OFFICIAL_STALE_RANKING_CANDIDATE_KINDS),
-                    "metrics": {metric: ([] if metric == "failures" else 0.0 if metric == "latency_ms" else {} if metric in {"recall_at_k", "stale_at_rank"} else 0.0) for metric in OFFICIAL_STALE_RANKING_METRICS},
+                    "contract": assess_ranking_contract(case),
+                    "metrics_emitted": [],
+                    "failures": [],
                 }
     finally:
         if client is not None:
@@ -2464,13 +2529,25 @@ def run_official_stale_adapter(
         "not_tested": [{"metric": "official_model_grading", "reason": OFFICIAL_STALE_MODEL_GRADING_BLOCKER}],
     }
     if ranking:
+        observed = [case["ranking"] for case in projected if case["ranking"]["status"] in {"observed", "failed"}]
         receipt["ranking"] = {
-            "status": "measured" if any(case["ranking"]["status"] in {"measured", "failed"} for case in projected) else "not_tested",
-            "predeclared_metrics": list(OFFICIAL_STALE_RANKING_METRICS),
+            "status": "diagnostic_only" if observed else "not_tested",
+            "lane_kind": "adversarial_query_copy_diagnostic",
+            "predeclared_metrics": [],
             "candidate_taxonomy": list(OFFICIAL_STALE_RANKING_CANDIDATE_KINDS),
             "policy": projected[0]["ranking_policy"] if projected else {},
-            "aggregate_metrics": aggregate_ranking_metrics(projected),
-            "claim_boundary": "retrieval ranking is measured separately from the existing semantic-memory state-integrity cell; no model responses or judges were run",
+            "contract": assess_ranking_contract(projected[0]) if projected else {},
+            "observations": {
+                "cases": len(observed),
+                "failures": sum(len(item["failures"]) for item in observed),
+                "latency_ms": {"mean": round(sum(item["latency_ms"] for item in observed) / len(observed), 6) if observed else None},
+            },
+            "retraction": {
+                "status": "invalid_evidence",
+                "result": "Recall@1 0.08%, Recall@3 18.75%, Recall@5 75.33%, MRR 0.248, nDCG 0.424",
+                "reason": "the sole relevant label is non-identifiable from supplied query/content/public state",
+            },
+            "claim_boundary": "no Recall@k, MRR, nDCG, current-before-stale, or safe-evidence metric is emitted; ordinary ranking quality remains unmeasured",
         }
     if semantic_measured != len(projected):
         receipt["not_tested"].append({"cell": "semantic_memory", "reason": semantic_reason})
@@ -2520,17 +2597,14 @@ def render_official_stale_markdown(report: dict[str, Any], command: str, cases_p
         lines.append(f"| `{cell}` | {rate('current_state_selection')} | {rate('stale_suppression')} | {rate('conflict_preservation')} | {rate('false_premise_resistance_proxy')} | {rate('action_safe_evidence_packet')} | {rate('historical_reconstruction')} | {rate('abstain_request_evidence_correctness')} | {latency if latency is not None else 'not tested'} | {metrics['failures']['count']} |")
     if "ranking" in stale:
         ranking = stale["ranking"]
-        metrics = ranking["aggregate_metrics"]["ranking"]["metrics"]
         lines.extend([
             "",
-            "## Multi-candidate retrieval ranking (separate from state integrity)",
+            "## Adversarial/query-copy diagnostic (not a ranking metric)",
             "",
             f"- Candidate kinds: {', '.join('`' + kind + '`' for kind in ranking['candidate_taxonomy'])}",
-            "- State integrity remains in the `semantic_memory` cell above; this lane retrieves six ordinary candidates and never infers a state transition from their ordering.",
-            "",
-            "| Recall@1 | Recall@3 | Recall@5 | MRR | nDCG | Current before stale | Safe evidence | Mean latency ms | Failures |",
-            "|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
-            f"| {metrics['recall_at_k']['1']['rate'] if metrics['recall_at_k']['1']['rate'] is not None else 'not tested'} | {metrics['recall_at_k']['3']['rate'] if metrics['recall_at_k']['3']['rate'] is not None else 'not tested'} | {metrics['recall_at_k']['5']['rate'] if metrics['recall_at_k']['5']['rate'] is not None else 'not tested'} | {metrics['mrr']['mean'] if metrics['mrr']['mean'] is not None else 'not tested'} | {metrics['ndcg']['mean'] if metrics['ndcg']['mean'] is not None else 'not tested'} | {metrics['current_vs_stale_ordering']['rate'] if metrics['current_vs_stale_ordering']['rate'] is not None else 'not tested'} | {metrics['safe_evidence_rate']['rate'] if metrics['safe_evidence_rate']['rate'] is not None else 'not tested'} | {metrics['latency_ms']['mean'] if metrics['latency_ms']['mean'] is not None else 'not tested'} | {metrics['failures']['count']} |",
+            f"- Contract: `{ranking['contract']['status']}`; violations: {', '.join('`' + item + '`' for item in ranking['contract']['violations'])}.",
+            f"- Retraction: `{ranking['retraction']['result']}` is `{ranking['retraction']['status']}` because {ranking['retraction']['reason']}.",
+            f"- Claim boundary: {ranking['claim_boundary']}",
         ])
     lines.extend([
         "",
@@ -2636,16 +2710,9 @@ def render_competitor_markdown(report: dict[str, Any], command: str) -> str:
     lines.extend(["", "## Blockers and boundaries", ""])
     if any("ranking" in report["competitors"][competitor_id]["benchmarks"]["stale"] for competitor_id in COMPETITOR_IDS):
         lines.extend([
-            "", "## Multi-candidate ranking (separate from state integrity)", "",
-            "| Competitor | Rows | Recall@1 | Recall@3 | MRR | nDCG | Current before stale | Safe evidence |", "|---|---:|---:|---:|---:|---:|---:|---:|",
+            "", "## Adversarial/query-copy diagnostics (not ranking metrics)", "",
+            "No competitor relevance metrics are emitted for the non-identifiable six-candidate contract.",
         ])
-        for competitor_id in COMPETITOR_IDS:
-            ranking = report["competitors"][competitor_id]["benchmarks"]["stale"].get("ranking")
-            if not ranking or ranking["status"] not in {"measured", "failed"}:
-                lines.append(f"| `{competitor_id}` | not tested | — | — | — | — | — | — |")
-                continue
-            metrics = ranking["aggregate_metrics"]["metrics"]
-            lines.append(f"| `{competitor_id}` | {ranking['rows_evaluated']} | {metrics['recall_at_k']['1']['rate']} | {metrics['recall_at_k']['3']['rate']} | {metrics['mrr']['mean']} | {metrics['ndcg']['mean']} | {metrics['current_vs_stale_ordering']['rate']} | {metrics['safe_evidence_rate']['rate']} |")
     for competitor_id in COMPETITOR_IDS:
         competitor = report["competitors"][competitor_id]
         if competitor["benchmarks"]["stale"]["status"] == "not_tested":
