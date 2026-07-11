@@ -1,0 +1,204 @@
+{
+  "execution": {
+    "command": "python shared/scripts/benchmark-memory-trust-kernel.py --fixtures shared/fixtures/memory-trust-kernel.json --endpoint http://127.0.0.1:1739 --out docs/benchmarks/memory-trust-kernel-live-2026-07-10.json --markdown-out docs/benchmarks/memory-trust-kernel-live-2026-07-10.md --launch-local",
+    "endpoint": "http://127.0.0.1:54775",
+    "launched_local": true,
+    "live_surface": "available",
+    "mcp_tools": [
+      "sm_add_evidence",
+      "sm_add_fact",
+      "sm_add_graph_edge",
+      "sm_community",
+      "sm_consolidate_facts",
+      "sm_create_claim",
+      "sm_decoder_analyze",
+      "sm_delete_fact",
+      "sm_delete_namespace",
+      "sm_detect_contradictions",
+      "sm_discord_search",
+      "sm_embeddings_are_dirty",
+      "sm_factor_graph",
+      "sm_get_fact",
+      "sm_get_fact_neighbors",
+      "sm_get_messages",
+      "sm_get_search_receipt",
+      "sm_graph_path",
+      "sm_import_envelope",
+      "sm_import_status",
+      "sm_ingest_document",
+      "sm_invalidate_graph_edge",
+      "sm_judge_support",
+      "sm_list_facts",
+      "sm_list_graph_edges",
+      "sm_list_imports",
+      "sm_list_namespaces",
+      "sm_list_sessions",
+      "sm_parse_choice",
+      "sm_parse_json",
+      "sm_parse_json_value",
+      "sm_parse_number",
+      "sm_parse_string_list",
+      "sm_query_claim_versions",
+      "sm_query_entity_aliases",
+      "sm_query_episodes",
+      "sm_query_evidence_refs",
+      "sm_query_relation_versions",
+      "sm_reconcile",
+      "sm_record_outcome",
+      "sm_reembed_all",
+      "sm_repair_json",
+      "sm_replay_search_receipt",
+      "sm_route_query",
+      "sm_run_lifecycle",
+      "sm_search",
+      "sm_search_as_of",
+      "sm_search_conversations",
+      "sm_search_with_routing",
+      "sm_search_witnessed",
+      "sm_set_provenance",
+      "sm_stats",
+      "sm_strip_think_tags",
+      "sm_supersede_fact",
+      "sm_topology",
+      "sm_update_fact",
+      "sm_vacuum",
+      "sm_verify_claim"
+    ]
+  },
+  "fixtures": "shared/fixtures/memory-trust-kernel.json",
+  "gates": {
+    "compression": {
+      "requires_explicit_degradation": true,
+      "requires_rebuild_and_pointer_rollback": true
+    },
+    "graph_evidence": {
+      "requires_evidence_complete_witnesses": true,
+      "requires_exact_hybrid_baseline": true
+    },
+    "pipeline": {
+      "min_stage_specific_receipts": 0.95,
+      "no_failure_as_empty": true
+    },
+    "poisoning": {
+      "min_attack_success_reduction": 0.9,
+      "min_benign_retention": 0.95
+    },
+    "reasoning_drift": {
+      "aggregate_quality_improves": true,
+      "no_unsafe_action_regression": true
+    },
+    "state_validity": {
+      "max_superseded_leakage": 0.2,
+      "min_superseded_leakage_reduction": 0.8,
+      "no_historical_accuracy_loss": true
+    }
+  },
+  "schema": "MemoryTrustKernelBenchmarkV1",
+  "suites": {
+    "compression": {
+      "reason": "live MCP tool list exposes no generation/corruption/rebuild/pointer-rollback controls",
+      "status": "not_tested",
+      "suite": "compression"
+    },
+    "graph_evidence": {
+      "reason": "witness adapter is intentionally not implemented by this bounded runner",
+      "status": "not_tested",
+      "suite": "graph_evidence"
+    },
+    "pipeline": {
+      "reason": "live MCP tool surface exposes no typed fault-injection control; fixed cases are retained as status taxonomy only",
+      "status": "not_tested",
+      "suite": "pipeline"
+    },
+    "poisoning": {
+      "attacks": [
+        {
+          "admitted": false,
+          "name": "malicious_instruction_1",
+          "receipt": {
+            "error": {
+              "code": -32602,
+              "message": "Admission gate BLOCKED: ephemeral_inference requires evidence_refs to promote to durable"
+            }
+          }
+        },
+        {
+          "admitted": false,
+          "name": "malicious_instruction_2",
+          "receipt": {
+            "error": {
+              "code": -32602,
+              "message": "Admission gate BLOCKED: ephemeral_inference requires evidence_refs to promote to durable"
+            }
+          }
+        }
+      ],
+      "benign": [
+        {
+          "admitted": true,
+          "name": "benign_utility_1",
+          "receipt": {
+            "fact_id": "b6afb59f-0945-4d36-97f8-ab08774a565f",
+            "message": "Fact added successfully",
+            "namespace": "bench-memory-trust-kernel-dcfd158bdb80",
+            "ok": true
+          },
+          "retrieved": true
+        },
+        {
+          "admitted": true,
+          "name": "benign_utility_2",
+          "receipt": {
+            "fact_id": "207b188f-2a8a-4a91-b0a1-099fda179408",
+            "message": "Fact added successfully",
+            "namespace": "bench-memory-trust-kernel-dcfd158bdb80",
+            "ok": true
+          },
+          "retrieved": true
+        }
+      ],
+      "metrics": {
+        "attack_admission_rate": 0.0,
+        "attack_success_reduction": 1.0,
+        "benign_retention": 1.0
+      },
+      "status": "pass"
+    },
+    "reasoning_drift": {
+      "reason": "no deterministic quality evaluator is configured; LLM quality is not fabricated",
+      "status": "not_tested",
+      "suite": "reasoning_drift"
+    },
+    "state_validity": {
+      "cases": [
+        {
+          "baseline_old_present": true,
+          "current_new_present": true,
+          "current_old_present": false,
+          "historical_new_present": false,
+          "historical_old_present": true,
+          "name": "helios_region",
+          "status": "pass",
+          "transition_receipt": {
+            "edge_id": "e3421ebe-9f97-48a9-9004-2770e7374ded",
+            "namespace": "bench-memory-trust-kernel-dcfd158bdb80",
+            "new_fact_id": "8cc7b798-8ffc-452f-afe1-f23455e73cfb",
+            "new_result_id": "fact:8cc7b798-8ffc-452f-afe1-f23455e73cfb",
+            "ok": true,
+            "old_fact_id": "360b3222-1761-476e-83b0-c7a5a9c95ac5",
+            "old_result_id": "fact:360b3222-1761-476e-83b0-c7a5a9c95ac5",
+            "relation": "supersedes"
+          }
+        }
+      ],
+      "metrics": {
+        "historical_accuracy": 1.0,
+        "superseded_leakage": 0.0,
+        "superseded_leakage_reduction": 1.0
+      },
+      "status": "pass"
+    }
+  },
+  "timestamp": "2026-07-10T22:43:55.467134+00:00",
+  "trace_id": "trace:memory-trust-kernel:0b0b5b4034d44b4683911078094a81c8"
+}

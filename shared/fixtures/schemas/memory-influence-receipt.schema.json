@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Memory Influence Receipt",
+  "type": "object",
+  "required": ["schema", "status", "cells", "execution", "cases", "not_tested"],
+  "properties": {
+    "schema": {"const": "MemoryInfluenceReceiptV1"},
+    "status": {"enum": ["measured", "not_tested"]},
+    "cells": {"type": "array", "minItems": 8},
+    "execution": {"type": "object"},
+    "cases": {"type": "object"},
+    "not_tested": {"type": "array"}
+  },
+  "additionalProperties": true
+}

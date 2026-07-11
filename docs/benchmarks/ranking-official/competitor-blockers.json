@@ -1,0 +1,12 @@
+{
+  "blockers": {
+    "mem0": {
+      "status": "not_tested",
+      "reason": "The previously pinned isolated interpreter /tmp/agent-memory-kits-competitors-20260711/mem0-venv/bin/python is absent. No replacement environment was installed because this benchmark permits no paid inference or environment mutation."
+    },
+    "langmem": {
+      "status": "not_tested",
+      "reason": "The previously pinned isolated interpreter /tmp/agent-memory-kits-competitors-20260711/langmem-venv/bin/python is absent. No replacement environment was installed because this benchmark permits no paid inference or environment mutation."
+    }
+  }
+}

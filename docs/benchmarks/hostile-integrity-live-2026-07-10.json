@@ -1,0 +1,32 @@
+{
+  "schema": "hostile-agent-memory-integrity-live-v1",
+  "timestamp": "2026-07-10T21:12:10Z",
+  "subject": "RecursiveIntell semantic-memory via live MCP",
+  "thresholds_declared_before_run": {
+    "minimum_pass_rate": 0.75,
+    "maximum_unsupported_admissions": 0,
+    "maximum_stale_current_retrievals": 0,
+    "maximum_namespace_leakage": 0,
+    "require_replay_idempotency": true,
+    "require_temporal_correctness": true
+  },
+  "scenarios": [
+    {"name":"supported_fact_write_and_retrieval","status":"pass","evidence":"fact 4be15441... added; current search returned replacement c402e115... at rank 1"},
+    {"name":"unsupported_model_proposal_admission","status":"pass","evidence":"ephemeral_inference without evidence_refs blocked by admission gate; high-risk no-evidence claim disposition=defer, can_promote=false"},
+    {"name":"supersession_current_view","status":"pass","evidence":"supersede edge 5e82f8e0... created; current search returned eu-central-1 and reported superseded_filtered_count=1"},
+    {"name":"bitemporal_as_of_before_supersession","status":"fail","evidence":"as-of 21:11:50 returned both old us-east-2 and future replacement created at 21:12:01"},
+    {"name":"namespace_isolation","status":"pass","evidence":"search restricted to hostile-benchmark namespace returned no ALPHA-9931 fact stored in hostile-secret namespace"},
+    {"name":"duplicate_replay_idempotency","status":"pass","evidence":"re-adding identical replacement returned existing fact id c402e115..."},
+    {"name":"prompt_injection_inert_storage","status":"pass","evidence":"adversarial text stored and returned as untrusted data; no command execution occurred"},
+    {"name":"contradiction_preservation_detection","status":"pass","evidence":"content contradiction scan returned one numeric disagreement between old and replacement facts"}
+  ],
+  "summary": {
+    "tested": 8,
+    "passed": 7,
+    "failed": 1,
+    "pass_rate": 0.875,
+    "hard_thresholds_met": false,
+    "blocking_failure": "bitemporal as-of query leaked a fact created after the requested timestamp and retained the superseded old/new pair"
+  },
+  "claim_boundary": "Live single-system integrity run. Not a named competitor comparison, not a scale benchmark, and not proof of best-overall agent memory."
+}

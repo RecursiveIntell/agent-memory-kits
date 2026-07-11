@@ -1,0 +1,54 @@
+{
+  "blockers": {
+    "graphiti_zep": {
+      "installation": {
+        "command": "uv venv --python /usr/bin/python3.11 /tmp/agent-memory-kits-competitors-20260711/graphiti-venv && uv pip install --python /tmp/agent-memory-kits-competitors-20260711/graphiti-venv/bin/python '/tmp/agent-memory-kits-competitors-20260711/graphiti[kuzu]'",
+        "resolved": [
+          "graphiti-core==0.29.2",
+          "kuzu==0.11.3",
+          "neo4j==6.2.0",
+          "openai==2.45.0"
+        ],
+        "status": "succeeded"
+      },
+      "reason": "graphiti-core 0.29.2 installed with its kuzu extra and reached the public Graphiti.add_episode API using the documented local Ollama OpenAI-compatible clients, but no row completed: an explicit group_id first raised AttributeError because KuzuDriver lacked _database; the documented default-group retry then failed inside add_episode with Kuzu RuntimeError because RelatesToNode_ lacked the edge_name_and_fact FTS index. No result was simulated.",
+      "runtime": {
+        "active_services_modified": false,
+        "first_error": "AttributeError: 'KuzuDriver' object has no attribute '_database'",
+        "graph_store": "Kuzu 0.11.3 temporary local database",
+        "local_embedding": "Ollama all-minilm, 384 dimensions",
+        "local_llm": "Ollama qwen2.5:0.5b, temperature=0, JSON-schema structured output",
+        "public_api": [
+          "Graphiti.build_indices_and_constraints",
+          "Graphiti.add_episode"
+        ],
+        "retry_error": "RuntimeError: Binder exception: Table RelatesToNode_ doesn't have an index with name edge_name_and_fact",
+        "rows_measured": 0
+      },
+      "status": "not_tested"
+    },
+    "letta": {
+      "installation": {
+        "command": "uv pip install --python /home/sikmindz/.cache/semantic-memory-bench/competitors/letta-venv/bin/python '/home/sikmindz/.cache/semantic-memory-bench/competitors/letta[sqlite,server]' asyncpg",
+        "resolved_packages": 241,
+        "rows_measured": 0,
+        "status": "succeeded",
+        "user_environment_modified": false
+      },
+      "reason": "Letta 0.16.8 installed successfully in an isolated 241-package environment after moving off the constrained /tmp filesystem and adding its undeclared asyncpg runtime dependency. A 20-row smoke still executed zero rows: both the public `letta server` CLI and documented `start_server` path reached application startup, but the maintenance-mode V1 server lifespan initialized an async PostgreSQL engine and attempted localhost:5432 even though isolated settings reported DatabaseChoice.SQLITE and the sqlite extra was installed. The final scrubbed direct startup failed with asyncpg connection refused on ::1/127.0.0.1:5432. No PostgreSQL service was provisioned, no public memory row completed, and no result was simulated.",
+      "runtime": {
+        "active_services_modified": false,
+        "actual_startup_backend": "PostgreSQL via asyncpg",
+        "error": "connection refused on ::1/127.0.0.1:5432",
+        "public_api": [
+          "letta server",
+          "letta.server.rest_api.app.start_server"
+        ],
+        "rows_measured": 0,
+        "settings_database_engine": "SQLite"
+      },
+      "status": "not_tested"
+    }
+  },
+  "receipt_kind": "DiagnosticMemoryBenchmarkV1.competitor_blockers"
+}

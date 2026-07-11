@@ -27,34 +27,27 @@ finally:
 
 
 class HermesRoutingTests(unittest.TestCase):
-    def test_warm_search_uses_plain_search_for_class_a(self) -> None:
-        calls: list[tuple[str, dict, float]] = []
+    def test_action_capable_recall_uses_witnessed_stdio_only(self) -> None:
+        calls: list[tuple[str, dict, int]] = []
 
-        def fake_post(path: str, payload: dict, timeout: float = 4.0):
-            calls.append((path, payload, timeout))
+        def fake_rpc(tool: str, payload: dict, timeout: int = 8):
+            calls.append((tool, payload, timeout))
             return {"ok": True, "results": []}
 
-        with mock.patch.object(module, "http_post", side_effect=fake_post):
-            result, warm = module.warm_search("simple memory query", 8, "A")
-        self.assertTrue(warm)
-        self.assertEqual(result["ok"], True)
-        self.assertEqual(calls[0][0], "/search")
-        self.assertNotIn("query_class", calls[0][1])
+        with mock.patch.object(module, "rpc_call", side_effect=fake_rpc):
+            result = module.stdio_search("simple memory query", 8, namespaces=["hermes"])
+        self.assertEqual(result, {"ok": True, "results": []})
+        self.assertEqual(
+            calls,
+            [("sm_search_witnessed", {"query": "simple memory query", "top_k": 8, "namespaces": ["hermes"]}, 8)],
+        )
 
-    def test_warm_search_uses_server_routed_search_for_complex_class(self) -> None:
-        calls: list[tuple[str, dict, float]] = []
-
-        def fake_post(path: str, payload: dict, timeout: float = 4.0):
-            calls.append((path, payload, timeout))
-            return {"ok": True, "results": [], "routed": True}
-
-        with mock.patch.object(module, "http_post", side_effect=fake_post):
+    def test_warm_search_is_disabled_for_action_capable_recall(self) -> None:
+        with mock.patch.object(module, "http_post") as post:
             result, warm = module.warm_search("summarize all memory architecture", 8, "D", namespaces=["hermes"])
-        self.assertTrue(warm)
-        self.assertEqual(result["routed"], True)
-        self.assertEqual(calls[0][0], "/search-routed")
-        self.assertEqual(calls[0][1]["query_class"], "D")
-        self.assertEqual(calls[0][1]["namespaces"], ["hermes"])
+        self.assertIsNone(result)
+        self.assertFalse(warm)
+        post.assert_not_called()
 
     def test_record_routing_outcome_skips_class_a_and_posts_complex(self) -> None:
         with mock.patch.object(module, "http_post") as post:
@@ -92,4 +85,3 @@ class HermesRecallAdmissionWiringTests(unittest.TestCase):
         content = script.read_text(encoding="utf-8")
         self.assertIn("namespace_tokens = {ns for group in namespace_passes(prompt, cwd) for ns in group}", content)
         self.assertIn("ns_match = bool(ns) and ns in namespace_tokens", content)
-

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Memory Influence Fixture Bundle",
+  "type": "object",
+  "required": ["schema", "license", "cases"],
+  "properties": {
+    "schema": {"const": "MemoryInfluenceFixtureBundleV1"},
+    "license": {"const": "CC0-1.0"},
+    "cases": {"type": "array", "minItems": 1}
+  },
+  "additionalProperties": true
+}

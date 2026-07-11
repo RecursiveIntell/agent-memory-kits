@@ -22,6 +22,13 @@ spec.loader.exec_module(benchmark_recall)
 
 
 class BenchmarkRecallTests(unittest.TestCase):
+    def test_extract_result_ids_accepts_http_result_id(self) -> None:
+        results = [{"result_id": "fact:abc", "content": "x"}]
+        self.assertEqual(benchmark_recall.extract_result_ids(results), ["abc"])
+
+    def test_compute_recall_normalizes_fact_prefix(self) -> None:
+        self.assertEqual(benchmark_recall.compute_recall_at_k(["abc"], ["fact:abc"], 1), 1.0)
+
     def test_fails_open_on_missing_fixtures(self) -> None:
         """--fixtures-dir /nonexistent should exit 1 with 'fixtures' in stderr."""
         with tempfile.TemporaryDirectory() as tmp:

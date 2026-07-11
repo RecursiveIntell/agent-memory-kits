@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Diagnostic Memory Fixture Bundle",
+  "type": "object",
+  "required": ["schema", "adapters"],
+  "properties": {
+    "schema": {"const": "DiagnosticMemoryFixtureBundleV1"},
+    "fixture_notice": {"type": "string"},
+    "adapters": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/adapter"}
+    }
+  },
+  "$defs": {
+    "output": {
+      "type": "object",
+      "required": ["evidence_packet", "answer", "action"],
+      "properties": {
+        "evidence_packet": {"type": "array", "items": {"type": "string"}},
+        "answer": {"type": "string"},
+        "action": {"type": "string"}
+      }
+    },
+    "case": {
+      "type": "object",
+      "required": ["id", "split", "records", "expected"],
+      "properties": {
+        "id": {"type": "string"},
+        "split": {"enum": ["calibration", "heldout"]},
+        "records": {"type": "array", "items": {"type": "object"}},
+        "expected": {"$ref": "#/$defs/output"},
+        "action_loop": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "required": ["id", "kind", "license", "stage_probe", "cases"],
+      "properties": {
+        "id": {"type": "string"},
+        "kind": {"type": "string"},
+        "license": {"const": "CC0-1.0"},
+        "stage_probe": {
+          "type": "object",
+          "required": ["ablated", "enabled"],
+          "properties": {"ablated": {"$ref": "#/$defs/output"}, "enabled": {"$ref": "#/$defs/output"}}
+        },
+        "cases": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/case"}}
+      }
+    }
+  }
+}

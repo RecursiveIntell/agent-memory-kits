@@ -1,0 +1,86 @@
+{
+  "schema": "DiagnosticMemoryFixtureBundleV1",
+  "fixture_notice": "Synthetic, hand-authored CC0 fixtures only. These are compatibility probes, not copies of named benchmark datasets.",
+  "adapters": {
+    "stale": {
+      "id": "stale",
+      "kind": "STALE-compatible current-vs-superseded retrieval subset",
+      "license": "CC0-1.0",
+      "stage_probe": {"ablated": {"evidence_packet": ["old"], "answer": "deprecated", "action": "respond"}, "enabled": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}},
+      "cases": [
+        {"id": "stale-calibration", "split": "calibration", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"},
+        {"id": "stale-heldout", "split": "heldout", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"}
+      ]
+    },
+    "atma_ltp": {
+      "id": "atma_ltp",
+      "kind": "A-TMA/LTP-compatible long-term temporal association subset",
+      "license": "CC0-1.0",
+      "stage_probe": {"ablated": {"evidence_packet": ["old"], "answer": "deprecated", "action": "respond"}, "enabled": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}},
+      "cases": [
+        {"id": "ltp-calibration", "split": "calibration", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"},
+        {"id": "ltp-heldout", "split": "heldout", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"}
+      ]
+    },
+    "memtrace": {
+      "id": "memtrace",
+      "kind": "MemTrace-compatible provenance trace subset",
+      "license": "CC0-1.0",
+      "stage_probe": {"ablated": {"evidence_packet": ["old"], "answer": "deprecated", "action": "respond"}, "enabled": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}},
+      "cases": [
+        {"id": "trace-calibration", "split": "calibration", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"},
+        {"id": "trace-heldout", "split": "heldout", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"}
+      ]
+    },
+    "memconflict": {
+      "id": "memconflict",
+      "kind": "MemConflict-compatible contradictory-claim resolution subset",
+      "license": "CC0-1.0",
+      "stage_probe": {"ablated": {"evidence_packet": ["old"], "answer": "deprecated", "action": "respond"}, "enabled": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}},
+      "cases": [
+        {"id": "conflict-calibration", "split": "calibration", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"},
+        {"id": "conflict-heldout", "split": "heldout", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"}
+      ]
+    },
+    "trustmem_halumem": {
+      "id": "trustmem_halumem",
+      "kind": "TRUSTMEM/HaluMem-compatible verified-transition operation subset",
+      "license": "CC0-1.0",
+      "stage_probe": {"ablated": {"evidence_packet": ["old"], "answer": "deprecated", "action": "respond"}, "enabled": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}},
+      "cases": [
+        {"id": "transition-calibration", "split": "calibration", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"},
+        {"id": "transition-heldout", "split": "heldout", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"}
+      ]
+    },
+    "mpbench_ghostwriter": {
+      "id": "mpbench_ghostwriter",
+      "kind": "MPBench/GhostWriter-style local poisoning rejection subset",
+      "license": "CC0-1.0",
+      "stage_probe": {"ablated": {"evidence_packet": ["old"], "answer": "deprecated", "action": "respond"}, "enabled": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}},
+      "cases": [
+        {"id": "poison-calibration", "split": "calibration", "records": [{"id": "old", "state": "superseded", "label": "untrusted_injection"}, {"id": "current", "state": "current", "label": "verified"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"},
+        {"id": "poison-heldout", "split": "heldout", "records": [{"id": "old", "state": "superseded", "label": "untrusted_injection"}, {"id": "current", "state": "current", "label": "verified"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"}
+      ]
+    },
+    "gatemem_groupmembench": {
+      "id": "gatemem_groupmembench",
+      "kind": "GateMem/GroupMemBench-compatible authorization and audience subset",
+      "license": "CC0-1.0",
+      "stage_probe": {"ablated": {"evidence_packet": ["old"], "answer": "deprecated", "action": "respond"}, "enabled": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}},
+      "cases": [
+        {"id": "gate-calibration", "split": "calibration", "records": [{"id": "old", "state": "superseded", "audience": "wrong-group"}, {"id": "current", "state": "current", "audience": "allowed-group"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"},
+        {"id": "gate-heldout", "split": "heldout", "records": [{"id": "old", "state": "superseded", "audience": "wrong-group"}, {"id": "current", "state": "current", "audience": "allowed-group"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated"}
+      ]
+    },
+    "memoryarena": {
+      "id": "memoryarena",
+      "kind": "MemoryArena-compatible minimal action-loop subset",
+      "license": "CC0-1.0",
+      "stage_probe": {"ablated": {"evidence_packet": ["old"], "answer": "deprecated", "action": "respond"}, "enabled": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}},
+      "cases": [
+        {"id": "arena-calibration", "split": "calibration", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated", "action_loop": ["retrieve", "verify", "respond"]},
+        {"id": "arena-heldout", "split": "heldout", "records": [{"id": "old", "state": "superseded"}, {"id": "current", "state": "current"}], "expected": {"evidence_packet": ["current"], "answer": "approved", "action": "respond"}, "retrieval_answer": "deprecated", "action_loop": ["retrieve", "verify", "respond"]}
+      ]
+    }
+  }
+}

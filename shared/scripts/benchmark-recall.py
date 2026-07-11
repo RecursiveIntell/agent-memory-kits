@@ -152,18 +152,21 @@ def search(
     return []
 
 
+def normalize_result_id(value: str) -> str:
+    """Normalize stable HTTP/MCP IDs (e.g. fact:<uuid>) to fixture IDs."""
+    return value.split(":", 1)[1] if value.startswith(("fact:", "chunk:")) else value
+
+
 def extract_result_ids(results: list[dict[str, Any]]) -> list[str]:
-    """Extract result IDs from search results, handling various field names."""
+    """Extract and normalize result IDs from search results."""
     ids: list[str] = []
     for r in results:
-        # Try common field names for the result ID
-        for key in ("id", "fact_id", "uuid", "_id"):
+        for key in ("result_id", "id", "fact_id", "uuid", "_id"):
             val = r.get(key)
             if val:
-                ids.append(str(val))
+                ids.append(normalize_result_id(str(val)))
                 break
         else:
-            # If no explicit ID field, use the whole result's index-based placeholder
             ids.append("")
     return ids
 
@@ -174,8 +177,8 @@ def compute_recall_at_k(
     """Recall@k: fraction of expected_ids found in the top-k results."""
     if not expected_ids:
         return 0.0
-    top_k_ids = set(result_ids[:k])
-    hits = sum(1 for eid in expected_ids if eid in top_k_ids)
+    top_k_ids = {normalize_result_id(rid) for rid in result_ids[:k]}
+    hits = sum(1 for eid in expected_ids if normalize_result_id(eid) in top_k_ids)
     return hits / len(expected_ids)
 
 

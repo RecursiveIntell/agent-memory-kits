@@ -38,12 +38,18 @@ Skill paths: `hermes/skills/`. Agent path: `hermes/agents/`. Command paths: `her
 
 ## Install
 
-From the repo root:
+Keep the canonical kit layout available to the hook process; the Hermes hooks
+load the shared fail-closed framing module from that root. Set
+`SEMANTIC_MEMORY_KIT_ROOT` to this checkout (or deploy the complete checkout
+with `hermes/` and `shared/` as siblings), then register the manifest at
+`hermes/plugin.json`. Do not deploy only the skills/agents/scripts directories:
+that omits the lifecycle hooks and their shared provenance gate.
+
+For hosts that use the canonical checkout directly:
 
 ```bash
-cp -r hermes/skills/* ~/.hermes/skills/
-cp -r hermes/agents/* ~/.hermes/agents/
-cp hermes/scripts/* ~/.hermes/scripts/
+export SEMANTIC_MEMORY_KIT_ROOT="$PWD"
+# Register/load ./hermes/plugin.json using Hermes's plugin configuration.
 ```
 
 Restart Hermes so the new skills/agents/commands are picked up.

@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Diagnostic Memory Benchmark Receipt",
+  "type": "object",
+  "required": ["schema", "trace_id", "timestamp", "environment", "input_hashes", "baseline_cells", "phase_taxonomy", "adapters", "raw_predictions", "stage_outcomes", "confidence_intervals", "costs", "failures", "not_tested", "competitors"],
+  "properties": {
+    "schema": {"const": "DiagnosticMemoryBenchmarkV1"},
+    "memory_influence": {
+      "type": "object",
+      "description": "Nested deterministic MemoryInfluenceReceiptV1; it is not a parallel benchmark report."
+    },
+    "competitors": {
+      "type": "object",
+      "description": "Named public-API competitor measurements or exact blocker receipts on identical official inputs.",
+      "required": ["mem0", "graphiti_zep", "letta", "langmem"],
+      "additionalProperties": false,
+      "properties": {
+        "mem0": {"$ref": "#/$defs/competitor"},
+        "graphiti_zep": {"$ref": "#/$defs/competitor"},
+        "letta": {"$ref": "#/$defs/competitor"},
+        "langmem": {"$ref": "#/$defs/competitor"}
+      }
+    },
+    "official_stale": {
+      "type": "object",
+      "description": "Optional official STALE adapter result embedded in DiagnosticMemoryBenchmarkV1; per-case predictions remain in the hashed JSONL sidecar.",
+      "required": ["adapter", "source", "rows_evaluated", "split_policy", "predeclared_metrics", "baseline_definitions", "aggregate_metrics", "model_grading", "execution", "costs", "failures", "not_tested"],
+      "properties": {
+        "adapter": {"const": "stale_official"},
+        "source": {
+          "type": "object",
+          "required": ["path", "sha256", "repository_commit", "license", "rows"]
+        },
+        "rows_evaluated": {"type": "integer", "minimum": 1, "maximum": 400},
+        "split_policy": {"type": "object"},
+        "predeclared_metrics": {"type": "array", "minItems": 9, "maxItems": 9, "items": {"type": "string"}},
+        "baseline_definitions": {"type": "object"},
+        "aggregate_metrics": {"type": "object"},
+        "ranking": {
+          "type": "object",
+          "description": "Optional deterministic multi-candidate retrieval ranking lane. It is distinct from the existing state-integrity cells and reuses their official STALE projection and JSONL sidecar.",
+          "required": ["status", "predeclared_metrics", "candidate_taxonomy", "policy", "aggregate_metrics", "claim_boundary"],
+          "properties": {
+            "status": {"enum": ["measured", "failed", "not_tested"]},
+            "predeclared_metrics": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "string"}},
+            "candidate_taxonomy": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"type": "string"}},
+            "policy": {"type": "object"},
+            "aggregate_metrics": {"type": "object"},
+            "claim_boundary": {"type": "string"}
+          }
+        },
+        "model_grading": {"type": "object"},
+        "execution": {"type": "object"},
+        "costs": {"type": "object"},
+        "failures": {"type": "array"},
+        "not_tested": {"type": "array"}
+      }
+    },
+    "official_sleeper": {
+      "type": "object",
+      "description": "Optional official Sleeper deterministic admission/action-gate result embedded in DiagnosticMemoryBenchmarkV1; row content remains in the pinned upstream checkout and per-case sidecars retain only digests.",
+      "required": ["adapter", "source", "rows_evaluated", "slice_counts", "predeclared_metrics", "baseline_definitions", "aggregate_metrics", "model_grading", "execution", "costs", "failures", "not_tested"],
+      "properties": {
+        "adapter": {"const": "sleeper_official"},
+        "source": {
+          "type": "object",
+          "required": ["root", "repository_commit", "license_caveat", "datasets"]
+        },
+        "rows_evaluated": {"type": "integer", "minimum": 1},
+        "slice_counts": {"type": "object"},
+        "predeclared_metrics": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "string"}},
+        "baseline_definitions": {"type": "object"},
+        "aggregate_metrics": {"type": "object"},
+        "model_grading": {"type": "object"},
+        "execution": {"type": "object"},
+        "costs": {"type": "object"},
+        "failures": {"type": "array"},
+        "not_tested": {"type": "array"}
+      }
+    },
+    "trace_id": {"type": "string"},
+    "timestamp": {"type": "string"},
+    "environment": {"type": "object"},
+    "input_hashes": {"type": "object", "additionalProperties": {"type": "string"}},
+    "baseline_cells": {"type": "array", "items": {"type": "string"}},
+    "phase_taxonomy": {"type": "array", "items": {"type": "string"}},
+    "adapters": {"type": "object"},
+    "raw_predictions": {"type": "object"},
+    "stage_outcomes": {"type": "object"},
+    "confidence_intervals": {"type": "object"},
+    "costs": {"type": "object"},
+    "failures": {"type": "array"},
+    "not_tested": {"type": "array"}
+  },
+  "$defs": {
+    "competitor": {
+      "type": "object",
+      "required": ["id", "name", "status", "upstream", "benchmarks"],
+      "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "status": {"enum": ["measured", "failed", "not_tested"]},
+        "reason": {"type": "string"},
+        "upstream": {
+          "type": "object",
+          "required": ["repository", "commit", "package", "version", "license", "license_sha256", "package_manifest_sha256"]
+        },
+        "benchmarks": {
+          "type": "object",
+          "required": ["stale", "sleeper"],
+          "properties": {
+            "stale": {"type": "object", "required": ["status"]},
+            "sleeper": {"type": "object", "required": ["status", "reason"]}
+          }
+        }
+      }
+    }
+  }
+}

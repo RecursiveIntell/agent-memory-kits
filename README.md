@@ -338,9 +338,9 @@ Maintenance tools hidden by the daily lean profile are reachable through the `se
 ### Hermes Agent
 
 ```bash
-cp -r hermes/skills/* ~/.hermes/skills/
-cp -r hermes/agents/* ~/.hermes/agents/
-cp hermes/scripts/* ~/.hermes/scripts/
+# Keep this checkout as the canonical plugin root; hooks also require shared/.
+export SEMANTIC_MEMORY_KIT_ROOT="$PWD"
+# Register/load ./hermes/plugin.json using Hermes's plugin configuration.
 ```
 
 ### MCP-only kits (Cursor, Cline, Roo Code, Windsurf, Continue, OpenCode)

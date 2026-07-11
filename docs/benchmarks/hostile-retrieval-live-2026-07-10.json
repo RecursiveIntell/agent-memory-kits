@@ -1,0 +1,84 @@
+{
+  "schema": "SMBenchmarkReport",
+  "trace_id": "trace:benchmark-recall:7c2da0ce9dd64b5a",
+  "timestamp": "2026-07-10T21:09:48.570450+00:00",
+  "git_commit": "81d90706c4c3cecb77f4094179d466500e7082d8",
+  "machine_fingerprint": "nobara-pc",
+  "fixtures_used": 10,
+  "server_available": true,
+  "recall_at_k": 1.0,
+  "ndcg_at_k": 1.0,
+  "mrr": 1.0,
+  "per_fixture": [
+    {
+      "query": "What does the Orion release gate require?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 5
+    },
+    {
+      "query": "Which storage engine does Project Cedar use?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 2
+    },
+    {
+      "query": "What is the approved Atlas deployment region?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 5
+    },
+    {
+      "query": "What is Falcon checksum marker?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 4
+    },
+    {
+      "query": "Who operates Nimbus?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 5
+    },
+    {
+      "query": "What does Policy Delta require instead of hard deletion?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 2
+    },
+    {
+      "query": "Which port does Mercury use?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 2
+    },
+    {
+      "query": "How was Incident Quartz resolved?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 1
+    },
+    {
+      "query": "Which test runner does Lumen use?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 1
+    },
+    {
+      "query": "What is the Borealis recall threshold?",
+      "recall": 1.0,
+      "ndcg": 1.0,
+      "mrr": 1.0,
+      "results_count": 5
+    }
+  ]
+}
