@@ -1,0 +1,239 @@
+{
+  "artifacts": {
+    "per_query": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/docs/benchmarks/beir-scifact-ranking/smoke-per-query.jsonl",
+      "rows": 5,
+      "sha256": "sha256:c315ede1a9fa64c849cd27f8ef89286976c890a3d1705538a9fd12adc6e31b3e"
+    }
+  },
+  "claim_boundary": "ordinary retrieval ranking only; no competitor comparison or superiority claim",
+  "config": {
+    "cutoffs": [
+      1,
+      5,
+      10
+    ],
+    "doc_id_marker": "[beir-scifact-doc-id:<corpus-id>]",
+    "metric_averaging": "macro over official qrel queries",
+    "relevance": "positive official qrels",
+    "top_k": 10
+  },
+  "dataset": {
+    "archive": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/beir-scifact-ranking/data/scifact.zip",
+      "sha256": "sha256:536e14446a0ba56ed1398ab1055f39fe852686ecad24a6306c80c490fa8e0165"
+    },
+    "corpus": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/beir-scifact-ranking/data/scifact/corpus.jsonl",
+      "sha256": "sha256:dec31c8182f3d744c7d2c09423756fd1d17cbef75808db13ba01cc0aab4d1ac6"
+    },
+    "corpus_doc_count": 20,
+    "name": "BEIR Scifact official corpus/test qrels",
+    "official_full_corpus_doc_count": 5183,
+    "qrels": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/beir-scifact-ranking/data/scifact/qrels/test.tsv",
+      "qrels_count": 339,
+      "query_count": 300,
+      "sha256": "sha256:0864bb985e0ca2367ba217977e72004d549054b2b06666ed9d4825ac7c21284c"
+    },
+    "queries": {
+      "path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/beir-scifact-ranking/data/scifact/queries.jsonl",
+      "sha256": "sha256:8ff84a7c903f722981cd8d595c022660140c51867b27608a6d4910db86080313"
+    },
+    "selected_test_queries": 5,
+    "source_url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip"
+  },
+  "embedding": {
+    "backend": "ollama",
+    "dimensions": 384,
+    "max_document_chars": 700,
+    "model": "all-minilm:latest",
+    "probe": {
+      "dimensions": 384,
+      "latency_ms": 27.713020000192046,
+      "model": "all-minilm:latest",
+      "status": "passed"
+    }
+  },
+  "execution": {
+    "active_receipt_pass_elapsed_seconds": 0.17658693399971526,
+    "command": "python3 shared/scripts/benchmark-beir-scifact-ranking.py --smoke --work-dir .bench-data/beir-scifact-ranking --output-dir docs/benchmarks/beir-scifact-ranking --model all-minilm:latest --dimensions 384 --max-chars 700",
+    "launcher": "/home/sikmindz/Coding/agent-memory-kits/shared/scripts/run-server.sh",
+    "launcher_command": [
+      "/home/sikmindz/Coding/agent-memory-kits/shared/scripts/run-server.sh",
+      "--embedding-url",
+      "http://127.0.0.1:11434",
+      "--embedding-model",
+      "all-minilm:latest",
+      "--embedding-dims",
+      "384"
+    ],
+    "launcher_sha256": "sha256:1a12aee8665d7da330ca2048be0f2dc16e3c512bcee55c9fb865f2565e533d2e",
+    "namespace": "benchmark-beir-scifact-test-v1-smoke",
+    "production_tools": {
+      "available": [
+        "sm_add_evidence",
+        "sm_add_fact",
+        "sm_add_graph_edge",
+        "sm_community",
+        "sm_consolidate_facts",
+        "sm_create_claim",
+        "sm_decide_action_authority",
+        "sm_decide_assertion_authority",
+        "sm_decoder_analyze",
+        "sm_delete_fact",
+        "sm_delete_namespace",
+        "sm_detect_contradictions",
+        "sm_discord_search",
+        "sm_embeddings_are_dirty",
+        "sm_factor_graph",
+        "sm_get_fact",
+        "sm_get_fact_neighbors",
+        "sm_get_messages",
+        "sm_get_search_receipt",
+        "sm_graph_path",
+        "sm_import_envelope",
+        "sm_import_status",
+        "sm_ingest_document",
+        "sm_invalidate_graph_edge",
+        "sm_judge_support",
+        "sm_list_facts",
+        "sm_list_graph_edges",
+        "sm_list_imports",
+        "sm_list_namespaces",
+        "sm_list_sessions",
+        "sm_parse_choice",
+        "sm_parse_json",
+        "sm_parse_json_value",
+        "sm_parse_number",
+        "sm_parse_string_list",
+        "sm_query_claim_versions",
+        "sm_query_entity_aliases",
+        "sm_query_episodes",
+        "sm_query_evidence_refs",
+        "sm_query_relation_versions",
+        "sm_reconcile",
+        "sm_record_outcome",
+        "sm_reembed_all",
+        "sm_repair_json",
+        "sm_replay_search_receipt",
+        "sm_route_query",
+        "sm_run_lifecycle",
+        "sm_search",
+        "sm_search_as_of",
+        "sm_search_conversations",
+        "sm_search_with_routing",
+        "sm_search_witnessed",
+        "sm_set_provenance",
+        "sm_stats",
+        "sm_strip_think_tags",
+        "sm_supersede_fact",
+        "sm_topology",
+        "sm_update_fact",
+        "sm_vacuum",
+        "sm_verify_claim"
+      ],
+      "ingestion": "sm_add_fact",
+      "retrieval": "sm_search_witnessed"
+    },
+    "receipt_schema_path": "/home/sikmindz/Coding/agent-memory-kits/shared/fixtures/schemas/beir-scifact-ranking-receipt.schema.json",
+    "receipt_schema_sha256": "sha256:0a72681169827a045455ab9b074a44b526934150127410cd91c834603c30b60a",
+    "runner_sha256": "sha256:7db1965b495d520c01cc0c82c8c7db96323e1a8dcba97cb6173598c6a0aa81f1",
+    "single_service": true,
+    "stats": {
+      "chunks": 0,
+      "components": {
+        "core": {
+          "error": null,
+          "health": "healthy"
+        },
+        "graph": {
+          "error": null,
+          "health": "healthy"
+        }
+      },
+      "db_size_bytes": 1064960,
+      "db_size_mb": 1.02,
+      "documents": 0,
+      "embedding_dimensions": 384,
+      "embedding_model": "all-minilm:latest",
+      "facts": 20,
+      "graph_edges": 0,
+      "messages": 0,
+      "ok": true,
+      "sessions": 0
+    },
+    "store_path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/beir-scifact-ranking/store-smoke-all-minilm-latest-700"
+  },
+  "ingestion": {
+    "active_pass_elapsed_seconds": 6.0323000070638955e-05,
+    "checkpoint_path": "/home/sikmindz/Coding/agent-memory-kits/.bench-data/beir-scifact-ranking/ingestion-smoke-all-minilm-latest-700.jsonl",
+    "checkpoint_sha256": "sha256:1a4d932ec38423f991267aacd294c3cee7f2251c58768032abcdcc97736526e2",
+    "checkpoint_timing": {
+      "created_at": "2026-07-11T13:09:36+00:00",
+      "initial_write_span_seconds": 1.7856159210205078,
+      "last_admission_at": "2026-07-11T13:09:37.785616+00:00",
+      "source": "filesystem birth-to-last-modification timestamps"
+    },
+    "checkpointed_docs": 20,
+    "failures": [],
+    "requested_docs": 20
+  },
+  "modes": {
+    "fts_only": {
+      "reason": "production MCP tool list exposes no mode-selecting FTS-only/vector-only retrieval API",
+      "status": "not_exposed"
+    },
+    "hybrid": {
+      "metrics": {
+        "failures": 0,
+        "latency_ms": {
+          "mean": 26.20370719996572,
+          "p50": 25.670953999906487,
+          "p95": 28.133190799962904
+        },
+        "map_at_10": 0.125,
+        "mrr_at_10": 0.125,
+        "ndcg_at_10": 0.18927892607143726,
+        "qrels_count": 6,
+        "query_count": 5,
+        "recall_at_k": {
+          "1": 0.0,
+          "10": 0.4,
+          "5": 0.2
+        },
+        "success_at_k": {
+          "1": 0.0,
+          "10": 0.4,
+          "5": 0.2
+        }
+      },
+      "status": "measured"
+    },
+    "vector_only": {
+      "reason": "production MCP tool list exposes no mode-selecting FTS-only/vector-only retrieval API",
+      "status": "not_exposed"
+    }
+  },
+  "repositories": {
+    "agent_memory_kits": {
+      "commit": "e56cccd6e0dac0c833cd6354572b3db6de91e2b0",
+      "dirty": true,
+      "path": "/home/sikmindz/Coding/agent-memory-kits"
+    },
+    "semantic_memory": {
+      "commit": "8165bb3796c3dd77079ef72ce31e0c79b5e50daa",
+      "dirty": false,
+      "path": "/home/sikmindz/Coding/Libraries/semantic-memory"
+    },
+    "semantic_memory_mcp": {
+      "commit": "fa529b86ef4ac169eca97f511cc626fd058dd509",
+      "dirty": false,
+      "path": "/home/sikmindz/Coding/Libraries/semantic-memory-mcp"
+    }
+  },
+  "run_kind": "smoke",
+  "schema": "BeirScifactRankingBenchmarkV1",
+  "status": "measured",
+  "timestamp": "2026-07-11T13:23:16.899641+00:00"
+}

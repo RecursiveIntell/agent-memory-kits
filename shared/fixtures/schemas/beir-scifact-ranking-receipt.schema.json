@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://recursiveintell.example/schemas/beir-scifact-ranking-receipt-v1.json",
+  "title": "BEIR Scifact semantic-memory ranking benchmark receipt",
+  "type": "object",
+  "required": ["schema", "timestamp", "status", "run_kind", "dataset", "embedding", "repositories", "execution", "ingestion", "modes", "config", "artifacts", "claim_boundary"],
+  "properties": {
+    "schema": {"const": "BeirScifactRankingBenchmarkV1"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["measured", "failed"]},
+    "run_kind": {"enum": ["smoke", "full"]},
+    "dataset": {
+      "type": "object",
+      "required": ["name", "source_url", "archive", "corpus", "queries", "qrels", "corpus_doc_count", "official_full_corpus_doc_count", "selected_test_queries"]
+    },
+    "embedding": {
+      "type": "object",
+      "required": ["backend", "model", "dimensions", "max_document_chars", "probe"],
+      "properties": {"dimensions": {"type": "integer", "minimum": 1}}
+    },
+    "repositories": {"type": "object", "required": ["agent_memory_kits", "semantic_memory", "semantic_memory_mcp"]},
+    "execution": {"type": "object", "required": ["launcher", "launcher_sha256", "runner_sha256", "receipt_schema_path", "receipt_schema_sha256", "launcher_command", "command", "single_service", "store_path", "namespace", "production_tools", "stats"]},
+    "ingestion": {"type": "object", "required": ["requested_docs", "checkpointed_docs", "checkpoint_path", "checkpoint_sha256", "failures", "active_pass_elapsed_seconds", "checkpoint_timing"]},
+    "modes": {
+      "type": "object",
+      "required": ["hybrid", "fts_only", "vector_only"],
+      "properties": {
+        "hybrid": {
+          "type": "object",
+          "required": ["status", "metrics"],
+          "properties": {
+            "status": {"const": "measured"},
+            "metrics": {
+              "type": "object",
+              "required": ["query_count", "qrels_count", "failures", "ndcg_at_10", "recall_at_k", "mrr_at_10", "map_at_10", "success_at_k", "latency_ms"]
+            }
+          }
+        },
+        "fts_only": {"type": "object", "required": ["status", "reason"]},
+        "vector_only": {"type": "object", "required": ["status", "reason"]}
+      }
+    },
+    "config": {"type": "object"},
+    "artifacts": {"type": "object", "required": ["per_query"]},
+    "claim_boundary": {"type": "string", "minLength": 1}
+  }
+}

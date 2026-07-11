@@ -67,6 +67,16 @@ Boundary:
 - Semantic-memory retrieval-receipt context replaces the paper full-haystack target context.
 - This is an official-evaluator system-configuration result, not paper-model reproduction or a cross-system answer-quality victory.
 
+## Valid ordinary retrieval ranking: BEIR Scifact
+
+Semantic-memory was measured on the official public BEIR Scifact corpus and test qrels through production `sm_add_fact` ingestion and `sm_search_witnessed` hybrid retrieval. The run used all 5,183 documents, all 300 official test-qrel queries, 339 positive qrels, and Ollama `all-minilm:latest` at 384 dimensions. It completed with zero query failures.
+
+| nDCG@10 | Recall@1 | Recall@5 | Recall@10 | MRR@10 | MAP@10 | Success@1 | Success@5 | Success@10 |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.054714 | 0.010000 | 0.038333 | 0.136111 | 0.032115 | 0.030592 | 0.010000 | 0.040000 | 0.146667 |
+
+Retrieval latency was 60.561 ms p50, 69.624 ms p95, and 60.695 ms mean. The production MCP surface exposes no mode-selecting FTS-only or vector-only retrieval API, so those modes are explicitly not measured and are not conflated with hybrid. Full provenance, configuration, per-query results, and the exact reproduction command are in `docs/benchmarks/beir-scifact-ranking/aggregate.json`, `per-query.jsonl`, and `report.md`. These are ordinary retrieval-ranking numbers, not a competitor comparison or superiority claim.
+
 ## Retracted multi-candidate ranking result
 
 Six candidates per official STALE case:
