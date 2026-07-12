@@ -237,12 +237,30 @@ def hit_namespace(hit: dict) -> str:
     return ""
 
 
+def _ns_matches(pattern: str, namespace: str) -> bool:
+    """Match a namespace against a pattern. Supports:
+    - exact match: 'general'
+    - prefix glob: 'hostile-*' matches 'hostile-benchmark-20260710'
+    - prefix without glob: 'hostile' matches 'hostile-benchmark-20260710'
+    """
+    if pattern.endswith(".*"):
+        prefix = pattern[:-2]
+        return namespace == prefix or namespace.startswith(prefix + ".")
+    if pattern.endswith("*"):
+        prefix = pattern[:-1]
+        return namespace.startswith(prefix)
+    return namespace == pattern
+
+
 def drop_excluded_namespaces(hits: list[dict]) -> list[dict]:
-    raw = os.environ.get("SM_RECALL_EXCLUDE_NS", "mixed,research,recursiveintell,twitter")
-    excluded = {item.strip() for item in raw.split(",") if item.strip()}
-    if not excluded:
+    raw = os.environ.get("SM_RECALL_EXCLUDE_NS", "mixed,research,recursiveintell,twitter,hostile-*")
+    patterns = [item.strip() for item in raw.split(",") if item.strip()]
+    if not patterns:
         return hits
-    return [hit for hit in hits if hit_namespace(hit) not in excluded]
+    return [
+        hit for hit in hits
+        if not any(_ns_matches(p, hit_namespace(hit)) for p in patterns)
+    ]
 
 
 def drop_noisy_autorecall_hits(hits: list[dict]) -> list[dict]:
