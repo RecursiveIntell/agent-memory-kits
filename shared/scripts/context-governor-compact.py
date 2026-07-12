@@ -63,16 +63,26 @@ def main():
     store=store_dir(); store.mkdir(parents=True, exist_ok=True)
     try:
         stored=run(binary, ['store','--dir',str(store)], resp, timeout=20)
-    except SystemExit:
-        stored = {}
+    except SystemExit as exc:
+        stored = {
+            'status': 'failed',
+            'exact_recovery_state': 'in_response' if resp.get('exact_store') else 'unavailable',
+            'verified': False,
+            'error': str(exc),
+        }
     receipt=resp.get('receipt') or {}
     if args.format=='json':
         resp['stored_path']=stored.get('path')
+        resp['storage']=stored
         print(json.dumps(resp, indent=2))
     else:
         print('Context Governor compacted transcript with receipt-backed exact fallback.')
         print(f"receipt_id: {receipt.get('receipt_id','unknown')}")
         print(f"stored_receipt: {stored.get('path')}")
+        print(f"storage_state: {stored.get('exact_recovery_state','unavailable')}")
+        print(f"storage_verified: {stored.get('verified',False)}")
+        if stored.get('error'):
+            print(f"storage_error: {stored['error']}")
         print(f"original_tokens: {receipt.get('original_approx_tokens','unknown')}")
         print(f"compacted_tokens: {receipt.get('compacted_approx_tokens','unknown')}")
         print(f"fallback_refs: {len(receipt.get('exact_fallback_refs') or [])}")
