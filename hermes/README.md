@@ -112,7 +112,7 @@ Key entries:
 
 `semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
 
-The kit manifest uses warm HTTP port `1739` when that sidecar is enabled. Stdio MCP does not require HTTP.
+The kit manifest starts the daily launcher, which uses warm HTTP port `1739` by default. HTTP requires a Bearer token: set `SEMANTIC_MEMORY_HTTP_TOKEN`, or point `SEMANTIC_MEMORY_HTTP_TOKEN_FILE` at a token file, or create `~/.hermes/semantic-memory-http-1739.token` (mode `600` is recommended). The server launcher and retrieval benchmark pass only token-file paths, never token values in child argv, and redact captured child output. Hook clients allow plaintext HTTP only on loopback, require HTTPS for non-loopback URLs, and never follow redirects with credentials. Set `SEMANTIC_MEMORY_HTTP_PORT=0` for token-free stdio-only MCP operation.
 
 ## Receipts
 
@@ -143,5 +143,6 @@ These extend the [top-level Design principles](../../README.md#design-principles
 | Skills not picked up | Confirm `~/.hermes/skills/<skill>/SKILL.md` exists; restart Hermes. |
 | Agent not registered | Confirm `~/.hermes/agents/memory-keeper.md` exists; restart Hermes. |
 | Warm port conflict with Codex/Claude | Only one process should own a configured warm port. Set `SEMANTIC_MEMORY_HTTP_PORT=0` for stdio-only clients. |
+| HTTP launcher reports a missing token | Set `SEMANTIC_MEMORY_HTTP_TOKEN`, `SEMANTIC_MEMORY_HTTP_TOKEN_FILE`, or `~/.hermes/semantic-memory-http-1739.token`; do not put the token in command output or checked-in config. |
 | Hook silent | `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log` and tail. |
 | `cargo install` fails | Re-run after `rustup update stable`. |

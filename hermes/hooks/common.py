@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import http.client
+import ipaddress
 import json
 import os
 import shutil
 import subprocess
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from http_auth import authorization_headers
 
 
 def debug(label: str) -> None:
@@ -40,19 +49,62 @@ def memory_dir() -> str:
     return os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".local/share/semantic-memory"))
 
 
-def http_base() -> str:
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_HTTP_OPENER = urllib.request.build_opener(_NoRedirect())
+
+
+def _is_loopback_host(host: str | None) -> bool:
+    if not host:
+        return False
+    if host.lower() == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+def http_base() -> str | None:
     explicit = os.environ.get("SEMANTIC_MEMORY_HTTP_URL")
     if explicit:
-        return explicit.rstrip("/")
-    port = os.environ.get("SEMANTIC_MEMORY_HTTP_PORT", "1739")
-    return f"http://127.0.0.1:{port}"
+        base = explicit.rstrip("/")
+    else:
+        port = os.environ.get("SEMANTIC_MEMORY_HTTP_PORT", "1739")
+        base = f"http://127.0.0.1:{port}"
+    try:
+        parsed = urllib.parse.urlsplit(base)
+        hostname = parsed.hostname
+        _ = parsed.port  # Force numeric/range validation.
+    except ValueError:
+        return None
+    if not hostname or parsed.query or parsed.fragment or parsed.path not in {"", "/"}:
+        return None
+    if parsed.username is not None or parsed.password is not None:
+        return None
+    if parsed.scheme == "http" and not _is_loopback_host(hostname):
+        return None
+    if parsed.scheme not in {"http", "https"}:
+        return None
+    return base
 
 
 def http_get(path: str, timeout: float = 2.0) -> dict | None:
+    headers = authorization_headers()
+    base = http_base()
+    if not headers or base is None:
+        return None
     try:
-        with urllib.request.urlopen(http_base() + path, timeout=timeout) as response:
+        request = urllib.request.Request(base + path, headers=headers, method="GET")
+        with _HTTP_OPENER.open(request, timeout=timeout) as response:
             raw = response.read()
-    except (OSError, urllib.error.URLError, TimeoutError):
+    except urllib.error.HTTPError as error:
+        error.close()
+        return None
+    except (ValueError, http.client.InvalidURL, OSError, urllib.error.URLError, TimeoutError):
         return None
     try:
         data = json.loads(raw.decode("utf-8"))
@@ -62,17 +114,24 @@ def http_get(path: str, timeout: float = 2.0) -> dict | None:
 
 
 def http_post(path: str, payload: dict, timeout: float = 4.0) -> dict | None:
+    headers = authorization_headers()
+    base = http_base()
+    if not headers or base is None:
+        return None
     body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
-    request = urllib.request.Request(
-        http_base() + path,
-        data=body,
-        headers={"content-type": "application/json"},
-        method="POST",
-    )
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        request = urllib.request.Request(
+            base + path,
+            data=body,
+            headers={"content-type": "application/json", **headers},
+            method="POST",
+        )
+        with _HTTP_OPENER.open(request, timeout=timeout) as response:
             raw = response.read()
-    except (OSError, urllib.error.URLError, TimeoutError):
+    except urllib.error.HTTPError as error:
+        error.close()
+        return None
+    except (ValueError, http.client.InvalidURL, OSError, urllib.error.URLError, TimeoutError):
         return None
     try:
         data = json.loads(raw.decode("utf-8"))
@@ -81,9 +140,23 @@ def http_post(path: str, payload: dict, timeout: float = 4.0) -> dict | None:
     return data if isinstance(data, dict) else None
 
 
+def _sanitized_child_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env.pop("SEMANTIC_MEMORY_HTTP_TOKEN", None)
+    env.pop("SM_BENCH_HTTP_AUTH_TOKEN", None)
+    return env
+
+
 def binary_help(binary: str) -> str:
     try:
-        proc = subprocess.run([binary, "--help"], text=True, capture_output=True, timeout=3, check=False)
+        proc = subprocess.run(
+            [binary, "--help"],
+            text=True,
+            capture_output=True,
+            timeout=3,
+            check=False,
+            env=_sanitized_child_env(),
+        )
     except Exception:
         return ""
     return f"{proc.stdout}\n{proc.stderr}"
@@ -109,7 +182,15 @@ def rpc_call(tool: str, arguments: dict, timeout: int = 8) -> dict | None:
     if profile and "--tool-profile" in binary_help(binary):
         cmd.extend(["--tool-profile", profile])
     try:
-        proc = subprocess.run(cmd, input=stdin, text=True, capture_output=True, timeout=timeout, check=False)
+        proc = subprocess.run(
+            cmd,
+            input=stdin,
+            text=True,
+            capture_output=True,
+            timeout=timeout,
+            check=False,
+            env=_sanitized_child_env(),
+        )
     except Exception:
         return None
     for line in proc.stdout.splitlines():

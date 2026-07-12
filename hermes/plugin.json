@@ -1,6 +1,6 @@
 {
   "name": "semantic-memory",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Local-first knowledge base with hybrid search, knowledge graphs, and autonomous memory lifecycle \u2014 for Hermes Agent",
   "author": "RecursiveIntell",
   "license": "Apache-2.0",
@@ -34,14 +34,11 @@
     },
     "mcp_servers": {
       "semantic-memory": {
-        "command": "semantic-memory-mcp",
+        "command": "bash",
         "args": [
-          "--memory-dir",
-          "$SEMANTIC_MEMORY_DIR",
+          "scripts/run-server.sh",
           "--tool-profile",
-          "agent",
-          "--http-port",
-          "1739"
+          "agent"
         ]
       },
       "context-governor": {
