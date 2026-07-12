@@ -216,7 +216,15 @@ def read_payload() -> dict:
 
 
 def emit_context(event_name: str, text: str) -> None:
-    print(json.dumps({"hookSpecificOutput":{"hookEventName":event_name,"additionalContext":text}}, separators=(",", ":")))
+    """Emit Hermes' canonical shell-hook context envelope.
+
+    ``agent.shell_hooks._parse_response`` accepts ``{"context": ...}`` for
+    all non-tool events.  The former Claude Code ``hookSpecificOutput`` shape
+    was silently discarded, making the primer and witnessed recall hooks inert
+    even when retrieval succeeded.
+    """
+    _ = event_name  # retained for call-site readability and event tracing.
+    print(json.dumps({"context": text}, separators=(",", ":")))
 
 
 def hit_namespace(hit: dict) -> str:

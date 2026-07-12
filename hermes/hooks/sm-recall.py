@@ -169,6 +169,22 @@ def merge_hits(existing: list[dict], incoming: list[dict], priority: int) -> lis
     return merged
 
 
+def drop_legacy_claude_kit_hits(hits: list[dict], prompt: str) -> list[dict]:
+    """Keep old Claude-kit material out of ordinary Hermes auto-recall.
+
+    The active integration is agent-memory-kits.  Legacy Claude-kit facts are
+    still searchable when explicitly requested, but otherwise pollute Hermes
+    setup/reliability prompts with obsolete guidance.
+    """
+    lowered_prompt = prompt.lower()
+    if "claude" in lowered_prompt or "semantic-memory-claude-kit" in lowered_prompt:
+        return hits
+    return [
+        hit for hit in hits
+        if "claude" not in str(hit.get("content") or "").lower()
+    ]
+
+
 def record_routing_outcome(prompt: str, query_class: str, outcome: str) -> None:
     if not prompt or query_class == "A" or os.environ.get("SM_RECALL_RECORD_OUTCOME", "1").lower() in {"0", "false", "no"}:
         return
@@ -178,9 +194,27 @@ def record_routing_outcome(prompt: str, query_class: str, outcome: str) -> None:
         pass
 
 
+def prompt_from_payload(payload: dict) -> str:
+    """Extract the user query from Hermes' shell-hook wire payload."""
+    raw_extra = payload.get("extra")
+    extra = raw_extra if isinstance(raw_extra, dict) else {}
+    return str(
+        extra.get("user_message")
+        or payload.get("user_message")
+        or payload.get("prompt")
+        or payload.get("user_prompt")
+        or payload.get("message")
+        or ""
+    )
+
+
 def main() -> int:
     payload = read_payload()
-    prompt = str(payload.get("prompt") or payload.get("user_prompt") or payload.get("message") or "")
+    # Hermes serializes plugin-hook kwargs under ``extra``.  Accept the older
+    # top-level aliases for standalone/manual compatibility, but read the live
+    # user_message first so the hook never quietly recalls against an empty
+    # query in production.
+    prompt = prompt_from_payload(payload)
     if len(prompt) < 12 or prompt.lstrip().startswith("/"):
         return 0
     debug("pre_llm_call semantic-memory recall")
@@ -199,6 +233,7 @@ def main() -> int:
     if broad and broad.get("ok"):
         broad_hits, score_key = prepare_hits(broad)
         hits = merge_hits(hits, broad_hits, 50)
+    hits = drop_legacy_claude_kit_hits(hits, prompt)
     if not hits:
         record_routing_outcome(prompt, query_class, "bad")
         return 0

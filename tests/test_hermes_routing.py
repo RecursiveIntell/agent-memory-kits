@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 import importlib.util
+import io
+import json
 import sys
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -73,6 +76,36 @@ class HermesRoutingTests(unittest.TestCase):
 
         with mock.patch.object(module, "http_post", side_effect=RuntimeError("down")):
             module.record_routing_outcome("summarize memory", "D", "bad")
+    def test_legacy_claude_kit_hits_require_explicit_request(self) -> None:
+        legacy = {
+            "result_id": "fact:legacy",
+            "content": "Built semantic-memory-claude-kit as a Claude Code plugin.",
+        }
+        active = {"result_id": "fact:active", "content": "agent-memory-kits is active."}
+        self.assertEqual(
+            module.drop_legacy_claude_kit_hits([legacy, active], "audit Hermes memory setup"),
+            [active],
+        )
+        self.assertEqual(
+            module.drop_legacy_claude_kit_hits([legacy, active], "audit Claude kit setup"),
+            [legacy, active],
+        )
+
+    def test_hermes_wire_payload_extracts_extra_user_message(self) -> None:
+        payload = {
+            "hook_event_name": "pre_llm_call",
+            "extra": {"user_message": "Recall the exact deployed memory architecture."},
+        }
+        self.assertEqual(
+            module.prompt_from_payload(payload),
+            "Recall the exact deployed memory architecture.",
+        )
+
+    def test_emit_context_uses_hermes_context_envelope(self) -> None:
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            module.emit_context("pre_llm_call", "provenanced recall")
+        self.assertEqual(json.loads(stdout.getvalue()), {"context": "provenanced recall"})
 
 
 if __name__ == "__main__":
