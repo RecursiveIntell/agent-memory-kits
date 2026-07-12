@@ -13,6 +13,7 @@ set -uo pipefail
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_resolve.sh"
 sm_resolve || exit 0
 sm_debug "SessionStart primer fired"
+PLUGIN="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # --- read cwd from hook stdin; derive a project name (git root preferred) ---
 input="$(cat 2>/dev/null || true)"

@@ -1,7 +1,7 @@
 {
   "name": "semantic-memory",
   "version": "0.6.2",
-  "description": "Local-first persistent memory, receipt-backed compaction, and claim/evidence provenance for Claude Code: auto-recall hooks (warm HTTP), project-scoped session priming, pre-compact capture, codebase ingestion, a memory-keeper subagent, and skills to capture/curate/explore/sync \u2014 over semantic-memory-mcp (55+ sm_* tools), context-governor (4 cg_* tools), and claim-ledger (5 cl_* tools).",
+  "description": "Local-first persistent memory, witnessed recall, receipt-backed replay, and claim/evidence provenance for Claude Code. Runtime MCP tools are discovered from each configured server; no static tool count is assumed.",
   "author": {
     "name": "Josh Stevenson",
     "email": "j.stevenson.cs@gmail.com"

@@ -13,7 +13,7 @@ See the [top-level README](../../README.md) for the full capability matrix, arch
 
 ## Tier / scope
 
-Tier 0 host plugin. This kit is the **reference implementation** for Hermes Agent. The Tier 0 contract is the same as Claude/Codex: real lifecycle hooks (here, `on_session_start`, `pre_llm_call`, `post_tool_use`, `post_llm_call`) plus manifest-declared skills, commands, MCP companions, proof helpers, and the memory-keeper subagent. Hermes is installed by `cp -r`-ing the skills/agents/scripts directories into `~/.hermes/`; there is no marketplace path.
+Tier 0 host integration. This directory now contains a current Hermes general-plugin manifest (`plugin.yaml` plus `__init__.py`) for guarded MCP setup, alongside the richer kit assets historically described by `plugin.json`. The general plugin is loadable by current Hermes; `plugin.json` remains a kit/deployment manifest and is not itself interpreted by Hermes's general-plugin loader.
 
 ## Architecture
 
@@ -23,8 +23,8 @@ flowchart LR
     HE["Hermes Agent<br/>(skills/agents/commands)"] --> SK["skills/<br/>9 SKILL.md"]
     HE --> AG["agents/<br/>memory-keeper.md"]
     HE --> CM["commands/<br/>/memory-setup · /memory-ingest"]
-    HE --> PJ["plugin.json<br/>(manifest)"]
-    SK --> MCP["semantic-memory-mcp<br/>(warm HTTP :1738)"]
+    HE --> PJ["plugin.yaml + __init__.py<br/>(Hermes general plugin)"]
+    SK --> MCP["semantic-memory-mcp<br/>(warm HTTP :1739 when enabled)"]
     AG --> MCP
     CM --> MCP
     MCP --> CG["context-governor<br/>MCP"]
@@ -34,25 +34,25 @@ flowchart LR
     CL --> LR[("Claim/evidence ledger")]
 ```
 
-Skill paths: `hermes/skills/`. Agent path: `hermes/agents/`. Command paths: `hermes/commands/`. Manifest: `hermes/plugin.json`.
+Skill paths: `hermes/skills/`. Agent path: `hermes/agents/`. Command paths: `hermes/commands/`. Hermes plugin manifest: `hermes/plugin.yaml`. Kit deployment metadata: `hermes/plugin.json`.
 
 ## Install
 
-Keep the canonical kit layout available to the hook process; the Hermes hooks
-load the shared fail-closed framing module from that root. Set
-`SEMANTIC_MEMORY_KIT_ROOT` to this checkout (or deploy the complete checkout
-with `hermes/` and `shared/` as siblings), then register the manifest at
-`hermes/plugin.json`. Do not deploy only the skills/agents/scripts directories:
-that omits the lifecycle hooks and their shared provenance gate.
+Install the general plugin from a checkout by copying this directory into the
+Hermes user plugin directory, then enable it:
 
 For hosts that use the canonical checkout directly:
 
 ```bash
-export SEMANTIC_MEMORY_KIT_ROOT="$PWD"
-# Register/load ./hermes/plugin.json using Hermes's plugin configuration.
+cp -R hermes "$HOME/.hermes/plugins/semantic-memory-mcp"
+hermes plugins enable semantic-memory-mcp
+hermes mcp add semantic_memory --command semantic-memory-mcp \
+  --args --memory-dir "$HOME/.local/share/semantic-memory" --tool-profile agent
+hermes mcp test semantic_memory
+hermes mcp configure semantic_memory
 ```
 
-Restart Hermes so the new skills/agents/commands are picked up.
+`--args` must be last. Restart Hermes after changing plugin code. The MCP server supplies the `sm_*` tools directly; the general plugin registers only guarded setup helpers. If deploying the richer hooks/skills kit, keep `hermes/` and `shared/` as siblings and set `SEMANTIC_MEMORY_KIT_ROOT` to the checkout.
 
 ## What you get
 
@@ -106,13 +106,13 @@ Key entries:
 
 ### Plugin manifest
 
-`hermes/plugin.json` declares skills, the memory-keeper agent, 4 hook events (`on_session_start`, `pre_llm_call`, `post_tool_use`, `post_llm_call`), commands, and MCP servers for semantic memory, context-governor, claim-ledger, admin semantic-memory, and Forge admin patch verification. Hermes reads this manifest at startup.
+`hermes/plugin.yaml` and `hermes/__init__.py` are the current loadable Hermes general plugin. `hermes/plugin.json` declares the richer kit's intended skills, hooks, commands, and companion servers for deployment tooling; Hermes does not natively interpret that JSON file.
 
 ### MCP tools exposed
 
 `semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
 
-Hermes uses warm HTTP port `1738` by default (the manifest passes `--http-port 1738` to `run-server.sh`).
+The kit manifest uses warm HTTP port `1739` when that sidecar is enabled. Stdio MCP does not require HTTP.
 
 ## Receipts
 
@@ -130,9 +130,9 @@ This host has no host-specific `doctor.py` separate from `doctor-all.py`.
 
 Hermes is the third reference impl, focused on minimal installation friction:
 
-- **File install, not marketplace.** `cp -r` is the only install step. No marketplace, no auth flow, no plugin server.
-- **One manifest, one set of skills.** `hermes/plugin.json` is the single source of truth for what Hermes should load.
-- **Warm port `1738` by default.** Hermes runs the warm sidecar on `1738`; Codex and Claude use `1739`; this avoids cross-agent port collisions when more than one agent runs locally.
+- **File install, not marketplace.** Copy the plugin directory and enable it locally.
+- **Separate loader and kit metadata.** `plugin.yaml` is Hermes-native; `plugin.json` documents richer deployment assets.
+- **One canonical store.** Examples use `~/.local/share/semantic-memory`; select one writer/HTTP owner when running several agents concurrently.
 
 These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
 
@@ -142,6 +142,6 @@ These extend the [top-level Design principles](../../README.md#design-principles
 |---|---|
 | Skills not picked up | Confirm `~/.hermes/skills/<skill>/SKILL.md` exists; restart Hermes. |
 | Agent not registered | Confirm `~/.hermes/agents/memory-keeper.md` exists; restart Hermes. |
-| Warm port conflict with Codex/Claude | Hermes uses `1738`. Codex/Claude use `1739`. Set `SEMANTIC_MEMORY_HTTP_PORT=0` to disable the warm server on this host. |
+| Warm port conflict with Codex/Claude | Only one process should own a configured warm port. Set `SEMANTIC_MEMORY_HTTP_PORT=0` for stdio-only clients. |
 | Hook silent | `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log` and tail. |
 | `cargo install` fails | Re-run after `rustup update stable`. |

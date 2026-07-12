@@ -331,7 +331,7 @@ codex plugin marketplace add ./codex
 codex plugin add semantic-memory@semantic-memory-codex-kit
 ```
 
-The Codex plugin installs the MCP server config, skills, prompts, warm recall hooks, automatic codebase-ingest hook, context-governor MCP, and claim-ledger MCP. Codex uses warm HTTP port `1739` by default so it does not collide with Hermes/Claude sidecars on `1738`.
+The Codex plugin installs MCP configuration, skills, prompts, warm recall hooks, codebase-ingest hooks, context-governor, and claim-ledger integrations. Use one canonical store directory across agents. Only one process should own a given warm HTTP port; stdio-only clients should set the port to `0`.
 
 Maintenance tools hidden by the daily lean profile are reachable through the `semantic-memory-admin` MCP server entry, which runs `scripts/run-server-admin.sh` with `SEMANTIC_MEMORY_TOOL_PROFILE=full` and disables the competing warm HTTP sidecar port for that stdio server.
 
@@ -575,7 +575,7 @@ Measures compaction latency, search latency, receipt ID, and compact/original to
 | `SEMANTIC_MEMORY_DIR` | `~/.local/share/semantic-memory` | Where the store lives (`memory.db` + vector sidecar) |
 | `SEMANTIC_MEMORY_MCP_BIN` | auto-resolved | Override the binary path |
 | `SEMANTIC_MEMORY_HTTP_PORT` | `1739` | Warm HTTP port. Set to `0` to disable (hooks cold-spawn). |
-| `SEMANTIC_MEMORY_TOOL_PROFILE` | `lean` | `lean` (33 tools), `standard` (48), `full` (61) |
+| `SEMANTIC_MEMORY_TOOL_PROFILE` | `agent` | `lean`/`standard` for governed read-only recall, `agent` for bounded daily writes, `full` for operators. Verify exact tools with MCP `tools/list`. |
 | `SEMANTIC_MEMORY_TURBO_QUANT` | unset | Set to `1` to enable TurboQuant compressed search |
 | `SEMANTIC_MEMORY_TURBO_QUANT_BITS` | `8` | TurboQuant polar angle bits |
 | `SEMANTIC_MEMORY_TURBO_QUANT_PROJECTIONS` | `16` | TurboQuant QJL projection count |

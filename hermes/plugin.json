@@ -39,11 +39,9 @@
           "--memory-dir",
           "$SEMANTIC_MEMORY_DIR",
           "--tool-profile",
-          "lean",
+          "agent",
           "--http-port",
-          "1739",
-          "--llm-model",
-          "$LLM_MODEL"
+          "1739"
         ]
       },
       "context-governor": {
