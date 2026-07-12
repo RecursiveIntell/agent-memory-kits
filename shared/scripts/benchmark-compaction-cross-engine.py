@@ -49,7 +49,21 @@ def run_context_governor(messages: list[dict[str, str]]) -> dict[str, Any]:
     if not cg_bin.exists():
         return {"available": False, "compacted_messages": None}
 
-    request = {"messages": messages, "config": {}}
+    request = {
+        "session_id": "cross-engine-benchmark",
+        "messages": messages,
+        "policy": {
+            "target_tokens": 1200,
+            "protect_first_n": 2,
+            "protect_last_n": 2,
+            "summary_max_chars": 2400,
+            "allocator": "deterministic_v1",
+            "semantic_memory_enabled": False,
+            "archive_memory_enabled": False,
+            "budget_mode": "hard_cascade",
+            "token_counter": "approx_chars",
+        },
+    }
     try:
         proc = subprocess.run(
             [str(cg_bin), "compact"],
@@ -124,7 +138,8 @@ def benchmark_engine(
     total_before = 0
     total_after = 0
     total_time = 0.0
-    exact_fallback = False
+    exact_fallback_status = "unavailable"
+    exact_fallback_verified = False
     per_fixture: list[dict[str, Any]] = []
 
     for fixture in fixtures:
@@ -163,21 +178,23 @@ def benchmark_engine(
     if total_before > 0 and total_after > 0:
         compression_ratio = round(total_after / total_before, 4)
 
-    # head-tail always provides exact fallback (original messages are retained
-    # in head/tail and omitted count is explicit); context-governor may or may
-    # not; squeez we don't know.
-    if engine_name == "head-tail":
-        exact_fallback = True
-    elif engine_name == "context-governor":
-        exact_fallback = available  # it can return original messages on failure
+    # A marker that N messages were omitted is not exact fallback. The current
+    # adapter also does not exercise context-governor's store + expand API, so
+    # this benchmark must not award durable recovery credit to any engine.
+    if engine_name == "context-governor" and available:
+        exact_fallback_status = "not_verified"
+
+    status = "tested" if available else "unsupported"
 
     return {
         "available": available,
+        "status": status,
         "compression_ratio": compression_ratio,
         "time_secs": round(total_time, 6),
-        "exact_fallback": exact_fallback,
-        "token_before": total_before if available else 0,
-        "token_after": total_after if available else 0,
+        "exact_fallback_status": exact_fallback_status,
+        "exact_fallback_verified": exact_fallback_verified,
+        "approx_tokens_before": total_before if available else 0,
+        "approx_tokens_after": total_after if available else 0,
         "per_fixture": per_fixture,
     }
 
@@ -250,12 +267,7 @@ def main() -> int:
         required=True,
         help="Output JSON file path",
     )
-    parser.add_argument(
-        "--top-k",
-        type=int,
-        default=10,
-        help="Top-K parameter (default: 10)",
-    )
+
     args = parser.parse_args()
 
     # Resolve fixtures dir relative to the script location
@@ -294,10 +306,11 @@ def main() -> int:
         engines_report[engine_name].pop("per_fixture", None)
 
     bench_report = {
-        "schema": "CompactionBenchmarkV1",
+        "schema": "CompactionBenchmarkV2",
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "machine_fingerprint": machine_fingerprint(),
-        "top_k": args.top_k,
+        "token_counter": "approx_chars_floor_v1",
+        "claim_boundary": "local mechanics only; no model answerability or cross-engine superiority claim",
         "engines": engines_report,
         "per_fixture": all_per_fixture,
     }

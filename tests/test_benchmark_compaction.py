@@ -69,7 +69,7 @@ class TestBenchmarkCompaction(unittest.TestCase):
                 os.unlink(out_path)
 
     def test_report_has_schema(self) -> None:
-        """Output should have CompactionBenchmarkV1 schema."""
+        """Output should have the explicit estimated-token V2 schema."""
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".json", delete=False
         ) as tmp:
@@ -77,7 +77,7 @@ class TestBenchmarkCompaction(unittest.TestCase):
 
         try:
             report = self._run_benchmark(out_path)
-            self.assertEqual(report["schema"], "CompactionBenchmarkV1")
+            self.assertEqual(report["schema"], "CompactionBenchmarkV2")
             self.assertIn("timestamp", report)
             self.assertIn("machine_fingerprint", report)
             self.assertIn("engines", report)
@@ -102,12 +102,44 @@ class TestBenchmarkCompaction(unittest.TestCase):
                 0,
                 "head-tail should produce a compression ratio > 0",
             )
-            self.assertGreater(ht["token_before"], 0)
-            self.assertGreaterEqual(ht["token_after"], 0)
+            self.assertGreater(ht["approx_tokens_before"], 0)
+            self.assertGreaterEqual(ht["approx_tokens_after"], 0)
             self.assertTrue(
-                ht["token_after"] < ht["token_before"],
+                ht["approx_tokens_after"] < ht["approx_tokens_before"],
                 "head-tail should reduce token count",
             )
+        finally:
+            if os.path.exists(out_path):
+                os.unlink(out_path)
+
+    def test_head_tail_does_not_claim_exact_fallback(self) -> None:
+        """An omitted-count marker cannot reconstruct the omitted bytes."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
+            out_path = tmp.name
+        try:
+            report = self._run_benchmark(out_path)
+            ht = report["engines"]["head-tail"]
+            self.assertEqual(ht["exact_fallback_status"], "unavailable")
+            self.assertFalse(ht["exact_fallback_verified"])
+        finally:
+            if os.path.exists(out_path):
+                os.unlink(out_path)
+
+    def test_report_labels_estimated_tokens_and_engine_status(self) -> None:
+        """Approximate counts and unsupported engines must be explicit."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
+            out_path = tmp.name
+        try:
+            report = self._run_benchmark(out_path)
+            self.assertEqual(report["schema"], "CompactionBenchmarkV2")
+            self.assertEqual(report["token_counter"], "approx_chars_floor_v1")
+            for engine in report["engines"].values():
+                self.assertIn(
+                    engine["status"],
+                    {"tested", "unsupported", "setup_error", "runtime_error", "invalid_output"},
+                )
+                self.assertIn("approx_tokens_before", engine)
+                self.assertIn("approx_tokens_after", engine)
         finally:
             if os.path.exists(out_path):
                 os.unlink(out_path)
