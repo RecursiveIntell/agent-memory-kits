@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420" role="img" aria-labelledby="title desc">
+  <title id="title">Codebase ingester flow</title>
+  <desc id="desc">A repository enters the ingester. Git ls-files walks the tree. Manifests detect ecosystems, language stats are computed by extension, and README and layout are captured. Components are parsed for name, version, and dependencies. Facts and graph edges are written to semantic-memory through the local MCP server.</desc>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#17304A" stroke-width="0.5" opacity="0.35"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#64748B"/>
+    </marker>
+  </defs>
+  <rect width="900" height="420" rx="20" fill="#07111F"/>
+  <rect width="900" height="420" rx="20" fill="url(#grid)"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <g fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M130 80H280"/>
+      <path d="M420 130V200H200"/>
+      <path d="M420 130V200H420"/>
+      <path d="M420 130V200H640"/>
+      <path d="M200 260V320"/>
+      <path d="M420 260V320"/>
+      <path d="M640 260V320H420"/>
+    </g>
+    <rect x="40" y="50" width="90" height="60" rx="12" fill="#172033" stroke="#A78BFA"/>
+    <text x="60" y="85" fill="#DDD6FE" font-size="14" font-weight="700">Repo</text>
+    <rect x="280" y="50" width="280" height="80" rx="14" fill="#152315" stroke="#84CC16"/>
+    <text x="300" y="80" fill="#BEF264" font-size="13" font-weight="700">Walk (git ls-files)</text>
+    <text x="300" y="102" fill="#D9F99D" font-size="12">detect ecosystems by manifest</text>
+    <text x="300" y="120" fill="#94A3B8" font-size="11">language stats · README · layout</text>
+    <rect x="130" y="200" width="140" height="60" rx="10" fill="#10271F" stroke="#34D399"/>
+    <text x="150" y="230" fill="#6EE7B7" font-size="12">Parse components</text>
+    <text x="150" y="248" fill="#A7F3D0" font-size="11">name · version · deps</text>
+    <rect x="350" y="200" width="140" height="60" rx="10" fill="#102333" stroke="#22D3EE"/>
+    <text x="370" y="230" fill="#67E8F9" font-size="12">Facts</text>
+    <text x="370" y="248" fill="#CFFAFE" font-size="11">repo + per component</text>
+    <rect x="570" y="200" width="140" height="60" rx="10" fill="#2A1328" stroke="#F472B6"/>
+    <text x="590" y="230" fill="#F9A8D4" font-size="12">Graph edges</text>
+    <text x="590" y="248" fill="#FBCFE8" font-size="11">belongs_to · depends_on</text>
+    <rect x="320" y="320" width="200" height="50" rx="10" fill="#10271F" stroke="#34D399" stroke-width="2"/>
+    <text x="340" y="350" fill="#6EE7B7" font-size="14" font-weight="700">semantic-memory</text>
+    <text x="340" y="370" fill="#A7F3D0" font-size="11">via local MCP server</text>
+  </g>
+</svg>

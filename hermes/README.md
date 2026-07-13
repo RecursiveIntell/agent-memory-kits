@@ -9,7 +9,7 @@
 [![context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor&style=for-the-badge)](https://crates.io/crates/context-governor)
 [![claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger&style=for-the-badge)](https://crates.io/crates/claim-ledger)
 
-See the [top-level README](../../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
+See the [top-level README](../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
 
 ## Tier / scope
 
@@ -17,22 +17,7 @@ Tier 0 host integration. This directory now contains a current Hermes general-pl
 
 ## Architecture
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-flowchart LR
-    HE["Hermes Agent<br/>(skills/agents/commands)"] --> SK["skills/<br/>9 SKILL.md"]
-    HE --> AG["agents/<br/>memory-keeper.md"]
-    HE --> CM["commands/<br/>/memory-setup · /memory-ingest"]
-    HE --> PJ["plugin.yaml + __init__.py<br/>(Hermes general plugin)"]
-    SK --> MCP["semantic-memory-mcp<br/>(warm HTTP :1739 when enabled)"]
-    AG --> MCP
-    CM --> MCP
-    MCP --> CG["context-governor<br/>MCP"]
-    MCP --> CL["claim-ledger<br/>MCP"]
-    MCP --> DB[("SQLite + FTS5 + HNSW")]
-    CG --> RS[("Receipt store")]
-    CL --> LR[("Claim/evidence ledger")]
-```
+![Tier 0 hooked host architecture](../docs/assets/tier0-hooked-architecture.svg)
 
 Skill paths: `hermes/skills/`. Agent path: `hermes/agents/`. Command paths: `hermes/commands/`. Hermes plugin manifest: `hermes/plugin.yaml`. Kit deployment metadata: `hermes/plugin.json`.
 
@@ -110,7 +95,7 @@ Key entries:
 
 ### MCP tools exposed
 
-`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
+`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../README.md#the-three-mcp-companions).
 
 The kit manifest starts the daily launcher, which uses warm HTTP port `1739` by default. HTTP requires a Bearer token: set `SEMANTIC_MEMORY_HTTP_TOKEN`, or point `SEMANTIC_MEMORY_HTTP_TOKEN_FILE` at a token file, or create `~/.hermes/semantic-memory-http-1739.token` (mode `600` is recommended). The server launcher and retrieval benchmark pass only token-file paths, never token values in child argv, and redact captured child output. Hook clients allow plaintext HTTP only on loopback, require HTTPS for non-loopback URLs, and never follow redirects with credentials. Set `SEMANTIC_MEMORY_HTTP_PORT=0` for token-free stdio-only MCP operation.
 
@@ -134,7 +119,7 @@ Hermes is the third reference impl, focused on minimal installation friction:
 - **Separate loader and kit metadata.** `plugin.yaml` is Hermes-native; `plugin.json` documents richer deployment assets.
 - **One canonical store.** Examples use `~/.local/share/semantic-memory`; select one writer/HTTP owner when running several agents concurrently.
 
-These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
+These extend the [top-level Design principles](../README.md#design-principles); they don't replace them.
 
 ## Troubleshooting
 

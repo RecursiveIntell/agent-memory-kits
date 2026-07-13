@@ -10,7 +10,7 @@
 [![context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor&style=for-the-badge)](https://crates.io/crates/context-governor)
 [![claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger&style=for-the-badge)](https://crates.io/crates/claim-ledger)
 
-See the [top-level README](../../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
+See the [top-level README](../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
 
 ## Tier / scope
 
@@ -18,23 +18,7 @@ Tier 0 host plugin. This kit is the **reference implementation** that Tier 1 hos
 
 ## Architecture
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-flowchart LR
-    CX["Codex CLI<br/>(hooks/prompts/agents/skills)"] --> H["hooks/<br/>memory-primer · memory-recall<br/>memory-capture-nudge<br/>codebase-auto-ingest<br/>context-governor-compact"]
-    CX --> P["prompts/<br/>11 .md templates"]
-    CX --> A["agents/<br/>memory-keeper.md"]
-    CX --> S["skills/<br/>13 SKILL.md (with agents/openai.yaml)"]
-    CX --> AS["assets/icon.svg"]
-    H --> MCP["semantic-memory-mcp<br/>(warm HTTP :1739)"]
-    P --> MCP
-    S --> MCP
-    MCP --> CG["context-governor<br/>MCP"]
-    MCP --> CL["claim-ledger<br/>MCP"]
-    MCP --> DB[("SQLite + FTS5 + HNSW")]
-    CG --> RS[("Receipt store")]
-    CL --> LR[("Claim/evidence ledger")]
-```
+![Tier 0 hooked host architecture](../docs/assets/tier0-hooked-architecture.svg)
 
 Hook paths: `codex/plugins/semantic-memory/hooks/`. Prompt paths: `codex/plugins/semantic-memory/prompts/`. Skill paths: `codex/plugins/semantic-memory/skills/`. All relative to repo root.
 
@@ -118,7 +102,7 @@ The Codex plugin installs the MCP server config, skills, prompts, warm recall ho
 
 ### MCP tools exposed
 
-`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
+`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5. See the [top-level "The three MCP companions" section](../README.md#the-three-mcp-companions).
 
 ## Receipts
 
@@ -136,7 +120,7 @@ Codex is the reference impl, with two extensions over Claude Code:
 - **Automatic codebase ingest.** The `codebase-auto-ingest.py` hook detects a new working tree and queues `--dedupe` ingest on `UserPromptSubmit`. This is a convenience, not a replacement for explicit `/memory-ingest`.
 - **Prompt templates per operation.** The `prompts/` directory gives a one-shot template for each of the 11 common memory operations; the model picks the right one rather than constructing a free-form tool call.
 
-These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
+These extend the [top-level Design principles](../README.md#design-principles); they don't replace them.
 
 ## Troubleshooting
 

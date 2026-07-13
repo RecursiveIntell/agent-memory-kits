@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="380" viewBox="0 0 900 380" role="img" aria-labelledby="title desc">
+  <title id="title">Receipt-backed compaction</title>
+  <desc id="desc">A transcript enters context-governor compact, which classifies spans into kept (exact), summarized, and omitted (with exact fallback stored). A receipt with hashes and token counts is written to the receipt store. cg_search and cg_expand recover omitted text later.</desc>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#17304A" stroke-width="0.5" opacity="0.35"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#64748B"/>
+    </marker>
+  </defs>
+  <rect width="900" height="380" rx="20" fill="#07111F"/>
+  <rect width="900" height="380" rx="20" fill="url(#grid)"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <g fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M160 90H320"/>
+      <path d="M520 130V200H200"/>
+      <path d="M520 130V200H520"/>
+      <path d="M520 130V200H780"/>
+      <path d="M520 200V200H520V260"/>
+    </g>
+    <rect x="40" y="60" width="120" height="60" rx="12" fill="#172033" stroke="#A78BFA"/>
+    <text x="60" y="90" fill="#DDD6FE" font-size="13" font-weight="700">Transcript</text>
+    <rect x="320" y="60" width="200" height="80" rx="14" fill="#152315" stroke="#84CC16"/>
+    <text x="340" y="90" fill="#BEF264" font-size="14" font-weight="700">context-governor</text>
+    <text x="340" y="112" fill="#D9F99D" font-size="12">compact</text>
+    <text x="340" y="130" fill="#94A3B8" font-size="11">classify spans</text>
+    <rect x="130" y="200" width="140" height="50" rx="10" fill="#10271F" stroke="#34D399"/>
+    <text x="150" y="230" fill="#6EE7B7" font-size="12">Kept (exact)</text>
+    <rect x="450" y="200" width="140" height="50" rx="10" fill="#112433" stroke="#38BDF8"/>
+    <text x="470" y="230" fill="#7DD3FC" font-size="12">Summarized</text>
+    <rect x="710" y="200" width="140" height="50" rx="10" fill="#242014" stroke="#FBBF24"/>
+    <text x="730" y="225" fill="#FDE68A" font-size="12">Omitted</text>
+    <text x="730" y="243" fill="#FEF3C7" font-size="10">exact fallback stored</text>
+    <rect x="420" y="260" width="200" height="50" rx="10" fill="#2A1328" stroke="#F472B6"/>
+    <text x="440" y="290" fill="#F9A8D4" font-size="12">Receipt · hashes + tokens</text>
+    <rect x="420" y="320" width="200" height="40" rx="8" fill="#102333" stroke="#22D3EE"/>
+    <text x="440" y="345" fill="#67E8F9" font-size="11">cg_search · cg_expand · cg_diff</text>
+  </g>
+</svg>

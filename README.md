@@ -174,36 +174,7 @@ agent-memory-kits/
 
 ### Two tiers of integration
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-flowchart TD
-    subgraph Hook tier["Hook tier — automatic lifecycle"]
-        CC["Claude Code"] --> SM["semantic-memory<br/>MCP + hooks"]
-        CX["Codex CLI"] --> SM
-        HE["Hermes Agent"] --> SM
-        CC --> CG["context-governor<br/>MCP + PreCompact hook"]
-        CX --> CG
-    end
-    subgraph Rule tier["Rule/context tier — MCP + rules + commands"]
-        CU["Cursor"] --> SM
-        CL["Cline"] --> SM
-        RO["Roo Code"] --> SM
-        WI["Windsurf"] --> SM
-        CO["Continue"] --> SM
-        OC["OpenCode"] --> SM
-        CU --> CG
-        CL --> CG
-        RO --> CG
-        WI --> CG
-        CO --> CG
-        OC --> CG
-    end
-    SM --> DB[("SQLite + FTS5 + HNSW<br/>local-first")]
-    CG --> RC[("Receipt store<br/>exact fallback")]
-    CL2["claim-ledger"] --> LR[("Claim/evidence ledger<br/>provenance receipts")]
-    SM --> CL2
-    CG --> CL2
-```
+![Two integration tiers](docs/assets/tier-overview.svg)
 
 - **Hook tier** (Claude Code, Codex, Hermes): real lifecycle hooks inject memory at prompt/session/compaction events. Agents don't need to be told to recall — it happens automatically.
 - **Rule/context tier** (Cursor, Cline, Roo Code, Windsurf, Continue, OpenCode): MCP tools plus host-native rule files and a deterministic context command. Agents get behavioral guidance to retrieve memory and preserve receipts. No false claim of hidden pre-prompt hooks.
@@ -214,24 +185,9 @@ flowchart TD
 
 ### Per-prompt auto-recall (hooked agents)
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-sequenceDiagram
-    participant U as You
-    participant A as Agent (Claude/Codex/Hermes)
-    participant H as Recall hook
-    participant SM as semantic-memory
-    U->>A: prompt
-    A->>H: UserPromptSubmit (prompt JSON on stdin)
-    H->>H: gate (skip if <12 chars or slash-command)
-    H->>SM: POST /search to warm server (BM25 + vector + RRF)
-    SM-->>H: ranked hits w/ cosine scores
-    H->>H: relative gate — best hit ≥ 0.58? keep near-peers
-    H-->>A: inject relevant facts as additionalContext
-    A->>U: answer, now memory-aware
-```
+![Per-prompt auto-recall sequence](docs/assets/auto-recall-sequence.svg)
 
-The hook hits the **warm HTTP server** first (the embedder is already loaded, so this is ~milliseconds). If that server isn't up it falls back to cold-spawning the binary over stdio — correct, just slower.
+The hook calls **sm_search_witnessed** over stdio MCP (the embedder is already loaded, so this is ~milliseconds). If that server isn't up it falls back to cold-spawning the binary over stdio — correct, just slower.
 
 **Why a relative gate?** `nomic` embeddings sit on a high baseline — even totally unrelated text scores ~0.48–0.54 cosine. A flat threshold would inject noise on every prompt. Instead the hook requires the **best** hit to clear `MINTOP` (0.58), then keeps only its near-peers:
 
@@ -246,18 +202,7 @@ Every hook **fails open**: any error, missing binary, or empty result exits clea
 
 ### Receipt-backed compaction (context-governor)
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-flowchart LR
-    T["Transcript"] --> CG["context-governor<br/>compact"]
-    CG --> K["Kept (exact)"]
-    CG --> S["Summarized"]
-    CG --> O["Omitted<br/>(exact fallback stored)"]
-    CG --> R["Receipt<br/>receipt_id + hashes"]
-    R --> RS[("Receipt store<br/>~/.local/share/<br/>context-governor/receipts")]
-    O --> RS
-    RS --> SE["cg_search<br/>cg_expand<br/>cg_diff_receipt"]
-```
+![Receipt-backed compaction](docs/assets/compaction-flow.svg)
 
 Context Governor classifies transcript spans, preserves active tasks and high-risk evidence, summarizes lower-risk context, and stores exact fallback records. When omitted text matters later, `cg_search` and `cg_expand` recover it from the receipt store.
 
@@ -424,7 +369,7 @@ Claim boundary: Pro verification receipts prove the listed commands ran with cap
 The core memory server. Profile-based MCP tool counts (lean/standard/full/admin — run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts):
 
 - **LLM output parsing**: `sm_parse_json`, `sm_parse_json_value`, `sm_repair_json`, `sm_strip_think_tags`, `sm_parse_string_list`, `sm_parse_choice`, `sm_parse_number` — production-grade parsing of LLM output without an additional LLM call. Handles think blocks, markdown fences, malformed JSON, trailing text.
-- **Search**: hybrid BM25 + vector (usearch HNSW) fused with Reciprocal Rank Fusion, RL-routed search (`sm_search_with_routing`), bitemporal as-of search (`sm_search_as_of`), conversation message search (`sm_search_conversations`)
+- **Search**: hybrid BM25 + vector (usearch) fused with Reciprocal Rank Fusion, RL-routed search (`sm_search_with_routing`), bitemporal as-of search (`sm_search_as_of`), conversation message search (`sm_search_conversations`)
 - **Facts**: add, get, list, supersede (canonical update with audit trail; auto-filtered from search), delete (hard, approval-gated)
 - **Graph**: typed edges (belongs_to, depends_on, semantic, temporal, causal), path traversal, community detection, factor-graph belief propagation, discord second-order discovery
 - **Contradictions**: content-based detection (numeric/value/negation/antonym signals) — no pre-asserted edges needed
@@ -462,21 +407,7 @@ A claim with evidence is stronger than a fact without. Receipts prove provenance
 
 `/memory-ingest <path>` (or `ingest_codebase.py` directly) turns a repository into memory. It is deterministic and **language-agnostic** — facts come straight from manifests and source structure, never guessed.
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-flowchart LR
-    A["Repo"] --> B["Walk<br/>(git ls-files)"]
-    B --> C["Detect ecosystems<br/>by manifest"]
-    B --> L["Language stats<br/>by extension"]
-    B --> R["README + layout"]
-    C --> D["Parse components<br/>name · version · deps"]
-    D --> F["Facts:<br/>repo + per component"]
-    D --> GE["Graph edges:<br/>belongs_to · depends_on"]
-    L --> F
-    R --> F
-    F --> SM[("semantic-memory")]
-    GE --> SM
-```
+![Codebase ingester flow](docs/assets/ingester-flow.svg)
 
 | Ecosystem | Manifest | Name | Version | Dependencies |
 |---|---|---|:--:|:--:|
@@ -599,7 +530,7 @@ The warm server is the MCP server itself: `run-server.sh` adds `--http-port`, so
 
 - **Facts** — atomic statements stored under a **namespace** (e.g. `general`, `projects`, `code:<repo>`). Each gets a stable `fact:<uuid>` id.
 - **Graph edges** — typed, append-only relationships between facts: `belongs_to`, `depends_on`, `part_of`, plus `semantic` / `temporal` / `causal`. Edges are idempotent; corrections use append/supersede, never destructive rewrite.
-- **Retrieval** — hybrid: BM25 (FTS5) + vector (usearch HNSW) fused with Reciprocal Rank Fusion. Graph tools (`sm_topology`, `sm_communities`, `sm_factor_graph`) reason over the edges.
+- **Retrieval** — hybrid: BM25 (FTS5) + vector (usearch) fused with Reciprocal Rank Fusion. Graph tools (`sm_topology`, `sm_communities`, `sm_factor_graph`) reason over the edges.
 - **Receipts** — context-governor stores compacted transcript receipts with exact fallback. claim-ledger stores claim/evidence/provenance receipts with digest chain verification.
 
 ---

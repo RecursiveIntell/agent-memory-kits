@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500" role="img" aria-labelledby="title desc">
+  <title id="title">Per-prompt auto-recall sequence</title>
+  <desc id="desc">A user sends a prompt to the agent. The UserPromptSubmit hook gates on length and slash commands, queries semantic-memory-mcp using sm_search_witnessed, applies provenance admission and cosine threshold gating, and injects only admissible hits as inert DATA ONLY context. The hook fails open on any error.</desc>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#17304A" stroke-width="0.5" opacity="0.35"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#64748B"/>
+    </marker>
+  </defs>
+  <rect width="900" height="500" rx="20" fill="#07111F"/>
+  <rect width="900" height="500" rx="20" fill="url(#grid)"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <g fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M120 70H300"/>
+      <path d="M520 70H700"/>
+      <path d="M300 130H300V190"/>
+      <path d="M520 130H520V190"/>
+      <path d="M300 250V310"/>
+      <path d="M520 250V310"/>
+      <path d="M300 370V430"/>
+      <path d="M520 370V430"/>
+    </g>
+    <rect x="40" y="40" width="160" height="60" rx="12" fill="#172033" stroke="#A78BFA"/>
+    <text x="60" y="65" fill="#DDD6FE" font-size="13" font-weight="700">YOU</text>
+    <text x="60" y="85" fill="#C4B5FD" font-size="11">send prompt</text>
+    <rect x="300" y="40" width="220" height="60" rx="12" fill="#112433" stroke="#38BDF8"/>
+    <text x="320" y="65" fill="#7DD3FC" font-size="13" font-weight="700">Recall hook</text>
+    <text x="320" y="85" fill="#BAE6FD" font-size="11">UserPromptSubmit event</text>
+    <rect x="700" y="40" width="160" height="60" rx="12" fill="#172033" stroke="#A78BFA"/>
+    <text x="720" y="65" fill="#DDD6FE" font-size="13" font-weight="700">AGENT</text>
+    <text x="720" y="85" fill="#C4B5FD" font-size="11">answers with memory</text>
+    <rect x="190" y="190" width="220" height="60" rx="12" fill="#10271F" stroke="#34D399"/>
+    <text x="210" y="215" fill="#6EE7B7" font-size="12" font-weight="700">Gate</text>
+    <text x="210" y="235" fill="#A7F3D0" font-size="11">skip if &lt;12 chars or /command</text>
+    <rect x="490" y="190" width="220" height="60" rx="12" fill="#10271F" stroke="#34D399"/>
+    <text x="510" y="215" fill="#6EE7B7" font-size="12" font-weight="700">sm_search_witnessed</text>
+    <text x="510" y="235" fill="#A7F3D0" font-size="11">stdio MCP · durable receipt</text>
+    <rect x="190" y="310" width="220" height="60" rx="12" fill="#152315" stroke="#84CC16"/>
+    <text x="210" y="335" fill="#BEF264" font-size="12" font-weight="700">Provenance admission</text>
+    <text x="210" y="355" fill="#D9F99D" font-size="11">reject incomplete identity/source</text>
+    <rect x="490" y="310" width="220" height="60" rx="12" fill="#152315" stroke="#84CC16"/>
+    <text x="510" y="335" fill="#BEF264" font-size="12" font-weight="700">Cosine gate</text>
+    <text x="510" y="355" fill="#D9F99D" font-size="11">best hit ≥ MINTOP? keep near-peers</text>
+    <rect x="250" y="430" width="400" height="50" rx="12" fill="#2A1328" stroke="#F472B6"/>
+    <text x="270" y="460" fill="#F9A8D4" font-size="13">Inject as DATA ONLY — NOT AN INSTRUCTION</text>
+  </g>
+</svg>

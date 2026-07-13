@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-labelledby="title desc">
+  <title id="title">Tier 0 hooked host architecture</title>
+  <desc id="desc">A Tier 0 host (Claude Code, Codex, or Hermes) uses lifecycle hooks for session priming, prompt recall, and capture nudging. Hooks call semantic-memory-mcp over stdio MCP using witnessed retrieval. The server connects to context-governor and claim-ledger. Memory uses SQLite and usearch vectors.</desc>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#17304A" stroke-width="0.5" opacity="0.35"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#64748B"/>
+    </marker>
+  </defs>
+  <rect width="900" height="520" rx="20" fill="#07111F"/>
+  <rect width="900" height="520" rx="20" fill="url(#grid)"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <g fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M210 100H340"/>
+      <path d="M210 180H340"/>
+      <path d="M210 260H340"/>
+      <path d="M210 340H340"/>
+      <path d="M620 220H760"/>
+      <path d="M620 260H760"/>
+    </g>
+    <rect x="40" y="70" width="170" height="60" rx="12" fill="#152315" stroke="#84CC16"/>
+    <text x="60" y="100" fill="#BEF264" font-size="13" font-weight="700">HOST</text>
+    <text x="60" y="118" fill="#ECFCCB" font-size="11">hooks + skills + commands</text>
+    <rect x="40" y="150" width="170" height="60" rx="12" fill="#112433" stroke="#38BDF8"/>
+    <text x="60" y="178" fill="#7DD3FC" font-size="12" font-weight="700">SessionStart hook</text>
+    <text x="60" y="196" fill="#BAE6FD" font-size="11">project-scoped primer</text>
+    <rect x="40" y="230" width="170" height="60" rx="12" fill="#112433" stroke="#38BDF8"/>
+    <text x="60" y="258" fill="#7DD3FC" font-size="12" font-weight="700">UserPromptSubmit hook</text>
+    <text x="60" y="276" fill="#BAE6FD" font-size="11">witnessed recall + inject</text>
+    <rect x="40" y="310" width="170" height="60" rx="12" fill="#112433" stroke="#38BDF8"/>
+    <text x="60" y="338" fill="#7DD3FC" font-size="12" font-weight="700">PreCompact / Stop</text>
+    <text x="60" y="356" fill="#BAE6FD" font-size="11">capture nudge</text>
+    <rect x="340" y="150" width="280" height="180" rx="16" fill="#10271F" stroke="#34D399"/>
+    <text x="365" y="185" fill="#6EE7B7" font-size="14" font-weight="700">semantic-memory-mcp</text>
+    <text x="365" y="210" fill="#A7F3D0" font-size="12">sm_search_witnessed</text>
+    <text x="365" y="232" fill="#A7F3D0" font-size="12">inert JSON DATA ONLY framing</text>
+    <text x="365" y="254" fill="#A7F3D0" font-size="12">provenance admission gate</text>
+    <text x="365" y="276" fill="#94A3B8" font-size="11">fail-open hooks · fail-closed mutation</text>
+    <text x="365" y="300" fill="#94A3B8" font-size="11">auto-ingest off by default</text>
+    <rect x="760" y="190" width="120" height="50" rx="10" fill="#152315" stroke="#84CC16"/>
+    <text x="780" y="220" fill="#BEF264" font-size="11">context-governor</text>
+    <rect x="760" y="250" width="120" height="50" rx="10" fill="#2A1328" stroke="#F472B6"/>
+    <text x="780" y="280" fill="#F9A8D4" font-size="11">claim-ledger</text>
+    <rect x="365" y="360" width="210" height="50" rx="10" fill="#102333" stroke="#22D3EE"/>
+    <text x="385" y="390" fill="#67E8F9" font-size="13">SQLite + FTS5 + usearch</text>
+    <rect x="365" y="420" width="210" height="50" rx="10" fill="#2A1328" stroke="#F472B6"/>
+    <text x="385" y="450" fill="#F9A8D4" font-size="12">receipts + replay (opt-in)</text>
+  </g>
+</svg>

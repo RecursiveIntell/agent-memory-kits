@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="350" viewBox="0 0 900 350" role="img" aria-labelledby="title desc">
+  <title id="title">Two integration tiers</title>
+  <desc id="desc">Tier 0 hosts (Claude Code, Codex, Hermes) use lifecycle hooks for automatic memory recall. Tier 1 hosts (Cursor, Cline, Roo Code, Windsurf, Continue, OpenCode) use MCP tools plus rule/context injection. Both connect to semantic-memory-mcp, context-governor, and claim-ledger.</desc>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#17304A" stroke-width="0.5" opacity="0.35"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="#64748B"/>
+    </marker>
+  </defs>
+  <rect width="900" height="350" rx="20" fill="#07111F"/>
+  <rect width="900" height="350" rx="20" fill="url(#grid)"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <!-- Tier 0 box -->
+    <rect x="40" y="30" width="380" height="140" rx="16" fill="#152315" stroke="#84CC16" stroke-width="2"/>
+    <text x="60" y="60" fill="#BEF264" font-size="14" font-weight="700">TIER 0 — Hook tier (automatic lifecycle)</text>
+    <text x="60" y="85" fill="#ECFCCB" font-size="13">Claude Code · Codex CLI · Hermes Agent</text>
+    <text x="60" y="110" fill="#D9F99D" font-size="12">SessionStart · UserPromptSubmit · PreCompact · Stop</text>
+    <text x="60" y="132" fill="#94A3B8" font-size="11">Witnessed retrieval + inert JSON framing</text>
+    <text x="60" y="152" fill="#94A3B8" font-size="11">Auto-ingest off by default</text>
+    <!-- Tier 1 box -->
+    <rect x="480" y="30" width="380" height="140" rx="16" fill="#112433" stroke="#38BDF8" stroke-width="2"/>
+    <text x="500" y="60" fill="#7DD3FC" font-size="14" font-weight="700">TIER 1 — Rule/context tier</text>
+    <text x="500" y="85" fill="#E0F2FE" font-size="13">Cursor · Cline · Roo Code · Windsurf</text>
+    <text x="500" y="105" fill="#E0F2FE" font-size="13">Continue · OpenCode</text>
+    <text x="500" y="130" fill="#BAE6FD" font-size="12">MCP stdio + host-native rule files</text>
+    <text x="500" y="152" fill="#94A3B8" font-size="11">No pre-prompt hook claimed</text>
+    <!-- Arrows to SM -->
+    <g fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M230 170V210"/>
+      <path d="M670 170V210"/>
+    </g>
+    <!-- MCP server -->
+    <rect x="200" y="210" width="500" height="60" rx="14" fill="#10271F" stroke="#34D399" stroke-width="2"/>
+    <text x="225" y="248" fill="#6EE7B7" font-size="15" font-weight="700">semantic-memory-mcp · context-governor · claim-ledger</text>
+    <!-- Arrow to DB -->
+    <path d="M450 270V300" fill="none" stroke="#64748B" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="300" y="300" width="300" height="36" rx="10" fill="#102333" stroke="#22D3EE"/>
+    <text x="320" y="325" fill="#67E8F9" font-size="13">SQLite + FTS5 + usearch · local-first</text>
+  </g>
+</svg>

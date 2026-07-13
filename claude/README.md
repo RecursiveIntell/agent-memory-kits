@@ -10,7 +10,7 @@
 [![context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor&style=for-the-badge)](https://crates.io/crates/context-governor)
 [![claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger&style=for-the-badge)](https://crates.io/crates/claim-ledger)
 
-See the [top-level README](../../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
+See the [top-level README](../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
 
 ## Tier / scope
 
@@ -18,22 +18,7 @@ Tier 0 host plugin. This kit is the **reference implementation** that Tier 1 hos
 
 ## Architecture
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-flowchart LR
-    CC["Claude Code<br/>(hooks/commands/agents/skills)"] --> H["hooks/<br/>memory-recall · memory-primer<br/>memory-capture-nudge · _resolve"]
-    CC --> C["commands/<br/>/memory-setup · /memory-ingest"]
-    CC --> A["agents/<br/>memory-keeper.md"]
-    CC --> S["skills/<br/>9 SKILL.md"]
-    H --> MCP["semantic-memory-mcp<br/>(warm HTTP :1739)"]
-    C --> MCP
-    S --> MCP
-    MCP --> CG["context-governor<br/>MCP"]
-    MCP --> CL["claim-ledger<br/>MCP"]
-    MCP --> DB[("SQLite + FTS5 + HNSW")]
-    CG --> RS[("Receipt store")]
-    CL --> LR[("Claim/evidence ledger")]
-```
+![Tier 0 hooked host architecture](../docs/assets/tier0-hooked-architecture.svg)
 
 Hook paths: `claude/plugins/semantic-memory/hooks/`. Script paths: `claude/plugins/semantic-memory/scripts/`. Skill paths: `claude/plugins/semantic-memory/skills/`. All relative to repo root.
 
@@ -104,11 +89,11 @@ Each skill is `claude/plugins/semantic-memory/skills/<name>/SKILL.md`:
 
 ### MCP tools exposed
 
-The `semantic-memory-mcp` server exposes profile-based tool counts (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions) for the full breakdown. `context-governor` exposes 13 CLI commands, `claim-ledger` exposes 5.
+The `semantic-memory-mcp` server exposes profile-based tool counts (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. See the [top-level "The three MCP companions" section](../README.md#the-three-mcp-companions) for the full breakdown. `context-governor` exposes 13 CLI commands, `claim-ledger` exposes 5.
 
 ## Receipts
 
-- Top-level doctor: `shared/scripts/doctor-all.py --deep` (see [top-level Receipts section](../../README.md#receipts-and-benchmarks))
+- Top-level doctor: `shared/scripts/doctor-all.py --deep` (see [top-level Receipts section](../README.md#receipts-and-benchmarks))
 - Hook-specific debug log: `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log`
 - Compaction receipts: `~/.local/share/context-governor/receipts/`
 - Claim ledger: append-only JSONL at `~/.local/share/claim-ledger/ledger.jsonl` (verify with `cl_ledger_verify`)
@@ -123,7 +108,7 @@ Claude Code is the reference impl, so its principles are the strictest:
 - **Nudged capture, not auto-dump.** The `memory-capture-nudge.sh` hook reminds the model at `PreCompact` and `Stop`; it never writes on its own.
 - **Hook wiring is declarative.** All four hooks are listed in `claude/plugins/semantic-memory/hooks/hooks.json` — the source of truth.
 
-These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
+These extend the [top-level Design principles](../README.md#design-principles); they don't replace them.
 
 ## Troubleshooting
 

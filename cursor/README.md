@@ -6,7 +6,7 @@
 [![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#)
 
-See [top-level README](../../README.md) for the full capability matrix and architecture overview.
+See [top-level README](../README.md) for the full capability matrix and architecture overview.
 
 This is the Cursor MCP setup kit for semantic-memory-mcp.
 
@@ -148,26 +148,14 @@ shared/scripts/doctor-all.py --deep
 
 ## Architecture
 
-```mermaid
-%%{init: {'theme':'neutral'}}%%
-flowchart LR
-    CU["Cursor"] --> SM["semantic-memory-mcp<br/>MCP stdio"]
-    CU --> R["workspace rule<br/>.cursor/rules/*.mdc"]
-    R --> CI["shared/scripts/<br/>semantic-memory-context.py"]
-    CI --> SM
-    SM --> CG["context-governor MCP"]
-    SM --> CL["claim-ledger MCP"]
-    SM --> DB[("SQLite + HNSW")]
-    CG --> RS[("Receipt store")]
-    CL --> LR[("Claim/evidence ledger")]
-```
+![Tier 1 MCP architecture](../docs/assets/tier1-mcp-architecture.svg)
 
 ## Design principles
 
 - **Rule-injection, not hook-injection.** Tier 1 hosts install host-native rule files that tell the agent to retrieve memory through MCP; no pre-prompt hook is claimed.
 - **MCP stdio is the only lifecycle path.** The host starts `semantic-memory-mcp` when it loads the MCP config; no warm HTTP sidecar is started by this host.
 
-These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
+These extend the [top-level Design principles](../README.md#design-principles); they don't replace them.
 
 ## Troubleshooting
 
