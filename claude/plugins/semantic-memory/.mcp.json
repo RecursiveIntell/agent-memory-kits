@@ -3,7 +3,7 @@
     "semantic-memory": {
       "command": "${CLAUDE_PLUGIN_ROOT}/scripts/run-server.sh",
       "env": {
-        "SEMANTIC_MEMORY_DIR": "${HOME}/.local/share/semantic-memory",
+        "SEMANTIC_MEMORY_DIR": "${HOME}/.hermes/semantic-memory.db",
         "SEMANTIC_MEMORY_TOOL_PROFILE": "agent",
         "SEMANTIC_MEMORY_HTTP_PORT": "1739",
         "SEMANTIC_MEMORY_EMBEDDER": "candle"
@@ -12,7 +12,7 @@
     "semantic-memory-admin": {
       "command": "${CLAUDE_PLUGIN_ROOT}/scripts/run-server-admin.sh",
       "env": {
-        "SEMANTIC_MEMORY_DIR": "${HOME}/.local/share/semantic-memory",
+        "SEMANTIC_MEMORY_DIR": "${HOME}/.hermes/semantic-memory.db",
         "SEMANTIC_MEMORY_ADMIN_TOOL_PROFILE": "full",
         "SEMANTIC_MEMORY_ADMIN_HTTP_PORT": "0",
         "SEMANTIC_MEMORY_EMBEDDER": "candle"
@@ -21,7 +21,7 @@
     "context-governor": {
       "command": "${CLAUDE_PLUGIN_ROOT}/scripts/context-governor-mcp.py",
       "env": {
-        "CONTEXT_GOVERNOR_STORE": "${HOME}/.local/share/context-governor/receipts"
+        "CONTEXT_GOVERNOR_STORE": "${HOME}/.hermes/context-governor"
       }
     },
     "claim-ledger": {

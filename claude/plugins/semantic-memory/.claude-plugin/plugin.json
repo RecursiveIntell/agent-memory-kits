@@ -1,6 +1,6 @@
 {
   "name": "semantic-memory",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Local-first persistent memory, witnessed recall, receipt-backed replay, and claim/evidence provenance for Claude Code. Runtime MCP tools are discovered from each configured server; no static tool count is assumed.",
   "author": {
     "name": "Josh Stevenson",

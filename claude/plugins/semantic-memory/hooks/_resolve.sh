@@ -8,7 +8,7 @@ sm_resolve() {
   [ -z "$SM_BIN" ] && SM_BIN="$(command -v semantic-memory-mcp 2>/dev/null || true)"
   [ -z "$SM_BIN" ] && [ -x "$HOME/.cargo/bin/semantic-memory-mcp" ] && SM_BIN="$HOME/.cargo/bin/semantic-memory-mcp"
   [ -z "$SM_BIN" ] && [ -x "$HOME/.local/bin/semantic-memory-mcp" ] && SM_BIN="$HOME/.local/bin/semantic-memory-mcp"
-  SM_DIR="${SEMANTIC_MEMORY_DIR:-$HOME/.local/share/semantic-memory}"
+  SM_DIR="${SEMANTIC_MEMORY_DIR:-$HOME/.hermes/semantic-memory.db}"
   # Warm HTTP endpoint. The MCP server (run-server.sh) co-hosts a warm HTTP
   # server on this port so hooks query the already-loaded embedder instead of
   # cold-spawning a new process (which reloads the nomic model every time).

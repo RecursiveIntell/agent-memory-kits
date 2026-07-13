@@ -14,8 +14,8 @@ if [ -z "$SM_BIN" ] || [ ! -x "$SM_BIN" ]; then
   exit 127
 fi
 
-SM_DIR="${SEMANTIC_MEMORY_DIR:-$HOME/.local/share/semantic-memory}"
-mkdir -p "$SM_DIR" 2>/dev/null || true
+SM_DIR="${SEMANTIC_MEMORY_DIR:-$HOME/.hermes/semantic-memory.db}"
+mkdir -p "$(dirname "$SM_DIR")" 2>/dev/null || true
 SM_EMBEDDER="${SEMANTIC_MEMORY_EMBEDDER:-candle}"
 SM_HTTP_PORT="${SEMANTIC_MEMORY_HTTP_PORT:-0}"
 SM_TOOL_PROFILE="${SEMANTIC_MEMORY_TOOL_PROFILE:-agent}"

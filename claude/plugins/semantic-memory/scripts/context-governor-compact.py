@@ -13,7 +13,7 @@ def resolve_binary() -> str | None:
     return shutil.which('context-governor')
 
 def store_dir() -> Path:
-    return Path(os.environ.get('CONTEXT_GOVERNOR_STORE', str(Path.home()/'.local/share/context-governor/receipts'))).expanduser()
+    return Path(os.environ.get('CONTEXT_GOVERNOR_STORE', str(Path.home()/'.hermes/context-governor'))).expanduser()
 
 def normalize_messages(raw):
     if isinstance(raw, dict):

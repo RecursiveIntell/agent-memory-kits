@@ -8,7 +8,7 @@ Perform one-time setup so the semantic-memory plugin is fully operational. Do th
 
 2. **Permission allowlist.** So the `sm_*` tools never prompt, ensure `~/.claude/settings.json` has `"mcp__semantic-memory"` in `permissions.allow`. Read the file first and merge (do not clobber existing settings). If it is absent, add it.
 
-3. **Memory dir.** Confirm the store dir exists (default `~/.local/share/semantic-memory`, or `$SEMANTIC_MEMORY_DIR`). It is created automatically on first use.
+3. **Memory store.** Confirm the parent directory exists for the database file (default `$HOME/.hermes/semantic-memory.db`, or `$SEMANTIC_MEMORY_DIR`). `SEMANTIC_MEMORY_DIR` is a **file path**, not a directory; the runtime creates only its parent directory (`$HOME/.hermes`) on first use. Context-governor receipts use the separate directory `$HOME/.hermes/context-governor` (or `$CONTEXT_GOVERNOR_STORE`).
 
 4. **Verify.** Confirm the MCP server is connected (`claude mcp list` should show `semantic-memory` ✓, or the plugin's bundled server). If the model (`nomic-embed-text-v1.5`, ~550 MB) hasn't been downloaded yet, note that the first `sm_add_fact`/`sm_search` will fetch it once and cache it.
 
