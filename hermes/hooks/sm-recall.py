@@ -244,7 +244,7 @@ def main() -> int:
     # with low term overlap before score-based filtering.
     if RecallAdmissionLedger and query_terms:
         import hashlib as _hl
-        admiss_path = Path(os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".local/share/semantic-memory"))) / "recall-admission.jsonl"
+        admiss_path = Path(os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".hermes/semantic-memory.db"))) / "recall-admission.jsonl"
         try:
             ledger = RecallAdmissionLedger(str(admiss_path))
             namespace_tokens = {ns for group in namespace_passes(prompt, cwd) for ns in group}
@@ -301,7 +301,7 @@ def main() -> int:
             _visc_mod = _ilu.module_from_spec(_visc_spec)
             sys.modules["viscosity"] = _visc_mod
             _visc_spec.loader.exec_module(_visc_mod)
-            _visc_store = Path(os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".local/share/semantic-memory"))) / "viscosity.json"
+            _visc_store = Path(os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".hermes/semantic-memory.db"))) / "viscosity.json"
             _vc = _visc_mod.ViscosityController(str(_visc_store))
             _level = _vc.level()
             _thresholds = _vc.thresholds(_level)

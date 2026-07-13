@@ -57,9 +57,34 @@ def build_tool_receipt(
     session_id: str | None = None,
     scope: str = "tool",
     parent_trace_id: str | None = None,
+    task_id: str | None = None,
+    tool_call_id: str | None = None,
+    api_request_id: str | None = None,
 ) -> dict:
     digest = canonical_tool_digest(tool, tool_input, tool_output)
-    trace_ctx = TraceCtx.create(scope=scope, parent_trace_id=parent_trace_id).to_dict()
+    host_lineage = {
+        "session_id": session_id or "",
+        "task_id": task_id or "",
+        "tool_call_id": tool_call_id or "",
+        "api_request_id": api_request_id or "",
+    }
+    trace_preimage = compact_json(
+        {
+            "domain": "recursiveintell-tool-trace-v1",
+            "scope": scope,
+            "parent_trace_id": parent_trace_id or "",
+            "tool": tool,
+            "tool_digest": digest,
+            "host_lineage": host_lineage,
+        },
+        4000,
+    )
+    trace_id = f"trace:{scope}:{hashlib.sha256(trace_preimage.encode('utf-8')).hexdigest()[:16]}"
+    trace_ctx = TraceCtx(
+        scope=scope,
+        trace_id=trace_id,
+        parent_trace_id=parent_trace_id,
+    ).to_dict()
     return {
         "schema": SCHEMA,
         "type": "tool_action_receipt",
@@ -72,6 +97,7 @@ def build_tool_receipt(
             "canonicalization": "json-sort-keys-compact-truncated-4000",
         },
         "status": status_record(tool_output),
+        "host_lineage": {key: value for key, value in host_lineage.items() if value},
         "cwd": cwd,
         "session_id": (session_id or "")[:12],
     }

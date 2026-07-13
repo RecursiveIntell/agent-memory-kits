@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Hermes post_tool_use hook: lightweight, fail-open tool/action receipts.
+# Hermes post_tool_call hook: lightweight, fail-open tool/action receipts.
 # Stores only compact observations when semantic-memory warm HTTP is available.
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

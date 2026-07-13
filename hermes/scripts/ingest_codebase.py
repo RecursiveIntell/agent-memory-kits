@@ -71,7 +71,7 @@ def resolve_dir(explicit):
     if explicit:
         return explicit
     return os.environ.get("SEMANTIC_MEMORY_DIR",
-                          str(Path.home()/".local/share/semantic-memory"))
+                          str(Path.home()/".hermes/semantic-memory.db"))
 
 
 # ---------- repo walk ----------

@@ -85,7 +85,7 @@ def install(params: dict[str, Any], **_: Any) -> str:
             raise ValueError(f"tool_profile must be one of {sorted(_PROFILES)}")
         memory_dir = Path(
             os.path.expanduser(
-                str(params.get("memory_dir") or "~/.local/share/semantic-memory")
+                str(params.get("memory_dir") or "~/.hermes/semantic-memory.db")
             )
         ).resolve()
         memory_dir.mkdir(mode=0o700, parents=True, exist_ok=True)

@@ -46,7 +46,7 @@ def resolve_binary() -> str | None:
 
 
 def memory_dir() -> str:
-    return os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".local/share/semantic-memory"))
+    return os.environ.get("SEMANTIC_MEMORY_DIR", str(Path.home() / ".hermes/semantic-memory.db"))
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):

@@ -22,7 +22,6 @@
     "hooks": {
       "on_session_start": "scripts/sm-primer.sh",
       "pre_llm_call": "hooks/sm-recall.py",
-      "post_tool_use": "hooks/sm-auto-edge.sh",
       "post_llm_call": "hooks/sm-conversation-capture.py"
     },
     "commands": {

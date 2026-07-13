@@ -8,12 +8,27 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 HOOK_DIR = Path(__file__).resolve().parent
-SHARED_SCRIPTS = HOOK_DIR.parents[1] / "shared" / "scripts"
+
+
+def _shared_scripts_dir() -> Path:
+    roots = []
+    configured = __import__("os").environ.get("SEMANTIC_MEMORY_KIT_ROOT")
+    if configured:
+        roots.append(Path(configured).expanduser())
+    roots.extend([HOOK_DIR.parents[1], Path.home() / "Coding/agent-memory-kits"])
+    for root in roots:
+        candidate = root / "shared" / "scripts"
+        if (candidate / "tool_receipts.py").is_file():
+            return candidate
+    raise RuntimeError("shared tool receipt support is unavailable")
+
+
+SHARED_SCRIPTS = _shared_scripts_dir()
 if str(SHARED_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SHARED_SCRIPTS))
 
 from common import debug, http_post, read_payload
-from tool_receipts import build_tool_receipt, compact_json, tool_receipt_content
+from tool_receipts import build_tool_receipt
 
 SKIP_TOOLS = {"browser_snapshot", "browser_console", "browser_vision", "browser_get_images", "browser_scroll", "todo"}
 
@@ -41,7 +56,7 @@ def summarize(tool_name: str, tool_input: dict, tool_output: object) -> str:
 
 
 def main() -> int:
-    debug("post_tool_use semantic-memory receipt")
+    debug("post_tool_call semantic-memory receipt")
     payload = read_payload()
     tool_name = str(payload.get("tool_name") or payload.get("name") or "unknown")
     if tool_name.startswith("sm_") or tool_name in SKIP_TOOLS:
@@ -61,10 +76,13 @@ def main() -> int:
         cwd=cwd,
         session_id=session_id,
         scope="tool",
+        parent_trace_id=payload.get("parent_trace_id") or payload.get("trace_id"),
+        task_id=payload.get("task_id"),
+        tool_call_id=payload.get("tool_call_id") or payload.get("call_id"),
+        api_request_id=payload.get("api_request_id") or payload.get("request_id"),
     )
-    content = tool_receipt_content(receipt)
     # Warm HTTP only: fail open instead of cold-spawning writes from every tool call.
-    http_post("/add", {"content": content, "namespace": "tool-receipts", "source": "hermes-post-tool-use-hook"}, timeout=3.0)
+    http_post("/add-tool-receipt", {"receipt": receipt, "namespace": "tool-receipts", "source": "hermes-post-tool-call-hook"}, timeout=3.0)
     return 0
 
 
