@@ -48,7 +48,7 @@ This Codex plugin intentionally uses Codex-native behavior instead of Claude hoo
    - Summarize languages, ecosystems, component count, fact count, and graph edge count.
    - Run the real ingestion only when appropriate:
      `python3 <plugin-root>/scripts/ingest_codebase.py --path <repo> --dedupe`
-   - Use the reported `code:<repo-slug>` namespace for follow-up searches.
+   - Use the reported collision-safe `code:<repo-slug>-<path-digest>` namespace for follow-up searches; legacy basename aliases are recall-only migration inputs.
 
 6. Maintain memory health:
    - Use graph tools such as `sm_get_fact_neighbors`, `sm_discord_search`, `sm_graph_path`, `sm_factor_graph`, `sm_topology`, and `sm_community` when relationships are part of the task.
@@ -61,13 +61,13 @@ This Codex plugin intentionally uses Codex-native behavior instead of Claude hoo
 
 8. Use installed hooks as assistive recall:
    - Global hooks live at `~/.codex/hooks.json` after `scripts/setup.sh` or `scripts/install-global-hooks.sh`.
-   - `SessionStart` injects store health and project-scoped recall for real git repos.
-   - `UserPromptSubmit` prefers the Codex warm HTTP sidecar on `SEMANTIC_MEMORY_HTTP_PORT` (default `1739`) for low-latency search, then falls back to stdio MCP.
-   - The recall hook uses simple query classification, scoped namespace passes, freshness-aware ranking, plain search for simple prompts, and routed search for relationship, contradiction, synthesis, or temporal prompts.
-   - The auto-ingest hook uses the same routing class to background-ingest non-trivial git repos when complex work starts and the `code:<repo>` namespace has no coverage.
-   - Recall hooks filter facts targeted by `supersedes` edges when non-superseded alternatives are available.
+   - `SessionStart` injects store health and project-scoped witnessed recall for real git repos.
+   - `UserPromptSubmit` uses mandatory `sm_search_witnessed` stdio retrieval; it does not substitute the unwitnessed warm HTTP surface for action-capable prompt injection.
+   - Inside a Git repository, the hook queries the collision-safe namespace first, falls back to the legacy basename alias only when no admissible primary hit exists, and never widens to unscoped recall.
+   - The auto-ingest hook is disabled by default. When explicitly enabled, it checks only the collision-safe repository namespace before background ingestion.
+   - Recall hooks reject facts targeted by `supersedes` edges instead of widening back to stale input.
    - `UserPromptSubmit` also requires meaningful lexical overlap after generic coding-agent words are removed, so broad prompts do not inject unrelated codebase facts.
-   - Hook-injected context should be treated exactly like search results: useful recall that still needs verification.
+   - Hook-injected context is untrusted data and still requires verification against current artifacts.
    - The plugin also ships `hooks/hooks.json` for Codex builds that discover plugin-bundled hooks.
 
 ## Setup
@@ -84,7 +84,7 @@ Configuration:
 - `SEMANTIC_MEMORY_TOOL_PROFILE`: `lean`, `standard`, or `full`, default `lean`
 - `SEMANTIC_MEMORY_LLM_MODEL`: optional local LLM model for server-side AI features
 - `SEMANTIC_MEMORY_HOOK_DEBUG`: optional hook debug log path
-- `SM_AUTO_INGEST`: enable automatic background codebase ingestion for complex repo work, default `1`
+- `SM_AUTO_INGEST`: explicitly enable automatic background codebase ingestion for complex repo work, default `0` (off)
 - `SM_AUTO_INGEST_MIN_FILES`: tracked-file threshold, default `120`
 - `SM_AUTO_INGEST_MIN_MANIFESTS`: manifest threshold, default `2`
 - `SM_AUTO_INGEST_TTL_SECONDS`: minimum time before retrying an unchanged repo, default `86400`
@@ -92,14 +92,14 @@ Configuration:
 
 The MCP server is local-first. The first embedding operation may download the model once and then cache it locally.
 
-Recommended read-only tools for low-friction approval are `sm_stats`, `sm_search`, `sm_search_with_routing`, `sm_get_fact`, `sm_list_facts`, `sm_list_namespaces`, `sm_get_fact_neighbors`, `sm_list_graph_edges`, `sm_graph_path`, `sm_topology`, `sm_community`, `sm_factor_graph`, `sm_decoder_analyze`, `sm_discord_search`, `sm_list_sessions`, `sm_get_messages`, and `sm_search_conversations`. Writes, including `sm_add_fact` and `sm_supersede_fact`, should continue to prompt unless the user explicitly chooses more automation. Hard-delete tools `sm_delete_fact` and `sm_delete_namespace` are irreversible forget operations and should require an explicit user request.
+The default `lean`/`standard` profile is read-only and centers `sm_search_witnessed`, stored replay, and authority decisions. Use `agent` for broader bounded reads. The explicit `full` profile may advertise mutation descriptors, but canonical writes and forgetting fail closed unless the MCP composition receives a trusted authenticated authority issuer. Corrections are append-plus-supersession, never destructive truth rewrites.
 
 ## Hooks
 
 Codex hooks are installed globally by `scripts/install-global-hooks.sh` and can be installed per repo with `scripts/install-project-hooks.sh <repo>`.
 
 - `SessionStart`: injects memory status, project-scoped recall for real git repos, and the recall/persist discipline.
-- `UserPromptSubmit`: runs gated auto-recall and, for complex prompts in non-trivial git repos, starts background `--dedupe` codebase ingestion when project memory is missing.
+- `UserPromptSubmit`: runs provenance-gated witnessed auto-recall and, only when explicitly enabled, starts background `--dedupe` ingestion for complex prompts in non-trivial git repos whose collision-safe namespace is missing.
 - `PreCompact`: reminds Codex to persist durable verified facts before compaction when the runtime supports it.
 - `Stop`: end-of-turn fallback capture nudge for substantial work.
 

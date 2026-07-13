@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 
-from common import debug, http_post, read_payload, rpc_call
+from common import debug, http_post, read_payload, repository_namespace, rpc_call  # noqa: E402
 
 
 COMPLEXITY_PATTERNS = {
@@ -149,7 +149,7 @@ def already_current(stamp: Path, head: str, ttl_seconds: int) -> bool:
 
 def namespace_has_coverage(namespace: str, query: str) -> bool:
     result = rpc_call(
-        "sm_search",
+        "sm_search_witnessed",
         {"query": query[:4000], "namespaces": [namespace], "top_k": 3},
         timeout=6,
     )
@@ -246,7 +246,7 @@ def spawn_ingest(root: Path, namespace: str, stamp: Path, lock: Path, log: Path,
 
 
 def main() -> int:
-    if os.environ.get("SM_AUTO_INGEST", "1").lower() in {"0", "false", "no", "off"}:
+    if os.environ.get("SM_AUTO_INGEST", "0").lower() not in {"1", "true", "yes", "on"}:
         return 0
     payload = read_payload()
     prompt = str(payload.get("prompt") or payload.get("user_prompt") or "")
@@ -271,7 +271,8 @@ def main() -> int:
     if file_count < min_files and manifests < min_manifests:
         return 0
 
-    namespace = os.environ.get("SM_AUTO_INGEST_NAMESPACE") or f"code:{slug(root.name)}"
+    explicit_namespace = os.environ.get("SM_AUTO_INGEST_NAMESPACE")
+    namespace = explicit_namespace or repository_namespace(root)
     if namespace_has_coverage(namespace, f"{root.name} codebase project overview"):
         return 0
 

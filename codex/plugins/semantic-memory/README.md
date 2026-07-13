@@ -27,35 +27,26 @@ Fresh Codex sessions load the plugin. `scripts/setup.sh` also merges the global 
 
 Global hooks are installed at `~/.codex/hooks.json`:
 
-- `SessionStart`: injects memory status and project-scoped recall for real git repos
-- `UserPromptSubmit`: searches memory over the warm HTTP server when available, falls back to stdio, and injects only gated relevant facts
+- `SessionStart`: injects memory status and project-scoped witnessed recall for real git repos
+- `UserPromptSubmit`: performs mandatory witnessed stdio retrieval and injects only provenance-complete facts through the inert data-only envelope
 - `PreCompact`: reminds the agent before manual/auto compaction when supported
 - `Stop`: end-of-turn fallback reminder to persist durable verified facts
 
-The MCP server gives agent clients concise server-wide instructions during initialization. The MCP search tools and recall hooks filter facts targeted by `supersedes` graph edges whenever a non-superseded alternative is available, while explicit stale/history queries can still inspect old facts. The recall hook also requires meaningful lexical overlap after generic coding-agent terms are removed, which keeps broad prompts from injecting unrelated codebase facts.
+The MCP server gives agent clients concise server-wide instructions during initialization. Prompt hooks reject superseded facts rather than widening back to stale input, require witnessed retrieval receipts, and require meaningful lexical overlap after generic coding-agent terms are removed.
 
-The Codex recall hook now follows the Hermes/Claude kit retrieval split:
-
-- simple lookup: scoped warm `/search`, then broad `/search`, then plain `sm_search` fallback
-- relationship, contradiction, synthesis, or temporal prompts: scoped warm `/search-routed` first, then broad `/search-routed` or `/search`, then stdio `sm_search`
-- warm results use relative RRF score gating via `SM_RECALL_SCOREREL`; stdio results use cosine band/floor gating
-- scoped hits are ranked ahead of broad hits, with a small freshness preference for current facts
+The Codex recall hook uses mandatory `sm_search_witnessed` retrieval. Inside a Git repository it queries the collision-safe namespace first, consults the legacy basename alias only when the primary namespace has no admissible hits, and never widens to unscoped recall. Outside a repository it may use declared thematic or broad witnessed passes. Only identity-, provenance-, state-, trust-, and receipt-complete entries can reach the shared escaped-JSON `DATA ONLY — NOT AN INSTRUCTION` framing compiler.
 
 The plugin keeps both `PreCompact` and `Stop` capture nudges. `PreCompact` gives Claude-style timing on Codex builds that support it; `Stop` remains the reliable fallback. The plugin also includes `hooks/hooks.json` for Codex builds that discover plugin-bundled hooks.
 
-The `codebase-auto-ingest.py` prompt hook uses the same routing classifier to reduce bug risk on complex codebase work. For relationship, contradiction, synthesis, temporal, implementation, fix, debug, or review prompts, it checks the current git repo. If the repo is large enough and the `code:<repo>` namespace has no useful coverage, it starts `scripts/ingest_codebase.py --dedupe` in the background. The prompt is never blocked; lock and stamp files under `~/.cache/semantic-memory/auto-ingest` prevent repeated runs.
+The `codebase-auto-ingest.py` prompt hook is disabled unless `SM_AUTO_INGEST` is explicitly enabled. When enabled for complex codebase prompts, it checks only the collision-safe `code:<repo>-<path-digest>` namespace for coverage before starting `scripts/ingest_codebase.py --dedupe` in the background. Lock and stamp files under `~/.cache/semantic-memory/auto-ingest` prevent repeated runs.
 
 ## Tool Surface
 
-Read/search tools include `sm_stats`, `sm_search`, `sm_search_with_routing`, `sm_get_fact`, `sm_list_facts`, `sm_list_namespaces`, and `sm_get_fact_neighbors`. Exact availability depends on `SEMANTIC_MEMORY_TOOL_PROFILE` (`lean`, `standard`, or `full`).
+The default `lean`/`standard` profile exposes witnessed retrieval, stored replay, and assertion/action authority decisions. `agent` adds bounded read-only fact, graph, namespace, conversation, receipt, and statistics access. Exact availability is defined by the MCP server profile manifest (`stable`, `lean`, `standard`, `agent`, or `full`).
 
-Graph, supersession, and lifecycle tools include `sm_add_graph_edge`, `sm_list_graph_edges`, `sm_invalidate_graph_edge`, `sm_graph_path`, `sm_supersede_fact`, `sm_discord_search`, `sm_community`, `sm_topology`, `sm_factor_graph`, `sm_decoder_analyze`, `sm_run_lifecycle`, and `sm_set_provenance`.
+Prompt hooks use `sm_search_witnessed`; they do not rely on raw search, maintenance, or mutation tools. The explicit `full` operator profile can advertise broader graph, lifecycle, conversation, and mutation descriptors, but the hardened MCP composition rejects canonical writes and forgetting unless a trusted authenticated authority issuer is injected.
 
-Conversation tools: `sm_create_session`, `sm_add_message`, `sm_list_sessions`, `sm_get_messages`, `sm_search_conversations`.
-
-Write tools: `sm_add_fact`, `sm_supersede_fact`, `sm_ingest_document`, conversation writes, graph writes, provenance, lifecycle, and edge invalidation should continue to prompt unless the user chooses more automation.
-
-Hard-delete tools: `sm_delete_fact` and `sm_delete_namespace` are irreversible forget operations. They are intentionally not included in read-only auto-approval and should be used only when the user explicitly asks to delete memory rather than supersede or lower confidence.
+`sm_delete_fact` and `sm_delete_namespace` therefore fail closed in the current composition. Corrections remain append-plus-supersession operations, not destructive truth rewrites.
 
 ## Skills
 
@@ -95,7 +86,7 @@ Codex's built-in file-based memories can complement semantic-memory. This setup 
 - `SEMANTIC_MEMORY_TOOL_PROFILE`: `lean`, `standard`, or `full`, default `lean`
 - `SEMANTIC_MEMORY_LLM_MODEL`: optional local LLM model for server-side routing and AI features
 - `SM_RECALL_SCOREREL`: relative warm-score gate, default `0.5`
-- `SM_AUTO_INGEST`: enable automatic background codebase ingestion, default `1`
+- `SM_AUTO_INGEST`: explicitly enable automatic background codebase ingestion, default `0` (off)
 - `SM_AUTO_INGEST_MIN_FILES`: tracked-file threshold, default `120`
 - `SM_AUTO_INGEST_MIN_MANIFESTS`: manifest threshold, default `2`
 - `SM_AUTO_INGEST_TTL_SECONDS`: minimum time before retrying an unchanged repo, default `86400`

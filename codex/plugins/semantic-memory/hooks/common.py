@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -26,12 +28,9 @@ def resolve_binary() -> str | None:
     env = os.environ.get("SEMANTIC_MEMORY_MCP_BIN")
     if env and os.access(os.path.expanduser(env), os.X_OK):
         return os.path.expanduser(env)
-    for candidate in (
-        Path.home() / "Coding/Libraries/semantic-memory-mcp/target/release/semantic-memory-mcp",
-        Path.home() / ".local/bin/semantic-memory-mcp",
-    ):
-        if candidate.exists() and os.access(candidate, os.X_OK):
-            return str(candidate)
+    local = Path.home() / ".local/bin/semantic-memory-mcp"
+    if local.exists() and os.access(local, os.X_OK):
+        return str(local)
     which = shutil.which("semantic-memory-mcp")
     if which:
         return which
@@ -39,6 +38,20 @@ def resolve_binary() -> str | None:
     if cargo.exists() and os.access(cargo, os.X_OK):
         return str(cargo)
     return None
+
+
+def repository_namespace(root: Path) -> str:
+    """Return a stable repository-scoped namespace, not a basename-only alias."""
+    canonical = str(root.expanduser().resolve())
+    digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:12]
+    slug = re.sub(r"[^a-z0-9]+", "-", root.name.lower()).strip("-") or "repo"
+    return f"code:{slug}-{digest}"
+
+
+def repository_namespaces(root: Path) -> list[str]:
+    """Return the collision-safe namespace plus the legacy lookup alias."""
+    slug = re.sub(r"[^a-z0-9]+", "-", root.name.lower()).strip("-") or "repo"
+    return [repository_namespace(root), f"code:{slug}"]
 
 
 def binary_help(binary: str) -> str:
@@ -168,7 +181,7 @@ def drop_superseded_hits(hits: list[dict], timeout: int = 5) -> list[dict]:
     if not targets:
         return hits
     fresh = [hit for hit in hits if hit.get("result_id") not in targets]
-    return fresh or hits
+    return fresh
 
 
 def read_payload() -> dict:
