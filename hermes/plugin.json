@@ -19,11 +19,7 @@
     "agents": [
       "memory-keeper"
     ],
-    "hooks": {
-      "on_session_start": "scripts/sm-primer.sh",
-      "pre_llm_call": "hooks/sm-recall.py",
-      "post_llm_call": "hooks/sm-conversation-capture.py"
-    },
+
     "commands": {
       "/memory-setup": "commands/memory-setup.md",
       "/memory-ingest": "commands/memory-ingest.md",

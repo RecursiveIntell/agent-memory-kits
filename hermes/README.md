@@ -13,7 +13,29 @@ See the [top-level README](../README.md) for the full capability matrix, archite
 
 ## Tier / scope
 
-Tier 0 host integration. This directory now contains a current Hermes general-plugin manifest (`plugin.yaml` plus `__init__.py`) for guarded MCP setup, alongside the richer kit assets historically described by `plugin.json`. The general plugin is loadable by current Hermes; `plugin.json` remains a kit/deployment manifest and is not itself interpreted by Hermes's general-plugin loader.
+Tier 0 host integration. This directory contains a current Hermes general-plugin manifest (`plugin.yaml` plus `__init__.py`) for guarded MCP setup, alongside richer kit assets described by `plugin.json`. The general plugin is loadable by current Hermes; `plugin.json` remains kit/deployment metadata and is not itself interpreted by Hermes's general-plugin loader.
+
+### Canonical hook runtime
+
+Hermes lifecycle hooks are intentionally **not** bundled in this kit. The sole
+runtime source is the host configuration at `~/.hermes/config.yaml`, which
+invokes the canonical hooks from `~/.hermes/agent-hooks/`. This avoids a second,
+stale implementation being installed beside the live integration. On a host
+using this layout, verify the wiring with:
+
+```bash
+python3 hermes/scripts/verify-live-hook-config.py
+```
+
+### Legacy test retirement
+
+The former `tests/test_hermes_routing.py`, `tests/test_hermes_tool_receipts.py`,
+and `tests/test_hermes_witnessed_primer.py` exercised duplicate hook copies that
+are no longer part of this kit. They are intentionally retired rather than
+retargeted to another copied implementation. The verifier above is the
+source-of-truth deployment check: it parses a selected host config and proves
+that each configured Python lifecycle hook resolves under the one canonical
+hook directory.
 
 ## Architecture
 
@@ -37,7 +59,7 @@ hermes mcp test semantic_memory
 hermes mcp configure semantic_memory
 ```
 
-`--args` must be last. Restart Hermes after changing plugin code. The MCP server supplies the `sm_*` tools directly; the general plugin registers only guarded setup helpers. If deploying the richer hooks/skills kit, keep `hermes/` and `shared/` as siblings and set `SEMANTIC_MEMORY_KIT_ROOT` to the checkout.
+`--args` must be last. Restart Hermes after changing plugin code. The MCP server supplies the `sm_*` tools directly; the general plugin registers only guarded setup helpers. Keep `hermes/` and `shared/` as siblings and set `SEMANTIC_MEMORY_KIT_ROOT` to the checkout when using kit assets.
 
 ## What you get
 
@@ -91,7 +113,7 @@ Key entries:
 
 ### Plugin manifest
 
-`hermes/plugin.yaml` and `hermes/__init__.py` are the current loadable Hermes general plugin. `hermes/plugin.json` declares the richer kit's intended skills, hooks, commands, and companion servers for deployment tooling; Hermes does not natively interpret that JSON file.
+`hermes/plugin.yaml` and `hermes/__init__.py` are the current loadable Hermes general plugin. `hermes/plugin.json` declares the kit's skills, commands, and companion servers for deployment tooling; Hermes does not natively interpret that JSON file. Lifecycle hook wiring is external host configuration, documented above.
 
 ### MCP tools exposed
 
