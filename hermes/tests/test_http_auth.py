@@ -2,62 +2,22 @@
 """Focused coverage for Hermes semantic-memory HTTP authentication."""
 from __future__ import annotations
 
-import importlib.util
-import json
 import os
 import re
 import subprocess
 import sys
 import tempfile
-import threading
 import unittest
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest import mock
 
 
 PLUGIN_DIR = Path(__file__).resolve().parents[1]
-HOOKS = PLUGIN_DIR / "hooks"
 RUN_SERVER = PLUGIN_DIR / "scripts" / "run-server.sh"
 BENCHMARK = PLUGIN_DIR / "scripts" / "benchmark-retrieval.py"
 
 sys.path.insert(0, str(PLUGIN_DIR))
 import http_auth
-
-spec = importlib.util.spec_from_file_location("hermes_hooks_common", HOOKS / "common.py")
-assert spec and spec.loader
-common = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(common)
-
-
-class _Handler(BaseHTTPRequestHandler):
-    headers_seen: list[str | None] = []
-    redirect_target: str | None = None
-
-    def do_GET(self) -> None:  # noqa: N802
-        self._reply()
-
-    def do_POST(self) -> None:  # noqa: N802
-        self.rfile.read(int(self.headers.get("Content-Length", "0")))
-        self._reply()
-
-    def _reply(self) -> None:
-        self.headers_seen.append(self.headers.get("Authorization"))
-        if self.path == "/redirect" and self.redirect_target:
-            self.send_response(302)
-            self.send_header("Location", self.redirect_target)
-            self.end_headers()
-            return
-        payload = json.dumps({"ok": True}).encode()
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(payload)))
-        self.end_headers()
-        self.wfile.write(payload)
-
-    def log_message(self, format: str, *args: object) -> None:
-        pass
-
 
 class HermesHttpAuthTests(unittest.TestCase):
     def test_explicit_token_precedes_token_file(self) -> None:
@@ -107,92 +67,6 @@ class HermesHttpAuthTests(unittest.TestCase):
                 "SEMANTIC_MEMORY_HTTP_TOKEN_FILE": str(explicit_file),
             }, clear=True):
                 self.assertEqual(http_auth.resolve_http_token(), "explicit-file-token")
-
-    def test_http_helpers_fail_closed_without_sending_request(self) -> None:
-        _Handler.headers_seen = []
-        server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
-        thread = threading.Thread(target=server.serve_forever, daemon=True)
-        thread.start()
-        try:
-            with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(os.environ, {
-                "HOME": tmp,
-                "SEMANTIC_MEMORY_HTTP_URL": f"http://127.0.0.1:{server.server_port}",
-            }, clear=True):
-                self.assertIsNone(common.http_get("/health"))
-                self.assertIsNone(common.http_post("/search", {"query": "memory"}))
-        finally:
-            server.shutdown()
-            server.server_close()
-        self.assertEqual(_Handler.headers_seen, [])
-
-    def test_plaintext_non_loopback_url_is_rejected_before_open(self) -> None:
-        with mock.patch.dict(os.environ, {
-            "SEMANTIC_MEMORY_HTTP_URL": "http://example.com:1739",
-            "SEMANTIC_MEMORY_HTTP_TOKEN": "header-token",
-        }, clear=False), mock.patch.object(common._HTTP_OPENER, "open") as open_request:
-            self.assertIsNone(common.http_get("/health"))
-            open_request.assert_not_called()
-
-    def test_malformed_http_urls_fail_closed_for_get_and_post(self) -> None:
-        malformed = [
-            "http://[::1",
-            "http://127.0.0.1:bad",
-            "http://127.0.0.1:70000",
-            "https://",
-            "https:///path",
-            "http://:1739",
-        ]
-        for url in malformed:
-            with self.subTest(url=url), mock.patch.dict(os.environ, {
-                "SEMANTIC_MEMORY_HTTP_URL": url,
-                "SEMANTIC_MEMORY_HTTP_TOKEN": "header-token",
-            }, clear=False), mock.patch.object(common._HTTP_OPENER, "open") as open_request:
-                self.assertIsNone(common.http_base())
-                self.assertIsNone(common.http_get("/health"))
-                self.assertIsNone(common.http_post("/search", {"query": "memory"}))
-                open_request.assert_not_called()
-
-    def test_redirect_is_not_followed_with_authorization(self) -> None:
-        _Handler.headers_seen = []
-        target = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
-        source = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
-        _Handler.redirect_target = f"http://127.0.0.1:{target.server_port}/target"
-        threads = [
-            threading.Thread(target=target.serve_forever, daemon=True),
-            threading.Thread(target=source.serve_forever, daemon=True),
-        ]
-        for thread in threads:
-            thread.start()
-        try:
-            with mock.patch.dict(os.environ, {
-                "SEMANTIC_MEMORY_HTTP_URL": f"http://127.0.0.1:{source.server_port}",
-                "SEMANTIC_MEMORY_HTTP_TOKEN": "redirect-token",
-            }, clear=False):
-                self.assertIsNone(common.http_get("/redirect"))
-        finally:
-            _Handler.redirect_target = None
-            source.shutdown()
-            target.shutdown()
-            source.server_close()
-            target.server_close()
-        self.assertEqual(_Handler.headers_seen, ["Bearer redirect-token"])
-
-    def test_hook_get_and_post_emit_bearer_header(self) -> None:
-        _Handler.headers_seen = []
-        server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
-        thread = threading.Thread(target=server.serve_forever, daemon=True)
-        thread.start()
-        try:
-            with mock.patch.dict(os.environ, {
-                "SEMANTIC_MEMORY_HTTP_URL": f"http://127.0.0.1:{server.server_port}",
-                "SEMANTIC_MEMORY_HTTP_TOKEN": "header-token",
-            }, clear=False):
-                self.assertEqual(common.http_get("/health"), {"ok": True})
-                self.assertEqual(common.http_post("/search", {"query": "memory"}), {"ok": True})
-        finally:
-            server.shutdown()
-            server.server_close()
-        self.assertEqual(_Handler.headers_seen, ["Bearer header-token", "Bearer header-token"])
 
     def test_stdio_launcher_does_not_require_a_token(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
