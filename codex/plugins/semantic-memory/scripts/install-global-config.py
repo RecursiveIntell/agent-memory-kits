@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CODEX_HOME = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")).expanduser()
 CONFIG_TOML = CODEX_HOME / "config.toml"
 AGENT_FILE = CODEX_HOME / "agents/memory-keeper.toml"
-MEMORY_DIR = Path(os.environ.get("SEMANTIC_MEMORY_DIR", Path.home() / ".local/share/semantic-memory")).expanduser()
+MEMORY_DIR = Path(os.environ.get("SEMANTIC_MEMORY_DIR", Path.home() / ".hermes/semantic-memory.db")).expanduser()
 
 READ_ONLY_TOOLS = [
     "sm_stats",
@@ -190,13 +190,29 @@ def managed_block(binary: Path) -> str:
     if llm_model and binary_supports(binary, "--llm-model"):
         mcp_args.extend(["--llm-model", llm_model])
     lines = [
-        "[mcp_servers.semantic_memory]",
+        "[mcp_servers.semantic-memory]",
         f"command = {quote(str(binary))}",
         "args = [" + ", ".join(quote(arg) for arg in mcp_args) + "]",
         "",
     ]
     for tool in READ_ONLY_TOOLS:
-        lines.extend([f"[mcp_servers.semantic_memory.tools.{tool}]", 'approval_mode = "approve"', ""])
+        lines.extend([f"[mcp_servers.semantic-memory.tools.{tool}]", 'approval_mode = "approve"', ""])
+    admin_args = [
+        "--memory-dir",
+        str(MEMORY_DIR),
+        "--embedder",
+        os.environ.get("SEMANTIC_MEMORY_EMBEDDER", "candle"),
+    ]
+    if binary_supports(binary, "--tool-profile"):
+        admin_args.extend(["--tool-profile", "full"])
+    lines.extend(
+        [
+            "[mcp_servers.semantic-memory-admin]",
+            f"command = {quote(str(binary))}",
+            "args = [" + ", ".join(quote(arg) for arg in admin_args) + "]",
+            "",
+        ]
+    )
     lines.extend(
         [
             "[agents.memory_keeper]",
@@ -209,17 +225,22 @@ def managed_block(binary: Path) -> str:
     # Context Governor MCP server
     cg_script = ROOT / "scripts/context-governor-mcp.py"
     if cg_script.exists():
+        context_governor_store = os.environ.get(
+            "CONTEXT_GOVERNOR_STORE",
+            str(Path.home() / ".hermes/context-governor/receipts"),
+        )
         lines.extend([
-            "[mcp_servers.context_governor]",
+            "[mcp_servers.context-governor]",
             f"command = {quote('python3')}",
             f"args = [{quote(str(cg_script))}]",
+            f"env = {{ CONTEXT_GOVERNOR_STORE = {quote(context_governor_store)} }}",
             "",
         ])
     # ClaimLedger MCP server
     cl_script = ROOT / "scripts/claim-ledger-mcp.py"
     if cl_script.exists():
         lines.extend([
-            "[mcp_servers.claim_ledger]",
+            "[mcp_servers.claim-ledger]",
             f"command = {quote('python3')}",
             f"args = [{quote(str(cl_script))}]",
             "",
@@ -238,7 +259,19 @@ def main() -> int:
         return 1
 
     text = CONFIG_TOML.read_text(encoding="utf-8") if CONFIG_TOML.exists() else ""
-    text = remove_sections(text, ("mcp_servers.semantic_memory", "mcp_servers.context_governor", "mcp_servers.claim_ledger", "agents.memory_keeper"))
+    text = remove_sections(
+        text,
+        (
+            "mcp_servers.semantic_memory",
+            "mcp_servers.semantic-memory",
+            "mcp_servers.semantic-memory-admin",
+            "mcp_servers.context_governor",
+            "mcp_servers.context-governor",
+            "mcp_servers.claim_ledger",
+            "mcp_servers.claim-ledger",
+            "agents.memory_keeper",
+        ),
+    )
     text = remove_table_keys(text, "memories", {"no_memories_if_mcp_or_web_search"})
     text = ensure_table_keys(text, "features", {"hooks": "true", "memories": "true", "multi_agent": "true"})
     text = ensure_table_keys(
@@ -263,9 +296,9 @@ def main() -> int:
     AGENT_FILE.parent.mkdir(parents=True, exist_ok=True)
     CONFIG_TOML.write_text(text, encoding="utf-8")
     AGENT_FILE.write_text(AGENT_TOML, encoding="utf-8")
-    subprocess.run(["bash", str(ROOT / "scripts/install-global-hooks.sh")], check=True)
     print(f"semantic-memory global Codex config installed: {CONFIG_TOML}")
     print(f"semantic-memory memory_keeper role installed: {AGENT_FILE}")
+    print("semantic-memory plugin-bundled hooks remain the single lifecycle hook source")
     return 0
 
 

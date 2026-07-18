@@ -15,7 +15,7 @@ CONFIG_TOML = CODEX_HOME / "config.toml"
 HOOKS_JSON = CODEX_HOME / "hooks.json"
 MEMORY_KEEPER_ROLE = CODEX_HOME / "agents/memory-keeper.toml"
 MARKETPLACE = Path.home() / ".agents/plugins/marketplace.json"
-MEMORY_DIR = Path(os.environ.get("SEMANTIC_MEMORY_DIR", Path.home() / ".local/share/semantic-memory")).expanduser()
+MEMORY_DIR = Path(os.environ.get("SEMANTIC_MEMORY_DIR", Path.home() / ".hermes/semantic-memory.db")).expanduser()
 READ_ONLY_TOOLS = {
     "sm_community",
     "sm_decoder_analyze",
@@ -52,8 +52,6 @@ LEAN_REQUIRED_TOOLS = {
     "sm_search_witnessed",
 }
 AGENT_REQUIRED_TOOLS = {
-    "sm_add_fact",
-    "sm_add_graph_edge",
     "sm_decide_action_authority",
     "sm_decide_assertion_authority",
     "sm_get_fact",
@@ -61,12 +59,10 @@ AGENT_REQUIRED_TOOLS = {
     "sm_get_search_receipt",
     "sm_graph_path",
     "sm_list_namespaces",
+    "sm_replay_search",
     "sm_search_conversations",
     "sm_search_witnessed",
-    "sm_set_provenance",
     "sm_stats",
-    "sm_supersede_fact",
-    "sm_update_fact",
 }
 
 
@@ -170,10 +166,11 @@ def check_config() -> None:
         warn("config.toml", f"missing: {CONFIG_TOML}")
         return
     text = CONFIG_TOML.read_text(encoding="utf-8", errors="replace")
-    if "[mcp_servers.semantic_memory]" in text:
-        ok("MCP config", "semantic_memory server configured")
+    server_name = "semantic-memory" if "[mcp_servers.semantic-memory]" in text else "semantic_memory"
+    if f"[mcp_servers.{server_name}]" in text:
+        ok("MCP config", f"{server_name} server configured")
     else:
-        fail("MCP config", "missing [mcp_servers.semantic_memory]")
+        fail("MCP config", "missing [mcp_servers.semantic-memory]")
     if "[features]" in text and "hooks = true" in text:
         ok("hooks feature", "enabled")
     else:
@@ -191,8 +188,8 @@ def check_config() -> None:
     missing = [
         tool
         for tool in sorted(READ_ONLY_TOOLS)
-        if f"[mcp_servers.semantic_memory.tools.{tool}]" not in text
-        or 'approval_mode = "approve"' not in text.split(f"[mcp_servers.semantic_memory.tools.{tool}]", 1)[1].split("[", 1)[0]
+        if f"[mcp_servers.{server_name}.tools.{tool}]" not in text
+        or 'approval_mode = "approve"' not in text.split(f"[mcp_servers.{server_name}.tools.{tool}]", 1)[1].split("[", 1)[0]
     ]
     if missing:
         warn("read-only MCP approvals", ", ".join(missing))
@@ -201,42 +198,17 @@ def check_config() -> None:
 
 
 def check_hooks() -> None:
-    data = load_json(HOOKS_JSON)
-    if not data:
-        warn("global hooks", f"missing or invalid: {HOOKS_JSON}")
-        return
-    hooks = data.get("hooks", {})
-    expected = [
-        ("SessionStart", "memory-primer.py"),
-        ("UserPromptSubmit", "memory-recall.py"),
-        ("PreCompact", "memory-capture-nudge.py"),
-        ("Stop", "memory-capture-nudge.py"),
-    ]
-    for event, script in expected:
-        found = False
-        for group in hooks.get(event, []):
-            for hook in group.get("hooks", []):
-                if script in hook.get("command", ""):
-                    found = True
-        if found:
-            ok(f"{event} hook", script)
-        else:
-            warn(f"{event} hook", f"missing {script}; run scripts/install-global-hooks.sh")
-    for script in ("codebase-auto-ingest.py",):
-        found = False
-        for group in hooks.get("UserPromptSubmit", []):
-            for hook in group.get("hooks", []):
-                if script in hook.get("command", ""):
-                    found = True
-        if found:
-            ok("UserPromptSubmit hook", script)
-        else:
-            warn("UserPromptSubmit hook", f"missing {script}; run scripts/install-global-hooks.sh")
     bundled = ROOT / "hooks/hooks.json"
-    if bundled.exists():
-        ok("plugin-bundled hooks", str(bundled))
-    else:
+    data = load_json(bundled)
+    if not data:
         warn("plugin-bundled hooks", "missing hooks/hooks.json")
+        return
+    expected = {"SessionStart", "UserPromptSubmit", "PreCompact", "Stop"}
+    missing = expected - set((data.get("hooks") or {}).keys())
+    if missing:
+        warn("plugin-bundled hooks", f"missing events: {', '.join(sorted(missing))}")
+    else:
+        ok("plugin-bundled hooks", "single lifecycle hook source")
 
 
 def rpc_call(binary: Path, method: str, params: dict | None = None, timeout: int = 20) -> dict | None:

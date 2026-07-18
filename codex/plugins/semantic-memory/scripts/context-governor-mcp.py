@@ -15,7 +15,7 @@ def store_dir() -> Path:
     return Path(
         os.environ.get(
             "CONTEXT_GOVERNOR_STORE",
-            str(Path.home() / ".local/share/context-governor/receipts"),
+            str(Path.home() / ".hermes/context-governor/receipts"),
         )
     ).expanduser()
 

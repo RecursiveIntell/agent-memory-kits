@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SM_DIR="${SEMANTIC_MEMORY_DIR:-$HOME/.local/share/semantic-memory}"
+SM_DIR="${SEMANTIC_MEMORY_DIR:-$HOME/.hermes/semantic-memory.db}"
 
 echo "==> semantic-memory setup for Codex"
 
