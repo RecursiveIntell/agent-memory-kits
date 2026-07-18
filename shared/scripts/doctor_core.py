@@ -106,11 +106,37 @@ def rpc_tools_list(binary: Path) -> bool:
         if msg.get("id") == 2:
             tools = msg.get("result", {}).get("tools", [])
             names = {t.get("name") for t in tools}
-            required = {"sm_search", "sm_add_fact", "sm_stats", "sm_supersede_fact"}
+            required_by_profile = {
+                "lean": {
+                    "sm_search_witnessed",
+                    "sm_replay_search",
+                    "sm_decide_assertion_authority",
+                    "sm_decide_action_authority",
+                },
+                # `standard` is intentionally an alias of the governed read-only
+                # profile in current semantic-memory-mcp releases.
+                "standard": {
+                    "sm_search_witnessed",
+                    "sm_replay_search",
+                    "sm_decide_assertion_authority",
+                    "sm_decide_action_authority",
+                },
+                "agent": {
+                    "sm_search_witnessed",
+                    "sm_replay_search",
+                    "sm_decide_assertion_authority",
+                    "sm_decide_action_authority",
+                    "sm_get_fact",
+                    "sm_list_namespaces",
+                    "sm_stats",
+                },
+                "full": {"sm_search_witnessed", "sm_add_fact", "sm_search", "sm_stats"},
+            }
+            required = required_by_profile.get(profile, required_by_profile["lean"])
             missing = sorted(required - names)
             if missing:
-                fail("semantic-memory MCP tools/list", "missing " + ", ".join(missing)); return False
-            ok("semantic-memory MCP tools/list", f"{len(tools)} tools exposed; required tools present")
+                fail("semantic-memory MCP tools/list", f"profile={profile}; missing " + ", ".join(missing)); return False
+            ok("semantic-memory MCP tools/list", f"profile={profile}; {len(tools)} tools exposed; required tools present")
             return True
     fail("semantic-memory MCP tools/list", (proc.stderr or proc.stdout)[-500:].strip()); return False
 

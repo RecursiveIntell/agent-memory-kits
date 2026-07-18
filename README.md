@@ -11,6 +11,19 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#license)
 [![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#privacy--local-first)
 
+## Verified release surface
+
+The companion packages are published independently from this kit. The versions below were checked against crates.io on **2026-07-18**; badges remain the live version indicator.
+
+| Package | Published version | Role | Source / release boundary |
+|---|---:|---|---|
+| [`semantic-memory`](https://crates.io/crates/semantic-memory) | `0.5.13` | SQLite/FTS5 + vector memory library | [release source](https://github.com/RecursiveIntell/semantic-memory/tree/feat/full-integration) |
+| [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp) | `0.5.5` | MCP transport, tool profiles, and loopback HTTP | [release source](https://github.com/RecursiveIntell/semantic-memory-mcp/tree/feat/full-integration) |
+| [`context-governor`](https://crates.io/crates/context-governor) | `0.2.0` | Deterministic receipt-backed compaction | [registry package](https://crates.io/crates/context-governor) |
+| [`claim-ledger`](https://crates.io/crates/claim-ledger) | `0.2.1` | Claim/evidence/provenance ledger | [Libraries source](https://github.com/RecursiveIntell/Libraries/tree/main/claim-ledger) |
+
+Release facts are source-reported until reproduced locally. For a current runtime surface, use `tools/list` on the configured MCP binary; profile counts are deliberately not frozen in this README.
+
 ![Architecture overview](.github/hero.svg)
 
 AI coding agents forget everything between sessions. This repo fixes that.

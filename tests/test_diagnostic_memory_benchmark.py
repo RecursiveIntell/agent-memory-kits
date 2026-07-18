@@ -515,7 +515,15 @@ class DiagnosticMemoryBenchmarkTests(unittest.TestCase):
             self.assertEqual(len(cases.read_text(encoding="utf-8").splitlines()), 5)
             self.assertIn("Official STALE", markdown.read_text(encoding="utf-8"))
 
+    def _require_official_sleeper(self) -> None:
+        if not (OFFICIAL_SLEEPER / ".git").exists():
+            self.skipTest(
+                "optional official Sleeper checkout is absent at "
+                f"{OFFICIAL_SLEEPER}; run the documented pinned-fixture setup"
+            )
+
     def test_official_sleeper_pin_split_inventory_and_no_inference_contract_are_predeclared(self) -> None:
+        self._require_official_sleeper()
         source, slices = benchmark.load_official_sleeper_datasets(OFFICIAL_SLEEPER)
         self.assertEqual(source["repository_commit"], "1eb8b7e33b505299155baf3be776545b1620f022")
         self.assertEqual(
@@ -531,6 +539,7 @@ class DiagnosticMemoryBenchmarkTests(unittest.TestCase):
         self.assertIn("model_graded", benchmark.OFFICIAL_SLEEPER_NOT_TESTED_METRICS)
 
     def test_official_sleeper_no_inference_smoke_writes_row_level_taxonomy(self) -> None:
+        self._require_official_sleeper()
         receipt, cases = benchmark.run_official_sleeper_adapter(OFFICIAL_SLEEPER, limit_per_slice=1)
         self.assertEqual(receipt["adapter"], "sleeper_official")
         self.assertEqual(receipt["rows_evaluated"], 4)
@@ -544,6 +553,7 @@ class DiagnosticMemoryBenchmarkTests(unittest.TestCase):
         self.assertEqual(no_memory_poison, {"successes": 3, "total": 3, "rate": 1.0})
 
     def test_official_sleeper_cli_writes_bounded_smoke_sidecars(self) -> None:
+        self._require_official_sleeper()
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "aggregate.json"
             cases = Path(tmp) / "cases.jsonl"
