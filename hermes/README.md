@@ -9,37 +9,30 @@
 [![context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor&style=for-the-badge)](https://crates.io/crates/context-governor)
 [![claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger&style=for-the-badge)](https://crates.io/crates/claim-ledger)
 
-See the [top-level README](../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
+See the [top-level README](../../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
 
 ## Tier / scope
 
-Tier 0 host integration. This directory contains a current Hermes general-plugin manifest (`plugin.yaml` plus `__init__.py`) for guarded MCP setup, alongside richer kit assets described by `plugin.json`. The general plugin is loadable by current Hermes; `plugin.json` remains kit/deployment metadata and is not itself interpreted by Hermes's general-plugin loader.
-
-### Canonical hook runtime
-
-Hermes lifecycle hooks are intentionally **not** bundled in this kit. The sole
-runtime source is the host configuration at `~/.hermes/config.yaml`, which
-invokes the canonical hooks from `~/.hermes/agent-hooks/`. This avoids a second,
-stale implementation being installed beside the live integration. On a host
-using this layout, verify the wiring with:
-
-```bash
-python3 hermes/scripts/verify-live-hook-config.py
-```
-
-### Legacy test retirement
-
-The former `tests/test_hermes_routing.py`, `tests/test_hermes_tool_receipts.py`,
-and `tests/test_hermes_witnessed_primer.py` exercised duplicate hook copies that
-are no longer part of this kit. They are intentionally retired rather than
-retargeted to another copied implementation. The verifier above is the
-source-of-truth deployment check: it parses a selected host config and proves
-that each configured Python lifecycle hook resolves under the one canonical
-hook directory.
+Tier 0 host integration. This directory now contains a current Hermes general-plugin manifest (`plugin.yaml` plus `__init__.py`) for guarded MCP setup, alongside the richer kit assets historically described by `plugin.json`. The general plugin is loadable by current Hermes; `plugin.json` remains a kit/deployment manifest and is not itself interpreted by Hermes's general-plugin loader.
 
 ## Architecture
 
-![Tier 0 hooked host architecture](../docs/assets/tier0-hooked-architecture.svg)
+```mermaid
+%%{init: {'theme':'neutral'}}%%
+flowchart LR
+    HE["Hermes Agent<br/>(skills/agents/commands)"] --> SK["skills/<br/>9 SKILL.md"]
+    HE --> AG["agents/<br/>memory-keeper.md"]
+    HE --> CM["commands/<br/>/memory-setup · /memory-ingest"]
+    HE --> PJ["plugin.yaml + __init__.py<br/>(Hermes general plugin)"]
+    SK --> MCP["semantic-memory-mcp<br/>(warm HTTP :1739 when enabled)"]
+    AG --> MCP
+    CM --> MCP
+    MCP --> CG["context-governor<br/>MCP"]
+    MCP --> CL["claim-ledger<br/>MCP"]
+    MCP --> DB[("SQLite + FTS5 + HNSW")]
+    CG --> RS[("Receipt store")]
+    CL --> LR[("Claim/evidence ledger")]
+```
 
 Skill paths: `hermes/skills/`. Agent path: `hermes/agents/`. Command paths: `hermes/commands/`. Hermes plugin manifest: `hermes/plugin.yaml`. Kit deployment metadata: `hermes/plugin.json`.
 
@@ -59,7 +52,7 @@ hermes mcp test semantic_memory
 hermes mcp configure semantic_memory
 ```
 
-`--args` must be last. Restart Hermes after changing plugin code. The MCP server supplies the `sm_*` tools directly; the general plugin registers only guarded setup helpers. Keep `hermes/` and `shared/` as siblings and set `SEMANTIC_MEMORY_KIT_ROOT` to the checkout when using kit assets.
+`--args` must be last. Restart Hermes after changing plugin code. The MCP server supplies the `sm_*` tools directly; the general plugin registers only guarded setup helpers. If deploying the richer hooks/skills kit, keep `hermes/` and `shared/` as siblings and set `SEMANTIC_MEMORY_KIT_ROOT` to the checkout.
 
 ## What you get
 
@@ -113,11 +106,11 @@ Key entries:
 
 ### Plugin manifest
 
-`hermes/plugin.yaml` and `hermes/__init__.py` are the current loadable Hermes general plugin. `hermes/plugin.json` declares the kit's skills, commands, and companion servers for deployment tooling; Hermes does not natively interpret that JSON file. Lifecycle hook wiring is external host configuration, documented above.
+`hermes/plugin.yaml` and `hermes/__init__.py` are the current loadable Hermes general plugin. `hermes/plugin.json` declares the richer kit's intended skills, hooks, commands, and companion servers for deployment tooling; Hermes does not natively interpret that JSON file.
 
 ### MCP tools exposed
 
-`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../README.md#the-three-mcp-companions).
+`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
 
 The kit manifest starts the daily launcher, which uses warm HTTP port `1739` by default. HTTP requires a Bearer token: set `SEMANTIC_MEMORY_HTTP_TOKEN`, or point `SEMANTIC_MEMORY_HTTP_TOKEN_FILE` at a token file, or create `~/.hermes/semantic-memory-http-1739.token` (mode `600` is recommended). The server launcher and retrieval benchmark pass only token-file paths, never token values in child argv, and redact captured child output. Hook clients allow plaintext HTTP only on loopback, require HTTPS for non-loopback URLs, and never follow redirects with credentials. Set `SEMANTIC_MEMORY_HTTP_PORT=0` for token-free stdio-only MCP operation.
 
@@ -141,7 +134,7 @@ Hermes is the third reference impl, focused on minimal installation friction:
 - **Separate loader and kit metadata.** `plugin.yaml` is Hermes-native; `plugin.json` documents richer deployment assets.
 - **One canonical store.** Examples use `~/.local/share/semantic-memory`; select one writer/HTTP owner when running several agents concurrently.
 
-These extend the [top-level Design principles](../README.md#design-principles); they don't replace them.
+These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
 
 ## Troubleshooting
 

@@ -19,47 +19,12 @@
     "agents": [
       "memory-keeper"
     ],
-
     "commands": {
       "/memory-setup": "commands/memory-setup.md",
       "/memory-ingest": "commands/memory-ingest.md",
       "/memory-gaps": "commands/memory-gaps.md",
       "/evidence-workbench": "commands/evidence-workbench.md",
       "/proof-packet": "commands/proof-packet.md"
-    },
-    "mcp_servers": {
-      "semantic-memory": {
-        "command": "bash",
-        "args": [
-          "scripts/run-server.sh",
-          "--tool-profile",
-          "agent"
-        ]
-      },
-      "context-governor": {
-        "command": "python3",
-        "args": [
-          "scripts/context-governor-mcp.py"
-        ]
-      },
-      "claim-ledger": {
-        "command": "python3",
-        "args": [
-          "scripts/claim-ledger-mcp.py"
-        ]
-      },
-      "semantic-memory-admin": {
-        "command": "bash",
-        "args": [
-          "scripts/run-server-admin.sh"
-        ]
-      },
-      "forge-admin": {
-        "command": "python3",
-        "args": [
-          "scripts/forge-admin-mcp.py"
-        ]
-      }
     }
   }
 }

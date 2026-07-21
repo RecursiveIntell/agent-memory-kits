@@ -1,6 +1,10 @@
 """Hermes plugin registration for semantic-memory-mcp setup helpers."""
 
-from . import schemas, tools
+if __package__:
+    from . import schemas, tools
+else:  # pragma: no cover - exercised by pytest's hyphenated install layout
+    import schemas  # type: ignore[no-redef]
+    import tools  # type: ignore[no-redef]
 
 
 def register(ctx):
