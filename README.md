@@ -267,7 +267,7 @@ Tier is assigned per `PLUGIN_EXPANSION_PLAN_2026-07-02.md` based on lifecycle-ho
 
 ### Prerequisites
 
-- **Rust toolchain** — for `cargo install semantic-memory-mcp`, `cargo install context-governor`, `cargo install claim-ledger` ([rustup.rs](https://rustup.rs)).
+- **Rust toolchain** — for `cargo install semantic-memory-mcp`, `cargo install context-governor`, `cargo install claim-ledger`, and optionally `cargo install mnemes` for multi-device sharing ([rustup.rs](https://rustup.rs)).
 - **`python3`** — used by hooks, ingester, and setup scripts.
 - First run downloads the embedding model (~550 MB) once; cached thereafter. No other network use.
 
@@ -333,6 +333,24 @@ cursor/scripts/setup.sh --dry-run --write-project /path/to/project
 # Verify everything
 shared/scripts/doctor-all.py --deep
 ```
+
+### Multi-device sharing with mnemes
+
+The kits above give each agent local-first memory on its own machine. To share memory across devices — laptop, desktop, server, edge — install [mnemes](https://github.com/RecursiveIntell/mnemes) on one machine as a shared pool server:
+
+```bash
+cargo install mnemes --locked
+
+# Bootstrap the server (creates first device + credential)
+mnemes-admin bootstrap ~/.local/share/mnemes "home-server" "linux" "myserver.local"
+
+# Start it
+mnemes-server 1738 ~/.local/share/mnemes
+```
+
+Each device registers with the mnemes server and gets its own isolated shard. Searches route across all eligible shards with durable receipts. The agent itself still talks to `semantic-memory-mcp` locally; a sync layer pushes local facts to the shared pool.
+
+Full setup guide (systemd, embedding providers, device registration, verification): see the [mnemes README](https://github.com/RecursiveIntell/mnemes#set-up-a-shared-memory-server).
 
 ---
 
