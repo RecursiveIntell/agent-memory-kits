@@ -352,6 +352,8 @@ Each device registers with the mnemes server and gets its own isolated shard. Se
 
 Full setup guide (systemd, embedding providers, device registration, verification): see the [mnemes README](https://github.com/RecursiveIntell/mnemes#set-up-a-shared-memory-server).
 
+You can also point your AI agent at the mnemes README and ask it to set up the server for you — the guide is written as shell commands and file edits that an agent can execute directly via terminal access.
+
 ---
 
 ## RecursiveIntell Pro
