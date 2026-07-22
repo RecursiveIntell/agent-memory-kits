@@ -17,8 +17,9 @@ The companion packages are published independently from this kit. The versions b
 
 | Package | Published version | Role | Source / release boundary |
 |---|---:|---|---|
-| [`semantic-memory`](https://crates.io/crates/semantic-memory) | `0.5.13` | SQLite/FTS5 + vector memory library | [release source](https://github.com/RecursiveIntell/semantic-memory/tree/feat/full-integration) |
-| [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp) | `0.5.5` | MCP transport, tool profiles, and loopback HTTP | [release source](https://github.com/RecursiveIntell/semantic-memory-mcp/tree/feat/full-integration) |
+| [`semantic-memory`](https://crates.io/crates/semantic-memory) | `0.5.14` | SQLite/FTS5 + vector memory library | [release source](https://github.com/RecursiveIntell/semantic-memory/tree/feat/full-integration) |
+| [`semantic-memory-mcp`](https://crates.io/crates/semantic-memory-mcp) | `0.5.6` | MCP transport, tool profiles, and loopback HTTP | [release source](https://github.com/RecursiveIntell/semantic-memory-mcp/tree/main) |
+| [`mnemes`](https://crates.io/crates/mnemes) | `0.1.1` | Multi-device memory control plane | [release source](https://github.com/RecursiveIntell/mnemes) |
 | [`context-governor`](https://crates.io/crates/context-governor) | `0.2.0` | Deterministic receipt-backed compaction | [registry package](https://crates.io/crates/context-governor) |
 | [`claim-ledger`](https://crates.io/crates/claim-ledger) | `0.2.1` | Claim/evidence/provenance ledger | [Libraries source](https://github.com/RecursiveIntell/Libraries/tree/main/claim-ledger) |
 
@@ -380,6 +381,21 @@ Claim boundary: Pro verification receipts prove the listed commands ran with cap
 ### semantic-memory
 
 The core memory server. Profile-based MCP tool counts (lean/standard/full/admin — run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts):
+
+**Governed mutations (sm_add_fact):** Governed write tools (`sm_add_fact`, `sm_supersede_fact`, `sm_delete_fact`) are fail-closed by default — the admission gate blocks them to prevent database poisoning by untrusted MCP clients. To enable governed mutations, provide an operator authority token at process startup:
+
+```bash
+# Via CLI arg
+semantic-memory-mcp --memory-dir ~/.hermes/semantic-memory.db --operator-authority-token my-secret-token
+
+# Via token file (recommended — keeps secret out of process list)
+semantic-memory-mcp --memory-dir ~/.hermes/semantic-memory.db --operator-authority-token-file ~/.hermes/operator-authority.token
+
+# Via environment variable
+OPERATOR_AUTHORITY_TOKEN=my-secret-token semantic-memory-mcp --memory-dir ~/.hermes/semantic-memory.db
+```
+
+Without the token, governed write tools return `"Admission gate BLOCKED"`. With it, each `sm_add_fact` call mints an `AuthorityPermit` with `APPEND_CAPABILITY` and produces a governed `AuthorityReceiptV1` with lineage tracking. Read tools (`sm_search`, `sm_search_witnessed`, `sm_stats`, etc.) work without the token.
 
 - **LLM output parsing**: `sm_parse_json`, `sm_parse_json_value`, `sm_repair_json`, `sm_strip_think_tags`, `sm_parse_string_list`, `sm_parse_choice`, `sm_parse_number` — production-grade parsing of LLM output without an additional LLM call. Handles think blocks, markdown fences, malformed JSON, trailing text.
 - **Search**: hybrid BM25 + vector (usearch) fused with Reciprocal Rank Fusion, RL-routed search (`sm_search_with_routing`), bitemporal as-of search (`sm_search_as_of`), conversation message search (`sm_search_conversations`)
