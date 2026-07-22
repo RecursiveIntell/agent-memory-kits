@@ -265,6 +265,8 @@ Tier is assigned per `PLUGIN_EXPANSION_PLAN_2026-07-02.md` based on lifecycle-ho
 
 ## Install
 
+> **Agent-driven setup:** Every install flow below is shell commands and file edits. If you have an AI coding agent (Hermes, Claude Code, Codex, Cursor, etc.) with terminal access, you can point it at this README and say *"Install and configure the agent-memory-kits for [my host]"* — the agent can run the install commands, write config files, and verify the setup for you. Same goes for setting up a [mnemes shared memory server](https://github.com/RecursiveIntell/mnemes#set-up-a-shared-memory-server).
+
 ### Prerequisites
 
 - **Rust toolchain** — for `cargo install semantic-memory-mcp`, `cargo install context-governor`, `cargo install claim-ledger`, and optionally `cargo install mnemes` for multi-device sharing ([rustup.rs](https://rustup.rs)).
