@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 660" role="img" aria-labelledby="title desc">
+  <title id="title">A passing command is not a passing release claim</title>
+  <desc id="desc">The author-run Python fixture records the command true exiting zero and a promote disposition. A separate broad claim that all tests passed and the software is production ready remains unsupported. Below, four gates separate observation, declared coverage, claim support, and authorized release admission. Only the observation is established in this fixture.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1 2 L10 6 L1 10" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linejoin="round"/>
+    </marker>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#233047" stroke-width="1"/>
+    </pattern>
+    <style>
+      text { font-family: system-ui, -apple-system, Segoe UI, sans-serif; fill: #eef2ff; }
+      .small { font-size: 17px; fill: #cbd5e1; }
+      .tiny { font-size: 15px; fill: #94a3b8; }
+      .label { font-size: 16px; font-weight: 700; letter-spacing: .09em; }
+      .headline { font-size: 29px; font-weight: 750; }
+      .card-title { font-size: 22px; font-weight: 700; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    </style>
+  </defs>
+  <rect width="1280" height="660" fill="#0b1220"/>
+  <rect width="1280" height="660" fill="url(#grid)" opacity=".55"/>
+  <text x="64" y="70" class="headline">The observed command is not the release claim</text>
+  <text x="64" y="105" class="small">Author-run local fixture at pinned agent-memory-kits source revision, not an autonomous-agent incident.</text>
+
+  <path d="M 410 226 L 480 226" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+  <path d="M 760 226 L 825 226" stroke="#fb7185" stroke-width="3" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+
+  <rect x="64" y="145" width="344" height="164" rx="16" fill="#102d31" stroke="#34d399" stroke-width="2"/>
+  <text x="86" y="178" class="label" fill="#6ee7b7">OBSERVATION</text>
+  <text x="86" y="223" class="card-title mono">true → exit 0</text>
+  <text x="86" y="258" class="small">Recorded packet disposition:</text>
+  <text x="86" y="286" class="small mono">"promote"</text>
+
+  <rect x="482" y="159" width="278" height="134" rx="16" fill="#282437" stroke="#fbbf24" stroke-width="2"/>
+  <text x="506" y="194" class="label" fill="#fcd34d">MISSING TRANSITION</text>
+  <text x="506" y="230" class="small">No required-suite inventory.</text>
+  <text x="506" y="258" class="small">No semantic claim check.</text>
+
+  <rect x="830" y="145" width="386" height="164" rx="16" fill="#351e2b" stroke="#fb7185" stroke-width="2"/>
+  <text x="854" y="178" class="label" fill="#fda4af">BROAD CALLER CLAIM</text>
+  <text x="854" y="218" class="small">“The entire test suite passed</text>
+  <text x="854" y="246" class="small">and the software is</text>
+  <text x="854" y="274" class="small">production ready”</text>
+  <text x="830" y="338" class="small" fill="#fda4af">The command receipt does not establish this sentence.</text>
+
+  <text x="64" y="412" class="label" fill="#cbd5e1">FOUR DISTINCT QUESTIONS FOR A REVIEWER</text>
+  <path d="M 337 507 L 360 507 M 638 507 L 661 507 M 939 507 L 962 507" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="64" y="444" width="270" height="133" rx="13" fill="#102d31" stroke="#34d399" stroke-width="2"/>
+    <text x="83" y="480" class="card-title">1 · Observation</text>
+    <text x="83" y="512" class="small">Did a named command run?</text>
+    <text x="83" y="548" class="label" fill="#6ee7b7">YES, IN THIS FIXTURE</text>
+  </g>
+  <g>
+    <rect x="365" y="444" width="270" height="133" rx="13" fill="#282437" stroke="#fbbf24" stroke-width="2"/>
+    <text x="384" y="480" class="card-title">2 · Coverage</text>
+    <text x="384" y="512" class="small">Were required checks run?</text>
+    <text x="384" y="548" class="label" fill="#fcd34d">UNKNOWN</text>
+  </g>
+  <g>
+    <rect x="666" y="444" width="270" height="133" rx="13" fill="#282437" stroke="#fbbf24" stroke-width="2"/>
+    <text x="685" y="480" class="card-title">3 · Claim support</text>
+    <text x="685" y="512" class="small">Does this witness fit it?</text>
+    <text x="685" y="548" class="label" fill="#fcd34d">NOT ESTABLISHED</text>
+  </g>
+  <g>
+    <rect x="967" y="444" width="249" height="133" rx="13" fill="#351e2b" stroke="#fb7185" stroke-width="2"/>
+    <text x="986" y="480" class="card-title">4 · Admission</text>
+    <text x="986" y="512" class="small">Who may release it?</text>
+    <text x="986" y="548" class="label" fill="#fda4af">NOT DECIDED</text>
+  </g>
+  <text x="64" y="622" class="tiny">Illustrative review model. The published receipt demonstrates the first box only; the other boxes are not outcomes of a new implemented verifier.</text>
+</svg>
