@@ -1,0 +1,28 @@
+{
+  "schema": "AgentEvidenceWorkbenchProofPacketV1",
+  "trace_id": "trace:evidence-workbench:024d9215bf4544a8",
+  "created_at": "2026-09-25T19:36:07.776949+00:00",
+  "claim": "The entire test suite passed and the software is production ready",
+  "risk_class": "medium",
+  "disposition": "promote",
+  "evidence_refs": [
+    "sha256:01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  ],
+  "commands": [
+    {
+      "command": "true",
+      "cwd": "/tmp/agent-claim-fixture-mutuze8x/broad-pass",
+      "started_at": "2026-09-25T19:36:07.772906+00:00",
+      "finished_at": "2026-09-25T19:36:07.775394+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "combined_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "stdout_preview": "",
+      "stderr_preview": ""
+    }
+  ],
+  "claim_boundary": "Command receipts prove the listed gates ran with the captured exit codes; they do not prove untested behavior.",
+  "proof_packet_sha256": "0886bc709d8880708f4dfbb507f91c5957b508568b69099cb1a5380e127111fd"
+}

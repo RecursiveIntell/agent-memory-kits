@@ -1,0 +1,93 @@
+{
+  "schema": "AgentClaimCaseStudyCaptureV1",
+  "captured_at_utc": "2026-09-25T19:36:08.120215+00:00",
+  "source_commit": "77f8b6829e5fc09460c70553413cd0bd5560a8be",
+  "source_path": "shared/scripts/evidence-workbench.py",
+  "source_sha256": "f2d0c8555b143fb770ca3b021549b8593697ea30ea9a3bdf59eef7fbc0aec5ea",
+  "fixture_sha256": "441268c2d070bb3b6855f30577d6256987d03963a93b13e7050ee1078b90de99",
+  "python_version": "3.14.6",
+  "os_family": "Linux",
+  "environment_boundary": "Disposable local /tmp; --no-memory; no --write-claim-ledger; no remote model/provider call",
+  "cases": [
+    {
+      "case": "broad-pass",
+      "claim": "The entire test suite passed and the software is production ready",
+      "command": "true",
+      "invocation": [
+        "python3",
+        "shared/scripts/evidence-workbench.py",
+        "--claim",
+        "The entire test suite passed and the software is production ready",
+        "--cmd",
+        "true",
+        "--cwd",
+        "<disposable-case-dir>",
+        "--out-dir",
+        "<disposable-case-dir>/emitted",
+        "--no-memory"
+      ],
+      "process_exit_code": 0,
+      "stdout": "{\n  \"ok\": true,\n  \"disposition\": \"promote\",\n  \"receipt\": \"/tmp/agent-claim-fixture-mutuze8x/broad-pass/emitted/evidence-workbench-20260925T193607Z.json\",\n  \"packet_sha256\": \"0886bc709d8880708f4dfbb507f91c5957b508568b69099cb1a5380e127111fd\"\n}\n",
+      "stderr": "",
+      "stdout_sha256": "9e664ec4387caf2f57914cebea6310efde4cc03730b02797768010cf6e30a0b9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "packet": "packets/broad-pass.json",
+      "packet_sha256": "b17cfe2e724997510e2743f530566e1a1346d92b1ed414da3972809e875eaaf7"
+    },
+    {
+      "case": "narrow-pass",
+      "claim": "The supplied true command exited zero",
+      "command": "true",
+      "invocation": [
+        "python3",
+        "shared/scripts/evidence-workbench.py",
+        "--claim",
+        "The supplied true command exited zero",
+        "--cmd",
+        "true",
+        "--cwd",
+        "<disposable-case-dir>",
+        "--out-dir",
+        "<disposable-case-dir>/emitted",
+        "--no-memory"
+      ],
+      "process_exit_code": 0,
+      "stdout": "{\n  \"ok\": true,\n  \"disposition\": \"promote\",\n  \"receipt\": \"/tmp/agent-claim-fixture-mutuze8x/narrow-pass/emitted/evidence-workbench-20260925T193607Z.json\",\n  \"packet_sha256\": \"26685b168603ea1f467e5705de041cc1026eee7a059473abca1e8d74658bcbc0\"\n}\n",
+      "stderr": "",
+      "stdout_sha256": "e17f3db65bc438d83d62a1a598cdd2ed80526f9f7f9270ebc6a41e59d0108601",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "packet": "packets/narrow-pass.json",
+      "packet_sha256": "3865ed0fcc4260b5e5ac64365215e7cfc67e12389934eccb9613cb4fccb63b08"
+    },
+    {
+      "case": "broad-fail",
+      "claim": "The entire test suite passed and the software is production ready",
+      "command": "false",
+      "invocation": [
+        "python3",
+        "shared/scripts/evidence-workbench.py",
+        "--claim",
+        "The entire test suite passed and the software is production ready",
+        "--cmd",
+        "false",
+        "--cwd",
+        "<disposable-case-dir>",
+        "--out-dir",
+        "<disposable-case-dir>/emitted",
+        "--no-memory"
+      ],
+      "process_exit_code": 1,
+      "stdout": "{\n  \"ok\": false,\n  \"disposition\": \"reject\",\n  \"receipt\": \"/tmp/agent-claim-fixture-mutuze8x/broad-fail/emitted/evidence-workbench-20260925T193608Z.json\",\n  \"packet_sha256\": \"93dcf467aaac332d47a7a8d228f4061a24ccc2ab9cf7b1e1018db60d5f7ee6cd\"\n}\n",
+      "stderr": "",
+      "stdout_sha256": "21c1f2c9b9b900d18077bfc688ee868a4c3bd5bf3eefd913f3de31d37f183b43",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "packet": "packets/broad-fail.json",
+      "packet_sha256": "fcb9ec46bbf5844298e2e2a89d8a0552b5fa6d76b059f42c433f10e1582442f6"
+    }
+  ],
+  "limitations": [
+    "Captured by the article author, not independently reproduced",
+    "A passing command demonstrates its own outcome, not coverage or semantic support",
+    "Packet digest is a local integrity check, not an external signature or runtime attestation"
+  ]
+}
