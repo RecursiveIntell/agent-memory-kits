@@ -1,6 +1,6 @@
 # agent-memory-kits
 
-> **Persistent local-first memory, receipt-backed compaction, and claim/evidence provenance — for every AI coding agent.**
+> **Persistent local-first memory, receipt-backed compaction, and claim/evidence provenance — for the supported AI coding agents.**
 > One repo, three companion MCP servers, nine agent hosts.
 
 [![crates.io: semantic-memory-mcp](https://img.shields.io/crates/v/semantic-memory-mcp?label=semantic-memory-mcp&style=for-the-badge)](https://crates.io/crates/semantic-memory-mcp)
@@ -9,7 +9,7 @@
 [![crates.io: claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger&style=for-the-badge)](https://crates.io/crates/claim-ledger)
 [![9 host plugins](https://img.shields.io/badge/hosts-9-blueviolet?style=for-the-badge)](./#capability-matrix)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#license)
-[![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#privacy--local-first)
+[![Local-first](https://img.shields.io/badge/storage-local-green?style=for-the-badge)](#privacy--local-first)
 
 ## Current stack integration
 
@@ -561,7 +561,7 @@ profile or share a store implicitly to make a hook work.
 ## Design principles
 
 - **Fail-open.** Hooks never block a prompt. Missing binary, timeout, bad JSON -> exit 0, no output.
-- **Local-first.** No network beyond the one-time model download. Your knowledge never leaves the machine.
+- **Local-first.** Storage is local by default; selected embedding endpoints, remote memory servers, host models, and optional services determine which data crosses a network.
 - **Relative recall.** Precision over recall — unrelated prompts inject nothing.
 - **No autonomous writes.** Memory is written by the model *with judgment*, nudged at the right moments — never auto-dumped by a script.
 - **Append/supersede.** Truth evolves by adding and superseding, not deleting.
@@ -596,7 +596,7 @@ Visual vocabulary used across every README in this repo. Borrow these; do not in
 
 ## Privacy / local-first
 
-The SQLite database, the usearch vector index, the Candle embedding model, the context-governor receipt store, the claim-ledger ledger, and all MCP server processes run locally. There are **no** calls to any hosted service. The only network access is a one-time model download from HuggingFace (cached). Your knowledge base never leaves your machine.
+The default stores and MCP processes run locally. Candle may download model artifacts, configured Ollama/embedding endpoints may be remote, Mnemes can send authorized data to a configured server, and the host agent may send recalled context to its model provider. Optional Pro/license services have their own network configuration. Local persistence does not by itself guarantee that recalled or ingested content never leaves the machine; review endpoints, host permissions, and optional integrations.
 
 ---
 

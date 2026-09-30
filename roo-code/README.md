@@ -7,7 +7,7 @@
 > **Tier 1 host plugin.** MCP-only integration; rule/context injection for behavioral guidance.
 
 [![Tier 1](https://img.shields.io/badge/tier-1-blueviolet?style=for-the-badge)](#capability-boundary)
-[![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#)
+[![Local-first](https://img.shields.io/badge/storage-local-green?style=for-the-badge)](#)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#)
 
 See [top-level README](../README.md) for the full capability matrix and architecture overview.

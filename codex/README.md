@@ -8,7 +8,7 @@
 > Plugin marketplace path: `semantic-memory@semantic-memory-codex-kit`.
 
 [![Tier 0](https://img.shields.io/badge/tier-0-blueviolet?style=for-the-badge)](#tier--scope)
-[![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#)
+[![Local-first](https://img.shields.io/badge/storage-local-green?style=for-the-badge)](#)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#)
 [![semantic-memory-mcp](https://img.shields.io/crates/v/semantic-memory-mcp?label=semantic-memory-mcp&style=for-the-badge)](https://crates.io/crates/semantic-memory-mcp)
 [![context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor&style=for-the-badge)](https://crates.io/crates/context-governor)
@@ -18,7 +18,7 @@ See the [top-level README](../README.md) for the full capability matrix, archite
 
 ## Tier / scope
 
-Tier 0 host plugin. This kit is the **reference implementation** that Tier 1 hosts reuse, with two extensions Claude Code does not have: an **automatic codebase-ingest hook** that runs on `UserPromptSubmit`, and 11 `prompts/` templates (one per common memory operation) in addition to skills. Codex also uses warm HTTP port `1739` by default so it does not collide with Hermes/Claude sidecars on `1738`.
+Tier 0 host plugin. This kit is the **reference implementation** that Tier 1 hosts reuse, with two extensions Claude Code does not have: an **automatic codebase-ingest hook** that runs on `UserPromptSubmit`, and 11 `prompts/` templates (one per common memory operation) in addition to skills. The current distributed server launcher defaults to stdio. HTTP is explicitly enabled with a port and private token-file configuration; hook discovery defaults do not imply that a sidecar is running.
 
 ## Architecture
 

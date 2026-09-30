@@ -8,7 +8,7 @@
 > Plugin marketplace path: `semantic-memory@semantic-memory-kit`.
 
 [![Tier 0](https://img.shields.io/badge/tier-0-blueviolet?style=for-the-badge)](#tier--scope)
-[![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#)
+[![Local-first](https://img.shields.io/badge/storage-local-green?style=for-the-badge)](#)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#)
 [![semantic-memory-mcp](https://img.shields.io/crates/v/semantic-memory-mcp?label=semantic-memory-mcp&style=for-the-badge)](https://crates.io/crates/semantic-memory-mcp)
 [![context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor&style=for-the-badge)](https://crates.io/crates/context-governor)

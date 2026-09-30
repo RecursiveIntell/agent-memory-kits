@@ -81,8 +81,8 @@ Codex's built-in file-based memories can complement semantic-memory. This setup 
 
 ## Runtime Knobs
 
-- `SEMANTIC_MEMORY_HTTP_PORT`: Codex warm HTTP sidecar port, default `1739`; Hermes/Claude may use `1738`
-- `SEMANTIC_MEMORY_HTTP_URL`: explicit warm HTTP URL for hooks, default `http://127.0.0.1:$SEMANTIC_MEMORY_HTTP_PORT`
+- `SEMANTIC_MEMORY_HTTP_PORT`: optional native HTTP sidecar port; current launcher default is `0` (disabled)
+- `SEMANTIC_MEMORY_HTTP_URL`: explicit warm HTTP URL for hooks, used by HTTP-capable clients; inspect their discovery defaults separately from the stdio-first server launcher
 - `SEMANTIC_MEMORY_TOOL_PROFILE`: `lean`, `standard`, or `full`, default `lean`
 - `SEMANTIC_MEMORY_LLM_MODEL`: optional local LLM model for server-side routing and AI features
 - `SM_RECALL_SCOREREL`: relative warm-score gate, default `0.5`

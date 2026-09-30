@@ -7,13 +7,13 @@
 > **Tier 0 reference implementation.** Manifest-driven skills, hooks, commands, MCP companions, proof helpers, and a memory-keeper subagent — over `semantic-memory-mcp` + `context-governor` + `claim-ledger`. Installs locally (no marketplace).
 
 [![Tier 0](https://img.shields.io/badge/tier-0-blueviolet?style=for-the-badge)](#tier--scope)
-[![Local-first](https://img.shields.io/badge/data-100%25%20local-green?style=for-the-badge)](#)
+[![Local-first](https://img.shields.io/badge/storage-local-green?style=for-the-badge)](#)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=for-the-badge)](#)
 [![semantic-memory-mcp](https://img.shields.io/crates/v/semantic-memory-mcp?label=semantic-memory-mcp&style=for-the-badge)](https://crates.io/crates/semantic-memory-mcp)
 [![context-governor](https://img.shields.io/crates/v/context-governor?label=context-governor&style=for-the-badge)](https://crates.io/crates/context-governor)
 [![claim-ledger](https://img.shields.io/crates/v/claim-ledger?label=claim-ledger&style=for-the-badge)](https://crates.io/crates/claim-ledger)
 
-See the [top-level README](../../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
+See the [top-level README](../README.md) for the full capability matrix, architecture overview, and Tier 0 vs Tier 1 distinction.
 
 ## Tier / scope
 
@@ -114,9 +114,9 @@ Key entries:
 
 ### MCP tools exposed
 
-`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../../README.md#the-three-mcp-companions).
+`semantic-memory-mcp` tool counts vary by profile (lean/standard/full/admin). Run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts. `context-governor` exposes 13 CLI commands. `claim-ledger` exposes 5 tools. See the [top-level "The three MCP companions" section](../README.md#the-three-mcp-companions).
 
-The kit manifest starts the daily launcher, which uses warm HTTP port `1739` by default. HTTP requires a Bearer token: set `SEMANTIC_MEMORY_HTTP_TOKEN`, or point `SEMANTIC_MEMORY_HTTP_TOKEN_FILE` at a token file, or create `~/.hermes/semantic-memory-http-1739.token` (mode `600` is recommended). The server launcher and retrieval benchmark pass only token-file paths, never token values in child argv, and redact captured child output. Hook clients allow plaintext HTTP only on loopback, require HTTPS for non-loopback URLs, and never follow redirects with credentials. Set `SEMANTIC_MEMORY_HTTP_PORT=0` for token-free stdio-only MCP operation.
+The daily shared launcher defaults to stdio (`SEMANTIC_MEMORY_HTTP_PORT=0`). To enable the optional native HTTP surface, explicitly set its port and `SEMANTIC_MEMORY_HTTP_AUTH_TOKEN_FILE` to a private token file supported by the installed binary. The Hermes wrapper rejects the legacy `SEMANTIC_MEMORY_HTTP_TOKEN` and `SEMANTIC_MEMORY_HTTP_TOKEN_FILE` settings and direct token arguments. Hook clients and benchmark helpers have their own discovery defaults; they do not prove that an HTTP server is running. See the [current stack guide](../docs/CURRENT_STACK.md) and [launcher tests](../tests/test_current_stack_launch.py).
 
 ## Receipts
 
@@ -138,7 +138,7 @@ Hermes is the third reference impl, focused on minimal installation friction:
 - **Separate loader and kit metadata.** `plugin.yaml` is Hermes-native; `plugin.json` documents richer deployment assets.
 - **One canonical store.** Examples use `~/.local/share/semantic-memory`; select one writer/HTTP owner when running several agents concurrently.
 
-These extend the [top-level Design principles](../../README.md#design-principles); they don't replace them.
+These extend the [top-level Design principles](../README.md#design-principles); they don't replace them.
 
 ## Troubleshooting
 
