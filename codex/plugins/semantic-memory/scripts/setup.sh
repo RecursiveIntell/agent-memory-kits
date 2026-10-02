@@ -32,6 +32,6 @@ echo "    memory dir: $SM_DIR"
 python3 "$ROOT/scripts/install-global-config.py"
 
 echo "==> done"
-echo "Install or refresh the plugin with: codex plugin add semantic-memory@personal"
+echo "Install or refresh the plugin with: codex plugin add semantic-memory@semantic-memory-codex-kit"
 echo "Start a new Codex thread after install so the sm_* tools and skill are loaded."
 echo "Run a full health check with: $ROOT/scripts/doctor.py"

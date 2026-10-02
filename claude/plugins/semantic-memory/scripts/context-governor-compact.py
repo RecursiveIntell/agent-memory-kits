@@ -60,7 +60,13 @@ def main():
         resp=run(binary, ['compact'], req, timeout=45)
     except SystemExit:
         return 0  # fail-open
-    store=store_dir(); store.mkdir(parents=True, exist_ok=True)
+    store = store_dir()
+    try:
+        store.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        # Storage failure must not block a compaction or the host turn. The
+        # deterministic response remains in memory for this invocation.
+        return 0
     try:
         stored=run(binary, ['store','--dir',str(store)], resp, timeout=20)
     except SystemExit as exc:

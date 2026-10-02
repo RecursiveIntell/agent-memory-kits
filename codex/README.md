@@ -18,7 +18,7 @@ See the [top-level README](../README.md) for the full capability matrix, archite
 
 ## Tier / scope
 
-Tier 0 host plugin. This kit is the **reference implementation** that Tier 1 hosts reuse, with two extensions Claude Code does not have: an **automatic codebase-ingest hook** that runs on `UserPromptSubmit`, and 11 `prompts/` templates (one per common memory operation) in addition to skills. The current distributed server launcher defaults to stdio. HTTP is explicitly enabled with a port and private token-file configuration; hook discovery defaults do not imply that a sidecar is running.
+Tier 0 host plugin. This kit is the **reference implementation** that Tier 1 hosts reuse, with two extensions Claude Code does not have: an **automatic codebase-ingest hook** that runs on `UserPromptSubmit`, and 11 `prompts/` templates (one per common memory operation) in addition to skills. Codex hooks use witnessed stdio retrieval. The current distributed server launcher defaults to stdio; HTTP sidecars require an explicit port and private token-file configuration, and hook configuration does not imply that a sidecar is running.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ codex plugin marketplace add ./codex
 codex plugin add semantic-memory@semantic-memory-codex-kit
 ```
 
-The Codex plugin installs the MCP server config, skills, prompts, warm recall hooks, automatic codebase-ingest hook, context-governor MCP, and claim-ledger MCP.
+The Codex plugin installs the MCP server config, skills, prompts, witnessed recall hooks, automatic codebase-ingest hook, context-governor MCP, and claim-ledger MCP.
 
 ## What you get
 
@@ -48,7 +48,7 @@ The Codex plugin installs the MCP server config, skills, prompts, warm recall ho
 | Hook | Event | What it does | Fail-open |
 |---|---|---|---|
 | `memory-primer.py` | `SessionStart` (startup, resume, clear) | Injects project-scoped primer facts as `additionalContext` | yes — 12s timeout |
-| `memory-recall.py` | `UserPromptSubmit` | Queries warm HTTP `/search`, injects hits that clear `SM_RECALL_MINTOP=0.58` | yes — 12s timeout |
+| `memory-recall.py` | `UserPromptSubmit` | Performs witnessed stdio retrieval scoped to the active repository and injects only provenance-complete hits | yes — 12s timeout |
 | `codebase-auto-ingest.py` | `UserPromptSubmit` | Detects a new repo in the working tree and queues a `--dedupe` ingest | yes — 5s timeout |
 | `memory-capture-nudge.py` | `PreCompact` and `Stop` | Reminds the model to save durable facts / decisions before the conversation ends or compacts | yes — 5s timeout |
 | `context-governor-compact.py` | `PreCompact` (manual, auto) | Runs deterministic compaction and writes a receipt | yes — 30s timeout |
@@ -131,7 +131,7 @@ These extend the [top-level Design principles](../README.md#design-principles); 
 | Symptom | Fix |
 |---|---|
 | Hooks don't fire | Restart Codex; hook config reloads at session start. |
-| `memory-recall.py` silent | Confirm `SEMANTIC_MEMORY_HTTP_PORT=1739` and that the warm server is reachable. The hook falls back to stdio MCP cold-spawn. |
+| `memory-recall.py` silent | Confirm the binary, `SEMANTIC_MEMORY_DIR`, and repository namespace. The hook intentionally uses witnessed stdio MCP retrieval and fails open on errors. |
 | `codebase-auto-ingest.py` no-ops | It's gated on a 5s timeout; if `ingest_codebase.py` would take longer, run it manually with `/memory-ingest`. |
-| Warm port conflict with Hermes/Claude | Codex uses `1739` by default. Hermes/Claude use `1738`. Set `SEMANTIC_MEMORY_HTTP_PORT=0` to disable the warm server on a specific host. |
+| HTTP sidecar conflict | Hooks do not require a warm sidecar. Configure an authenticated HTTP transport only for explicit service integrations; `SEMANTIC_MEMORY_HTTP_PORT=0` disables local HTTP startup. |
 | Want to inspect hook payloads | `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log` and tail. |
