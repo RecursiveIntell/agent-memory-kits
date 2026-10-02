@@ -38,6 +38,12 @@ From the repo root:
 
 Restart Claude Code once so hooks load. `/memory-setup` installs the binary and allowlists tools.
 
+`SEMANTIC_MEMORY_DIR` must name a directory passed to `--memory-dir`, even if
+the directory's name ends in `.db`; an existing file at that path is rejected.
+The `/memory-setup` command file still describes `SEMANTIC_MEMORY_DIR` as a
+database-file path; that legacy wording is stale. Follow
+[`docs/CURRENT_STACK.md`](../docs/CURRENT_STACK.md) for the current behavior.
+
 ## What you get
 
 ### Hooks (4)
