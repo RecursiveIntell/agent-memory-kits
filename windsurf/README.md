@@ -42,7 +42,7 @@ Expected:
 - `mcp_config.json.example` parses as JSON.
 - `semantic-memory-mcp` binary is found.
 - memory dir exists.
-- MCP `tools/list` exposes `sm_search`, `sm_add_fact`, `sm_stats`, and `sm_supersede_fact`.
+- With no profile override, generated config defaults to `lean`; MCP `tools/list` then exposes four read-only tools: `sm_search_witnessed`, `sm_replay_search`, `sm_decide_assertion_authority`, and `sm_decide_action_authority`.
 
 ## Use inside Windsurf
 
