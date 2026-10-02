@@ -147,6 +147,6 @@ These extend the [top-level Design principles](../README.md#design-principles); 
 | Skills not picked up | Confirm `~/.hermes/skills/<skill>/SKILL.md` exists; restart Hermes. |
 | Agent not registered | Confirm `~/.hermes/agents/memory-keeper.md` exists; restart Hermes. |
 | Warm port conflict with Codex/Claude | Only one process should own a configured warm port. Set `SEMANTIC_MEMORY_HTTP_PORT=0` for stdio-only clients. |
-| HTTP launcher reports a missing token | Set `SEMANTIC_MEMORY_HTTP_TOKEN`, `SEMANTIC_MEMORY_HTTP_TOKEN_FILE`, or `~/.hermes/semantic-memory-http-1739.token`; do not put the token in command output or checked-in config. |
+| HTTP launcher reports a missing token | Set `SEMANTIC_MEMORY_HTTP_AUTH_TOKEN_FILE` to a private token file. The Hermes launcher rejects legacy `SEMANTIC_MEMORY_HTTP_TOKEN` and `SEMANTIC_MEMORY_HTTP_TOKEN_FILE` settings; see [CURRENT_STACK.md](../docs/CURRENT_STACK.md). |
 | Hook silent | `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log` and tail. |
 | `cargo install` fails | Re-run after `rustup update stable`. |
