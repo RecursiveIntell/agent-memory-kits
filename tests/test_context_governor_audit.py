@@ -66,7 +66,8 @@ class TestContextGovernorAudit(unittest.TestCase):
         self.assertEqual(result.returncode, 0, f"stderr: {result.stderr}")
         receipt = json.loads(result.stdout)
         self.assertEqual(receipt["schema"], "CompressionBoundaryAuditV1")
-        self.assertIn("passed", receipt)
+        self.assertIn("safe_to_reinject", receipt)
+        self.assertTrue(receipt["safe_to_reinject"])
 
     def test_select_retrieval_route_runs(self) -> None:
         """select-route should return a RetrievalRouteDecisionV1."""
@@ -134,8 +135,8 @@ class TestContextGovernorAudit(unittest.TestCase):
         self.assertEqual(receipt["schema"], "GovernedMemoryHarnessReceiptV1")
         self.assertTrue(receipt["certified"])
 
-    def test_fail_open_on_missing_binary(self) -> None:
-        """Script should fail open with exit 0 if context-governor binary absent."""
+    def test_typed_failure_on_missing_binary(self) -> None:
+        """Script should report an actionable typed failure if the owner is absent."""
         result = subprocess.run(
             [
                 sys.executable,
@@ -150,8 +151,10 @@ class TestContextGovernorAudit(unittest.TestCase):
             text=True,
             timeout=30,
         )
-        self.assertEqual(result.returncode, 0)
-        self.assertIn("context-governor", (result.stderr + result.stdout).lower())
+        self.assertEqual(result.returncode, 127)
+        failure = json.loads(result.stdout)
+        self.assertEqual(failure["schema"], "KitNativeInvocationFailureV1")
+        self.assertEqual(failure["code"], "OWNER_UNAVAILABLE")
 
 
 if __name__ == "__main__":
