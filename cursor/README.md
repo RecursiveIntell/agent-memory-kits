@@ -45,7 +45,7 @@ That creates `.cursor/mcp.json` with this server:
       "env": {
         "SEMANTIC_MEMORY_DIR": "$HOME/.local/share/semantic-memory",
         "SEMANTIC_MEMORY_TOOL_PROFILE": "lean",
-        "SEMANTIC_MEMORY_HTTP_PORT": "1739"
+        "SEMANTIC_MEMORY_HTTP_PORT": "0"
       }
     }
   }
@@ -119,7 +119,7 @@ Boundary: for hosts without a verified pre-compact hook, this is rule/command/MC
 
 ## Quick install
 
-Print config snippets only:
+Run companion-binary setup and print config snippets (use `--dry-run` to preview without running the installation helpers):
 
 ```bash
 cursor/scripts/setup.sh

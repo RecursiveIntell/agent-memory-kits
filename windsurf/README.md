@@ -101,7 +101,7 @@ Boundary: for hosts without a verified pre-compact hook, this is rule/command/MC
 
 ## Quick install
 
-Print config snippets only:
+Run companion-binary setup and print config snippets (use `--dry-run` to preview without running the installation helpers):
 
 ```bash
 windsurf/scripts/setup.sh
