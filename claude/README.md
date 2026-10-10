@@ -46,16 +46,18 @@ database-file path; that legacy wording is stale. Follow
 
 ## What you get
 
-### Hooks (4)
+### Hook events (4)
 
-`claude/plugins/semantic-memory/hooks/hooks.json` wires four lifecycle hooks. Every hook **fails open** — missing binary, timeout, or bad JSON exits 0 and never blocks the prompt.
+`claude/plugins/semantic-memory/hooks/hooks.json` wires four lifecycle events. The PreCompact event runs both capture and context-governor handlers. Every command hook **fails open** — missing binary, timeout, or bad JSON exits 0 and never blocks the prompt.
 
 | Hook | Event | What it does | Fail-open |
 |---|---|---|---|
-| `memory-primer.sh` | `SessionStart` (startup, resume, clear) | Injects project-scoped primer facts as `additionalContext` | yes — 12s timeout |
-| `memory-recall.sh` | `UserPromptSubmit` | Queries warm HTTP `/search` (BM25 + vector + RRF), injects hits that clear `SM_RECALL_MINTOP=0.58` as `additionalContext` | yes — 12s timeout |
-| `memory-capture-nudge.sh` | `PreCompact` and `Stop` | Reminds the model to save durable facts / decisions before the conversation ends or compacts | yes — 5s timeout |
-| `_resolve.sh` | helper, not a hook event | Resolves the plugin's `${CLAUDE_PLUGIN_ROOT}` to the absolute path so siblings can find binaries | n/a |
+| `memory-primer.sh` | `SessionStart` (startup, resume, clear) | Uses witnessed stdio retrieval and injects project-scoped primer facts as `additionalContext` | yes — 12s timeout |
+| `memory-recall.sh` | `UserPromptSubmit` | Uses witnessed stdio retrieval scoped to the active repository, then injects only provenance-complete hits as `additionalContext` | yes — 12s timeout |
+| `memory-capture-nudge.sh` | `PreCompact`, `Stop` | Reminds the model to save durable facts / decisions before compaction or ending a turn; skips repeated Stop callbacks | yes — 5s timeout |
+| `context-governor-compact.py` | `PreCompact` | Compacts the transcript and writes a receipt | yes — 30s timeout |
+
+`_resolve.sh` is a shared helper, not a hook event.
 
 ### Scripts
 
@@ -115,8 +117,8 @@ This host also has a host-specific `doctor.py` script via `claude/plugins/semant
 Claude Code is the reference impl, so its principles are the strictest:
 
 - **Fail-open hooks.** Every hook exits 0 on error. A missing binary never blocks a prompt.
-- **Nudged capture, not auto-dump.** The `memory-capture-nudge.sh` hook reminds the model at `PreCompact` and `Stop`; it never writes on its own.
-- **Hook wiring is declarative.** All four hooks are listed in `claude/plugins/semantic-memory/hooks/hooks.json` — the source of truth.
+- **Nudged capture, not auto-dump.** The `memory-capture-nudge.sh` hook reminds the model at `PreCompact` and the first `Stop` callback; it never writes on its own.
+- **Hook wiring is declarative.** All four lifecycle events are listed in `claude/plugins/semantic-memory/hooks/hooks.json` — the source of truth.
 
 These extend the [top-level Design principles](../README.md#design-principles); they don't replace them.
 
@@ -125,7 +127,7 @@ These extend the [top-level Design principles](../README.md#design-principles); 
 | Symptom | Fix |
 |---|---|
 | Hooks don't fire | Restart Claude Code or open `/hooks` once. Config reloads at session start. |
-| `memory-recall.sh` silent | Check `SEMANTIC_MEMORY_HTTP_PORT=1739`; the warm server may not be up. The hook falls back to stdio MCP cold-spawn. |
+| `memory-recall.sh` silent | Confirm the binary, `SEMANTIC_MEMORY_DIR`, and the repository namespace; the hook intentionally uses witnessed stdio MCP retrieval and fails open on errors. |
 | `memory-recall.sh` injects too much | Raise `SM_RECALL_MINTOP` from 0.58 to 0.65. |
 | `/memory-setup` fails on `cargo install` | Re-run after `rustup update stable`. |
 | Want to inspect hook payloads | `export SEMANTIC_MEMORY_HOOK_DEBUG=~/sm-hooks.log` and tail. |
