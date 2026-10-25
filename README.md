@@ -1,5 +1,7 @@
 # agent-memory-kits
 
+<!-- last-verified: 2026-10-25; focused review: Install network-boundary wording only; not product verification -->
+
 > **Persistent local-first memory, receipt-backed compaction, and claim/evidence provenance — for the supported AI coding agents.**
 > One repo, three companion MCP servers, nine agent hosts.
 
@@ -239,7 +241,7 @@ Tier is assigned per `PLUGIN_EXPANSION_PLAN_2026-07-02.md` based on lifecycle-ho
 
 - **Rust toolchain** — for `cargo install semantic-memory-mcp`, `cargo install context-governor`, `cargo install claim-ledger`, and optionally `cargo install mnemes` for multi-device sharing ([rustup.rs](https://rustup.rs)).
 - **`python3`** — used by hooks, ingester, and setup scripts.
-- First run downloads the embedding model (~550 MB) once; cached thereafter. No other network use.
+- With the default Candle embedder, first use may download model artifacts. This is not a complete network-activity inventory. The [Privacy / local-first](#privacy--local-first) section documents configuration-dependent paths, including remote Ollama/embedding endpoints, Mnemes sending authorized data to a configured server, the host agent's model provider, and optional Pro/license services.
 
 ### Claude Code
 
