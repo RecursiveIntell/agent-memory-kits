@@ -1,6 +1,6 @@
 # agent-memory-kits
 
-<!-- last-verified: 2026-10-25; focused review: Install network-boundary wording only; not product verification -->
+<!-- last-verified: 2026-10-26; focused review: governed-write token handling only; not product verification -->
 
 > **Persistent local-first memory, receipt-backed compaction, and claim/evidence provenance — for the supported AI coding agents.**
 > One repo, three companion MCP servers, nine agent hosts.
@@ -374,18 +374,14 @@ Claim boundary: Pro verification receipts prove the listed commands ran with cap
 
 The core memory server. Profile-based MCP tool counts (lean/standard/full/admin — run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts):
 
-**Governed mutations (sm_add_fact):** Governed write tools (`sm_add_fact`, `sm_supersede_fact`, `sm_delete_fact`) are fail-closed by default — the admission gate blocks them to prevent database poisoning by untrusted MCP clients. To enable governed mutations, provide an operator authority token at process startup:
+**Governed mutations (sm_add_fact):** Governed write tools (`sm_add_fact`, `sm_supersede_fact`, `sm_delete_fact`) are fail-closed by default — the admission gate blocks them to prevent database poisoning by untrusted MCP clients. To enable governed mutations, provide an operator authority token at process startup. Prefer the token-file option to keep the value out of command arguments; restrict access to the token file. The `--operator-authority-token` CLI option is supported, but avoid it where process arguments may be observable.
 
 ```bash
-# Via CLI arg
-semantic-memory-mcp --memory-dir ~/.hermes/semantic-memory.db --operator-authority-token my-secret-token
-
-# Via token file (recommended — keeps secret out of process list)
+# Recommended: use a token file with restrictive permissions
 semantic-memory-mcp --memory-dir ~/.hermes/semantic-memory.db --operator-authority-token-file ~/.hermes/operator-authority.token
-
-# Via environment variable
-OPERATOR_AUTHORITY_TOKEN=my-secret-token semantic-memory-mcp --memory-dir ~/.hermes/semantic-memory.db
 ```
+
+Alternatively, the server accepts `OPERATOR_AUTHORITY_TOKEN` from its process environment. Configure that value through your host's secret manager before launch; environment handling varies by host, so do not assume it is inherently secure.
 
 Without the token, governed write tools return `"Admission gate BLOCKED"`. With it, each `sm_add_fact` call mints an `AuthorityPermit` with `APPEND_CAPABILITY` and produces a governed `AuthorityReceiptV1` with lineage tracking. Read tools (`sm_search`, `sm_search_witnessed`, `sm_stats`, etc.) work without the token.
 
