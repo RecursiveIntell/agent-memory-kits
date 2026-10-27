@@ -58,9 +58,38 @@ def http_base() -> str:
     return f"http://127.0.0.1:{os.environ.get('SEMANTIC_MEMORY_HTTP_PORT', '1739')}"
 
 
+def _normalize_http_token(raw: str) -> str | None:
+    token = raw.strip()
+    if not token or any(char.isspace() for char in token):
+        return None
+    return token
+
+
+def http_headers() -> dict[str, str]:
+    headers = {"content-type": "application/json"}
+    token = None
+    explicit = os.environ.get("SEMANTIC_MEMORY_HTTP_TOKEN")
+    if explicit:
+        token = _normalize_http_token(explicit)
+    else:
+        token_file = os.environ.get("SEMANTIC_MEMORY_HTTP_AUTH_TOKEN_FILE") or os.environ.get(
+            "SEMANTIC_MEMORY_HTTP_TOKEN_FILE"
+        )
+        if token_file:
+            try:
+                token = _normalize_http_token(
+                    Path(os.path.expanduser(token_file)).read_text(encoding="utf-8")
+                )
+            except OSError:
+                token = None
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
 def http_post(path: str, payload: dict, timeout: float = 4.0) -> dict | None:
     body = json.dumps(payload, separators=(",", ":")).encode()
-    req = urllib.request.Request(http_base() + path, data=body, headers={"content-type": "application/json"}, method="POST")
+    req = urllib.request.Request(http_base() + path, data=body, headers=http_headers(), method="POST")
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode("utf-8", "replace"))

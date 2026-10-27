@@ -60,7 +60,7 @@ This Codex plugin intentionally uses Codex-native behavior instead of Claude hoo
    - Prefer `sm_add_fact` for durable facts; conversation messages are context, not authority.
 
 8. Use installed hooks as assistive recall:
-   - Global hooks live at `~/.codex/hooks.json` after `scripts/setup.sh` or `scripts/install-global-hooks.sh`.
+   - Current Codex builds use the plugin-bundled `hooks/hooks.json`; keep semantic-memory entries out of `~/.codex/hooks.json` to avoid duplicate lifecycle execution. Use `scripts/install-global-hooks.sh` only as a fallback for hosts without plugin-hook discovery.
    - `SessionStart` injects store health and project-scoped witnessed recall for real git repos.
    - `UserPromptSubmit` uses mandatory `sm_search_witnessed` stdio retrieval; it does not substitute the unwitnessed warm HTTP surface for action-capable prompt injection.
    - Inside a Git repository, the hook queries the collision-safe namespace first, falls back to the legacy basename alias only when no admissible primary hit exists, and never widens to unscoped recall.
@@ -72,7 +72,7 @@ This Codex plugin intentionally uses Codex-native behavior instead of Claude hoo
 
 ## Setup
 
-Use `scripts/setup.sh` from the plugin root to install or verify the `semantic-memory-mcp` binary, default memory directory, global MCP config, read-only approvals, Codex memories coordination, global hooks, and the `memory_keeper` agent role. Use `scripts/doctor.py` for a full health check across plugin install state, MCP reachability, hooks, approvals, and cache cleanliness. Use `scripts/audit_memory.py` for a read-only store quality report.
+Use `scripts/setup.sh` from the plugin root to install or verify the `semantic-memory-mcp` binary, default memory directory, global MCP config, read-only approvals, Codex memories coordination, and the `memory_keeper` agent role. Use `scripts/doctor.py` for a full health check across plugin install state, MCP reachability, hooks, approvals, and cache cleanliness. Use `scripts/audit_memory.py` for a read-only store quality report.
 
 Configuration:
 
@@ -96,7 +96,7 @@ The default `lean`/`standard` profile is read-only and centers `sm_search_witnes
 
 ## Hooks
 
-Codex hooks are installed globally by `scripts/install-global-hooks.sh` and can be installed per repo with `scripts/install-project-hooks.sh <repo>`.
+Codex hooks are normally loaded from the plugin-bundled manifest. `scripts/install-global-hooks.sh` and `scripts/install-project-hooks.sh <repo>` are compatibility fallbacks for hosts without plugin-hook discovery.
 
 - `SessionStart`: injects memory status, project-scoped recall for real git repos, and the recall/persist discipline.
 - `UserPromptSubmit`: runs provenance-gated witnessed auto-recall and, only when explicitly enabled, starts background `--dedupe` ingestion for complex prompts in non-trivial git repos whose collision-safe namespace is missing.

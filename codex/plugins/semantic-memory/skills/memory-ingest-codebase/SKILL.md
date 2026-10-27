@@ -9,7 +9,7 @@ Use this skill when the user asks to add, ingest, index, refresh, or update a re
 
 ## Workflow
 
-1. Locate the plugin root. Prefer `/home/sikmindz/plugins/semantic-memory` when present; otherwise search upward or use the installed plugin cache.
+1. Locate the plugin root from the active plugin installation; otherwise use the repository checkout or installed plugin cache.
 2. Run a dry run first:
    `python3 <plugin-root>/scripts/ingest_codebase.py --path <repo> --dry-run`
 3. Review the reported namespace, language counts, manifests, component facts, durable facts, and graph edge count.

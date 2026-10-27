@@ -39,6 +39,25 @@ def namespace_matches(candidate: str, requested: Iterable[str]) -> bool:
     return _text(candidate).lower() in normalized
 
 
+def fill_warm_http_provenance(hit: dict[str, Any], *, receipt_ref: str = "") -> dict[str, Any]:
+    """Fill provenance gaps on warm HTTP /search hits without inventing verified trust.
+
+    Live REST search returns result_id/content/namespace/score but not the
+    admission fields required for action-capable injection. Labels are honest:
+    trust=unverified, source=warm-http-search unless the hit already has them.
+    """
+    out = dict(hit)
+    if not _text(out.get("state")):
+        out["state"] = "current"
+    if not _text(out.get("trust")):
+        out["trust"] = "unverified"
+    if not _text(out.get("source")):
+        out["source"] = "warm-http-search"
+    if not _text(out.get("retrieval_receipt_ref")):
+        out["retrieval_receipt_ref"] = receipt_ref or "warm-http-search"
+    return out
+
+
 def propagate_retrieval_context(response: dict[str, Any]) -> list[dict[str, Any]]:
     """Copy witnessed response-level state and receipt onto hits that lack them.
 

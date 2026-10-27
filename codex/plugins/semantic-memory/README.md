@@ -6,7 +6,7 @@ This plugin provides:
 
 - lean/standard/full `sm_*` MCP tool profiles through `.mcp.json` and optional global Codex config
 - Codex skills for recall, capture, curation, graph exploration, repo sync, conversation memory, setup repair, and memory-keeper workflows
-- global/project Codex hooks for session priming, project-scoped recall, warm HTTP gated prompt recall, adaptive routing, and capture nudging
+- plugin-bundled Codex hooks for session priming, witnessed project-scoped recall, automatic codebase checks, and capture nudging
 - automatic background codebase ingestion for complex prompts in non-trivial git repos when `code:<repo>` memory is missing
 - a plugin-bundled hook manifest for forward-compatible plugin hook discovery
 - a deterministic codebase ingester that writes facts plus dependency graph edges
@@ -15,17 +15,18 @@ This plugin provides:
 ## Setup
 
 ```bash
-/home/sikmindz/plugins/semantic-memory/scripts/setup.sh
-codex plugin add semantic-memory@personal
-/home/sikmindz/plugins/semantic-memory/scripts/doctor.py
-/home/sikmindz/plugins/semantic-memory/scripts/eval_recall.py
+PLUGIN_ROOT=/path/to/agent-memory-kits/codex/plugins/semantic-memory
+"$PLUGIN_ROOT/scripts/setup.sh"
+codex plugin add semantic-memory@semantic-memory-codex-kit
+"$PLUGIN_ROOT/scripts/doctor.py"
+"$PLUGIN_ROOT/scripts/eval_recall.py"
 ```
 
-Fresh Codex sessions load the plugin. `scripts/setup.sh` also merges the global MCP server, read-only tool approvals, built-in memories coordination, `memory_keeper` subagent role, and global hooks so the memory system works in fresh Codex homes and outside the plugin path on this machine.
+Fresh Codex sessions load the plugin. `scripts/setup.sh` merges the global MCP server, read-only tool approvals, built-in memories coordination, and the `memory_keeper` subagent role. Current Codex builds discover the plugin-bundled hooks directly; use `scripts/install-global-hooks.sh` only as a fallback for a host that does not.
 
 ## Hooks
 
-Global hooks are installed at `~/.codex/hooks.json`:
+The plugin-bundled hooks are declared in `hooks/hooks.json`:
 
 - `SessionStart`: injects memory status and project-scoped witnessed recall for real git repos
 - `UserPromptSubmit`: performs mandatory witnessed stdio retrieval and injects only provenance-complete facts through the inert data-only envelope
@@ -62,8 +63,8 @@ Prompt hooks use `sm_search_witnessed`; they do not rely on raw search, maintena
 ## Ingest Or Sync A Repo
 
 ```bash
-python3 /home/sikmindz/plugins/semantic-memory/scripts/ingest_codebase.py --path /path/to/repo --dry-run
-python3 /home/sikmindz/plugins/semantic-memory/scripts/ingest_codebase.py --path /path/to/repo --dedupe
+python3 "$PLUGIN_ROOT/scripts/ingest_codebase.py" --path /path/to/repo --dry-run
+python3 "$PLUGIN_ROOT/scripts/ingest_codebase.py" --path /path/to/repo --dedupe
 ```
 
 The ingester is deterministic: it reads manifests, language stats, top-level layout, and README context, then writes facts and graph edges through the local MCP server.
@@ -81,8 +82,8 @@ Codex's built-in file-based memories can complement semantic-memory. This setup 
 
 ## Runtime Knobs
 
-- `SEMANTIC_MEMORY_HTTP_PORT`: optional native HTTP sidecar port; current launcher default is `0` (disabled)
-- `SEMANTIC_MEMORY_HTTP_URL`: explicit warm HTTP URL for hooks, used by HTTP-capable clients; inspect their discovery defaults separately from the stdio-first server launcher
+- `SEMANTIC_MEMORY_HTTP_PORT`: optional authenticated HTTP sidecar port for explicit integrations; the current launcher default is `0` (disabled), and hooks use witnessed stdio retrieval
+- `SEMANTIC_MEMORY_HTTP_URL`: optional explicit HTTP URL for non-hook integrations
 - `SEMANTIC_MEMORY_TOOL_PROFILE`: `lean`, `standard`, or `full`, default `lean`
 - `SEMANTIC_MEMORY_LLM_MODEL`: optional local LLM model for server-side routing and AI features
 - `SM_RECALL_SCOREREL`: relative warm-score gate, default `0.5`

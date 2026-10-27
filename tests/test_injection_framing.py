@@ -128,6 +128,33 @@ class InjectionFramingTests(unittest.TestCase):
         self.assertEqual(hits[0]["retrieval_receipt_ref"], "receipt:search-1")
         self.assertEqual(hits[0]["source"], "document:/tmp/spec.md")
 
+    def test_warm_http_hit_without_provenance_is_rejected_until_filled(self) -> None:
+        """From Plan: raw warm /search hits fail closed; fillers make them DATA-ONLY admissible."""
+        raw = {
+            "result_id": "fact:6a4ea295-9f22-4915-ad14-5beb4947d127",
+            "namespace": "infrastructure",
+            "content": "Canonical store is Ares.",
+            "score": 0.03,
+            "cosine_similarity": 0.74,
+        }
+        self.assertEqual(framing.admit_provenanced_hits([raw]), [])
+        filled = framing.fill_warm_http_provenance(raw, receipt_ref="warm-http-search")
+        admitted = framing.admit_provenanced_hits([filled])
+        self.assertEqual(len(admitted), 1)
+        self.assertEqual(admitted[0]["trust"], "unverified")
+        self.assertEqual(admitted[0]["state"], "current")
+        self.assertEqual(admitted[0]["source"], "warm-http-search")
+        self.assertEqual(admitted[0]["retrieval_receipt_ref"], "warm-http-search")
+        self.assertIn("DATA ONLY", framing.frame_hits([filled]))
+
+    def test_warm_http_fill_does_not_overwrite_existing_provenance(self) -> None:
+        """From Plan: fillers are additive only."""
+        hit = self.complete()
+        filled = framing.fill_warm_http_provenance(hit, receipt_ref="warm-http-search")
+        self.assertEqual(filled["source"], "document:/tmp/spec.md")
+        self.assertEqual(filled["trust"], "verified")
+        self.assertEqual(filled["retrieval_receipt_ref"], "receipt:search-1")
+
 
 if __name__ == "__main__":
     unittest.main()
