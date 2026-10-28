@@ -171,7 +171,7 @@ agent-memory-kits/
 
 ![Per-prompt auto-recall sequence](docs/assets/auto-recall-sequence.svg)
 
-The hook calls **sm_search_witnessed** over stdio MCP (the embedder is already loaded, so this is ~milliseconds). If that server isn't up it falls back to cold-spawning the binary over stdio — correct, just slower.
+Claude Code and Codex prompt hooks call **sm_search_witnessed** through the canonical stdio MCP launcher. They do not use a warm HTTP recall path. Each call starts the launcher, so retrieval latency includes process startup and is not guaranteed to be milliseconds.
 
 **Why a relative gate?** `nomic` embeddings sit on a high baseline — even totally unrelated text scores ~0.48–0.54 cosine. A flat threshold would inject noise on every prompt. Instead the hook requires the **best** hit to clear `MINTOP` (0.58), then keeps only its near-peers:
 
@@ -182,7 +182,7 @@ The hook calls **sm_search_witnessed** over stdio MCP (the embedder is already l
 | "write a haiku about the ocean" | 0.49 | no — below gate |
 | "hi" / "/clear" | — | no — gated (too short / slash) |
 
-Every hook **fails open**: any error, missing binary, or empty result exits cleanly and never blocks or delays your prompt.
+Hooks are designed to **fail open** on errors, missing binaries, or empty results. Fail-open behavior does not eliminate hook execution time; configured timeouts still apply.
 
 ### Receipt-backed compaction (context-governor)
 
@@ -262,7 +262,7 @@ codex plugin marketplace add ./codex
 codex plugin add semantic-memory@semantic-memory-codex-kit
 ```
 
-The Codex plugin installs MCP configuration, skills, prompts, warm recall hooks, codebase-ingest hooks, context-governor, and claim-ledger integrations. Use one canonical store directory across agents. Only one process should own a given warm HTTP port; stdio-only clients should set the port to `0`.
+The Codex plugin installs MCP configuration, skills, prompts, witnessed stdio recall hooks, codebase-ingest hooks, context-governor, and claim-ledger integrations. Use one canonical store directory across agents. Only one process should own a given warm HTTP port; stdio-only clients should set the port to `0`.
 
 Maintenance tools hidden by the daily lean profile are reachable through the `semantic-memory-admin` MCP server entry, which runs `scripts/run-server-admin.sh` with `SEMANTIC_MEMORY_TOOL_PROFILE=full` and disables the competing warm HTTP sidecar port for that stdio server.
 
