@@ -1,6 +1,6 @@
 # agent-memory-kits
 
-<!-- last-verified: 2026-10-28; focused review: current-stack evidence boundary and CLI reference scope only; not product verification -->
+<!-- last-verified: 2026-10-29; focused review: context-governor fallback wording only; not product verification -->
 
 > **Persistent local-first memory, receipt-backed compaction, and claim/evidence provenance — for the supported AI coding agents.**
 > One repo, three companion MCP servers, nine agent hosts.
@@ -72,7 +72,7 @@ A collection of plugins and setup kits that give AI coding agents:
 
 1. **Persistent memory** — semantic-memory-mcp: hybrid BM25 + vector search, knowledge graphs, conversation recall, contradiction detection, bitemporal as-of queries, claim verification, and autonomous lifecycle. Profile-based tool counts (run `generate-tool-surface-docs.py` for current).
 
-2. **Receipt-backed compaction** — context-governor: deterministic pre-compaction that preserves active tasks and high-risk evidence, summarizes lower-risk context, and stores exact fallback records that can be searched and expanded later. Never silently loses context.
+2. **Receipt-backed compaction** — context-governor: deterministic pre-compaction that preserves active tasks and high-risk evidence, summarizes lower-risk context, and stores exact fallback records that can be searched and expanded later. Recovery is limited to what the receipt retains.
 
 3. **Claim/evidence provenance** — claim-ledger: a deterministic, local-first ledger that creates receipts for all material operations. Claims get evidence, support judgments, contradiction resolution, and export bundles for audit.
 
