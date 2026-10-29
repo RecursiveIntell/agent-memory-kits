@@ -1,6 +1,6 @@
 # agent-memory-kits
 
-<!-- last-verified: 2026-10-26; focused review: governed-write token handling only; not product verification -->
+<!-- last-verified: 2026-10-28; focused review: current-stack evidence boundary and CLI reference scope only; not product verification -->
 
 > **Persistent local-first memory, receipt-backed compaction, and claim/evidence provenance — for the supported AI coding agents.**
 > One repo, three companion MCP servers, nine agent hosts.
@@ -15,10 +15,11 @@
 
 ## Current stack integration
 
-The **September 5, 2026** refresh updates host configuration and governed-memory
-instructions against inspected current source. Start with the
-[current stack guide](docs/CURRENT_STACK.md) and
-[revision-pinned inventory](docs/upstream-sources.json).
+The [current stack guide](docs/CURRENT_STACK.md) records a source inspection dated
+**September 5, 2026**; it is not evidence of current registry releases or an
+end-to-end installation test. Its [pinned source inventory](docs/upstream-sources.json)
+identifies the upstream revisions inspected for that guide; it is not a dependency
+lock or release certificate.
 
 - One shared launcher forwards explicit embedding, authority-token, TurboQuant and
   Mnemes journal settings; unsupported options fail before startup.
@@ -372,7 +373,9 @@ Claim boundary: Pro verification receipts prove the listed commands ran with cap
 
 ### semantic-memory
 
-The core memory server. Profile-based MCP tool counts (lean/standard/full/admin — run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts):
+The core memory server. Profile-based MCP tool counts (lean/standard/full/admin — run `python shared/scripts/generate-tool-surface-docs.py --out /tmp/tool-surface.json` for current counts).
+
+These examples cover the kit's configured surface, not every upstream CLI option; run `semantic-memory-mcp --help` for the complete option list accepted by your build.
 
 **Governed mutations (sm_add_fact):** Governed write tools (`sm_add_fact`, `sm_supersede_fact`, `sm_delete_fact`) are fail-closed by default — the admission gate blocks them to prevent database poisoning by untrusted MCP clients. To enable governed mutations, provide an operator authority token at process startup. Prefer the token-file option to keep the value out of command arguments; restrict access to the token file. The `--operator-authority-token` CLI option is supported, but avoid it where process arguments may be observable.
 
